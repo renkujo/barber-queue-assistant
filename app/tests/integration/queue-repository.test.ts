@@ -2,7 +2,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { QueueCreatedBy, QueueItemStatus, QueueItemType } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { createDateTime, getDayBounds, getTodayValue, getTomorrowValue } from "@/lib/queue/date";
-import { getQueueStatusSnapshot, restoreClosedQueueItem, updateQueueItemStatus } from "@/lib/queue/repository";
+import { createWalkIn, getQueueStatusSnapshot, restoreClosedQueueItem, updateQueueItemStatus } from "@/lib/queue/repository";
 
 const testPrefix = "VI-REPO";
 const serviceId = "vitest-service";
@@ -109,6 +109,24 @@ afterAll(async () => {
 });
 
 describe("queue repository status workflow", () => {
+  it("binds lineUserId to customer and queue snapshots when creating walk-ins", async () => {
+    const lineUserId = `U${Date.now()}repo`;
+    const queueItem = await createWalkIn({
+      customerName: `${testPrefix} Line Binding`,
+      phone: "0833333333",
+      lineUserId,
+      serviceId,
+      note: "line binding test",
+    });
+    const storedQueueItem = await prisma.queueItem.findUniqueOrThrow({
+      where: { id: queueItem.id },
+      include: { customer: true },
+    });
+
+    expect(storedQueueItem.lineUserIdSnapshot).toBe(lineUserId);
+    expect(storedQueueItem.customer?.lineUserId).toBe(lineUserId);
+  });
+
   it("moves an existing in-progress item back to waiting when another item starts", async () => {
     const first = await createQueueItem({ name: `${testPrefix} current`, status: QueueItemStatus.IN_PROGRESS, sortOrder: 1 });
     const second = await createQueueItem({ name: `${testPrefix} next`, status: QueueItemStatus.WAITING, sortOrder: 2 });

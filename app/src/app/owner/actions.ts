@@ -3,11 +3,19 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import { QueueItemStatus } from "@/generated/prisma/enums";
+import { NotificationType, QueueItemStatus } from "@/generated/prisma/enums";
 import { clearOwnerSession, requireOwnerSession, setOwnerSession, verifyPasscode } from "@/lib/admin-auth";
+import { notifyQueueEventSafe } from "@/lib/notifications/queue-notifications";
 import { createBreakTimeBlock, createOwnerWalkIn, restoreClosedQueueItem, updateQueueItem, updateQueueItemStatus } from "@/lib/queue/repository";
 
 const allowedStatus = new Set<string>(Object.values(QueueItemStatus));
+
+const notificationTypeByStatus: Partial<Record<QueueItemStatus, NotificationType>> = {
+  [QueueItemStatus.IN_PROGRESS]: NotificationType.QUEUE_NEAR,
+  [QueueItemStatus.LATE]: NotificationType.LATE,
+  [QueueItemStatus.CANCELLED]: NotificationType.CANCELLED,
+  [QueueItemStatus.NO_SHOW]: NotificationType.NO_SHOW,
+};
 
 const ownerWalkInSchema = z.object({
   customerName: z.string().trim().min(1),
@@ -60,6 +68,11 @@ export const updateQueueStatusAction = async (formData: FormData) => {
 
   try {
     await updateQueueItemStatus(queueItemId, status as QueueItemStatus);
+    const notificationType = notificationTypeByStatus[status as QueueItemStatus];
+
+    if (notificationType) {
+      await notifyQueueEventSafe(queueItemId, notificationType);
+    }
   } catch {
     redirect("/owner?error=action-failed");
   }
@@ -173,7 +186,8 @@ export const createOwnerWalkInAction = async (formData: FormData) => {
   }
 
   try {
-    await createOwnerWalkIn(parsed.data);
+    const queueItem = await createOwnerWalkIn(parsed.data);
+    await notifyQueueEventSafe(queueItem.id, NotificationType.QUEUE_CREATED);
   } catch {
     redirect("/owner/walk-in?error=database");
   }

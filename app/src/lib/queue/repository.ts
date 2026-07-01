@@ -35,6 +35,7 @@ export type QueueStatusSnapshot = {
 export type CreateBookingInput = {
   customerName: string;
   phone?: string;
+  lineUserId?: string;
   serviceId: string;
   dateValue: string;
   timeValue: string;
@@ -44,6 +45,7 @@ export type CreateBookingInput = {
 export type CreateWalkInInput = {
   customerName: string;
   phone?: string;
+  lineUserId?: string;
   serviceId: string;
   note?: string;
 };
@@ -482,11 +484,34 @@ const getQueueItemWithIndex = async (id: string) => {
   };
 };
 
-const findOrCreateCustomer = async (input: { name: string; phone?: string }) => {
+const findOrCreateCustomer = async (input: { name: string; phone?: string; lineUserId?: string }) => {
+  const lineUserId = input.lineUserId?.trim() || undefined;
+
+  if (lineUserId) {
+    const existingLineCustomer = await prisma.customer.findUnique({ where: { lineUserId } });
+
+    if (existingLineCustomer) {
+      return prisma.customer.update({
+        where: { id: existingLineCustomer.id },
+        data: {
+          name: input.name,
+          phone: input.phone || existingLineCustomer.phone,
+        },
+      });
+    }
+  }
+
   if (input.phone) {
     const existingCustomer = await prisma.customer.findFirst({ where: { phone: input.phone } });
 
     if (existingCustomer) {
+      if (lineUserId && !existingCustomer.lineUserId) {
+        return prisma.customer.update({
+          where: { id: existingCustomer.id },
+          data: { lineUserId },
+        });
+      }
+
       return existingCustomer;
     }
   }
@@ -495,6 +520,7 @@ const findOrCreateCustomer = async (input: { name: string; phone?: string }) => 
     data: {
       name: input.name,
       phone: input.phone,
+      lineUserId,
       totalBookings: 1,
     },
   });
@@ -540,7 +566,7 @@ export const ensureDefaultServices = async () => {
 };
 
 export const createBooking = async (input: CreateBookingInput) => {
-  const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone });
+  const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId });
   const service = await findService(input.serviceId);
   const startAt = createDateTime(input.dateValue, input.timeValue);
   const { start } = getDayBounds(input.dateValue);
@@ -558,6 +584,7 @@ export const createBooking = async (input: CreateBookingInput) => {
       customerId: customer.id,
       customerNameSnapshot: customer.name,
       phoneSnapshot: customer.phone,
+      lineUserIdSnapshot: customer.lineUserId,
       serviceId: service.id,
       serviceNameSnapshot: service.name,
       serviceDurationMinutes: service.durationMinutes,
@@ -570,7 +597,7 @@ export const createBooking = async (input: CreateBookingInput) => {
 };
 
 export const createWalkIn = async (input: CreateWalkInInput) => {
-  const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone });
+  const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId });
   const service = await findService(input.serviceId);
   const todayValue = getTodayValue();
   const { start } = getDayBounds(todayValue);
@@ -582,6 +609,7 @@ export const createWalkIn = async (input: CreateWalkInInput) => {
       customerId: customer.id,
       customerNameSnapshot: customer.name,
       phoneSnapshot: customer.phone,
+      lineUserIdSnapshot: customer.lineUserId,
       serviceId: service.id,
       serviceNameSnapshot: service.name,
       serviceDurationMinutes: service.durationMinutes,
@@ -595,7 +623,7 @@ export const createWalkIn = async (input: CreateWalkInInput) => {
 
 
 export const createOwnerWalkIn = async (input: CreateOwnerWalkInInput) => {
-  const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone });
+  const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId });
   const service = await findService(input.serviceId);
   const todayValue = getTodayValue();
   const { start } = getDayBounds(todayValue);
@@ -607,6 +635,7 @@ export const createOwnerWalkIn = async (input: CreateOwnerWalkInInput) => {
       customerId: customer.id,
       customerNameSnapshot: customer.name,
       phoneSnapshot: customer.phone,
+      lineUserIdSnapshot: customer.lineUserId,
       serviceId: service.id,
       serviceNameSnapshot: service.name,
       serviceDurationMinutes: service.durationMinutes,

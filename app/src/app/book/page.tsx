@@ -18,7 +18,7 @@ import { getAvailableBookingSlotsSafe, getServicesSafe } from "@/lib/queue/repos
 import { createBookingAction } from "./actions";
 
 type BookPageProps = {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; lineUserId?: string }>;
 };
 
 const errorMessages: Record<string, string> = {
@@ -32,6 +32,7 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
   const todayValue = getTodayValue();
   const tomorrowValue = getTomorrowValue();
   const errorMessage = params.error ? errorMessages[params.error] : null;
+  const lineUserId = params.lineUserId?.trim();
   const defaultServiceId = services[0]?.id;
   const [todaySlots, tomorrowSlots] = await Promise.all([
     getAvailableBookingSlotsSafe(todayValue, defaultServiceId),
@@ -68,6 +69,7 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
         <RouteToast message={errorMessage} type="error" toastKey={`book:${params.error ?? ""}`} />
 
         <form action={createBookingAction}>
+          {lineUserId ? <input type="hidden" name="lineUserId" value={lineUserId} /> : null}
           <FormStack>
           <FormField id="serviceId" label="บริการ">
             <Select name="serviceId" defaultValue={defaultServiceId} required>

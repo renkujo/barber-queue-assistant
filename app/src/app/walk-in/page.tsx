@@ -17,7 +17,7 @@ import { getQueueStatusSnapshotSafe, getServicesSafe } from "@/lib/queue/reposit
 import { createWalkInAction } from "./actions";
 
 type WalkInPageProps = {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; lineUserId?: string }>;
 };
 
 const errorMessages: Record<string, string> = {
@@ -28,6 +28,7 @@ const errorMessages: Record<string, string> = {
 const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
   const [params, services, snapshot] = await Promise.all([searchParams, getServicesSafe(), getQueueStatusSnapshotSafe()]);
   const errorMessage = params.error ? errorMessages[params.error] : null;
+  const lineUserId = params.lineUserId?.trim();
   const defaultServiceId = services[0]?.id;
 
   return (
@@ -56,6 +57,7 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
         <RouteToast message={errorMessage} type="error" toastKey={`walk-in:${params.error ?? ""}`} />
 
         <form action={createWalkInAction}>
+          {lineUserId ? <input type="hidden" name="lineUserId" value={lineUserId} /> : null}
           <FormStack>
           <FormField id="serviceId" label="บริการ">
             <Select name="serviceId" defaultValue={defaultServiceId} required>
