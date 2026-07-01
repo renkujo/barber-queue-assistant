@@ -44,6 +44,11 @@ export const cleanupE2eQueueItems = async () => {
       );
     }
 
+    await client.query(
+      `delete from "Customer" where "name" like $1 and not exists (select 1 from "QueueItem" where "QueueItem"."customerId" = "Customer"."id")`,
+      [`${e2eCustomerPrefix}%`],
+    );
+
     await client.query("commit");
   } catch (error) {
     await client.query("rollback");
