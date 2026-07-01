@@ -1,5 +1,7 @@
 # LINE OA Integration
 
+Setup handoff for real LINE configuration: see [`line-oa-setup.md`](./line-oa-setup.md).
+
 ## Principle
 
 LINE OA should support the product, not define the whole product.
