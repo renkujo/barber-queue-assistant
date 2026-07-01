@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# local agent/runtime
+.letta/
+
+# editor/temp
+*.log

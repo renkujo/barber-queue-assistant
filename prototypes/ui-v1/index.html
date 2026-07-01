@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barber Queue Assistant — Pastel Paper Queue Prototype</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="intro-section" aria-labelledby="page-title">
+        <div class="intro-title-group">
+          <img class="intro-mark" src="../../docs/assets/generated-v1/app-icon-pastel.png" alt="Barber Queue Assistant pastel app icon" />
+          <div>
+            <p class="project-label">Pastel Paper Queue</p>
+            <h1 id="page-title">คิวร้านตัดผมที่นุ่มขึ้น แต่ยังตัดสินใจเร็ว</h1>
+          </div>
+        </div>
+        <p class="intro-copy">
+          Prototype นี้ปรับจาก warm/copper เดิมมาเป็น pastel paper: peach, sage, mint, dusty rose และ cocoa text เพื่อให้ร้านดูเป็นมิตรขึ้น ไม่แข็งเกินไป
+        </p>
+      </section>
+
+      <section class="preview-grid" aria-label="UI preview">
+        <article class="phone-preview" aria-labelledby="customer-title">
+          <div class="phone-frame customer-phone">
+            <header class="mobile-header">
+              <div class="brand-line">
+                <img src="../../docs/assets/generated-v1/app-icon-pastel.png" alt="" />
+                <div>
+                  <p class="shop-name">ร้านช่างหนึ่ง</p>
+                  <h2 id="customer-title">จองคิวตัดผม</h2>
+                </div>
+              </div>
+              <span class="status-chip status-open">เปิดอยู่</span>
+            </header>
+
+            <section class="hero-card" aria-label="สถานะร้านวันนี้">
+              <div class="hero-copy">
+                <p class="panel-label">ร้านเปิดวันนี้</p>
+                <p class="hero-title">คิวตอนนี้ยังรับได้</p>
+                <p class="status-text">เปิด 09:00 - 19:00 น. อัปเดตล่าสุด 09:30</p>
+              </div>
+              <div class="hero-art" aria-hidden="true">
+                <img src="../../docs/assets/generated-v1/app-icon-pastel.png" alt="" />
+              </div>
+            </section>
+
+            <section class="metric-grid" aria-label="queue metrics">
+              <div class="metric-card">
+                <span class="metric-label">คิวตอนนี้</span>
+                <strong>5</strong>
+                <span>คน</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label">รอประมาณ</span>
+                <strong>45</strong>
+                <span>นาที</span>
+              </div>
+            </section>
+
+            <section class="ticket-actions" aria-label="customer actions">
+              <button class="ticket-action primary-ticket" type="button">
+                <span>จองเวลา</span>
+                <small>เลือกเวลาล่วงหน้า</small>
+              </button>
+              <button class="ticket-action soft-ticket" type="button">
+                <span>รับคิววันนี้</span>
+                <small>รับคิวและรอที่ร้าน</small>
+              </button>
+            </section>
+
+            <section class="compact-section" aria-labelledby="slot-title">
+              <div class="section-heading-row">
+                <h3 id="slot-title">เวลาที่ว่างถัดไป</h3>
+                <a href="#" class="text-link">ดูทั้งหมด</a>
+              </div>
+              <div class="slot-list">
+                <button class="slot-item" type="button"><span>วันนี้</span><strong>10:30</strong></button>
+                <button class="slot-item selected" type="button"><span>วันนี้</span><strong>13:00</strong></button>
+                <button class="slot-item" type="button"><span>พรุ่งนี้</span><strong>09:30</strong></button>
+              </div>
+            </section>
+
+            <section class="tracking-card" aria-labelledby="tracking-title">
+              <div>
+                <h3 id="tracking-title">เช็คคิวของฉัน</h3>
+                <p>มีรหัสคิวแล้วดูสถานะเองได้ ไม่ต้องทักถามซ้ำ</p>
+              </div>
+              <div class="tracking-form">
+                <label for="queue-code">รหัสคิว</label>
+                <div class="input-row">
+                  <input id="queue-code" value="A12" />
+                  <button type="button">เช็ค</button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </article>
+
+        <article class="owner-preview" aria-labelledby="owner-title">
+          <div class="owner-shell">
+            <aside class="owner-sidebar" aria-label="Owner navigation">
+              <div class="brand-block">
+                <img src="../../docs/assets/generated-v1/app-icon-pastel.png" alt="" />
+                <div>
+                  <p>Barber Queue</p>
+                  <small>Owner mode</small>
+                </div>
+              </div>
+              <nav class="owner-nav">
+                <a class="active" href="#">คิววันนี้</a>
+                <a href="#">เพิ่มคิว</a>
+                <a href="#">บริการ</a>
+                <a href="#">ตั้งค่า</a>
+              </nav>
+            </aside>
+
+            <section class="owner-main">
+              <header class="owner-header">
+                <div>
+                  <h2 id="owner-title">คิววันนี้</h2>
+                  <p>ร้านเปิดอยู่ รับคิวได้ถึงประมาณ 18:20</p>
+                </div>
+                <button class="outline-button" type="button">พัก 30 นาที</button>
+              </header>
+
+              <div class="owner-layout">
+                <section class="work-column" aria-label="Current work">
+                  <div class="current-panel">
+                    <p class="panel-label">ลูกค้าปัจจุบัน</p>
+                    <div class="customer-row large">
+                      <div>
+                        <h3>คุณนนท์</h3>
+                        <p>ตัดผมชาย เริ่ม 09:20 ประมาณ 30 นาที</p>
+                      </div>
+                      <span class="state-pill in-progress">กำลังตัด</span>
+                    </div>
+                    <div class="button-grid">
+                      <button class="primary-action" type="button">เสร็จแล้ว</button>
+                      <button class="secondary-action" type="button">รอเพิ่ม</button>
+                    </div>
+                  </div>
+
+                  <div class="next-panel">
+                    <p class="panel-label">คิวถัดไป</p>
+                    <div class="customer-row">
+                      <div>
+                        <h3>A09 คุณอินทร์</h3>
+                        <p>รออยู่ ประมาณ 5 นาที</p>
+                      </div>
+                      <button class="positive-button" type="button">มาถึงแล้ว</button>
+                    </div>
+                  </div>
+
+                  <div class="late-panel">
+                    <div>
+                      <p class="panel-label danger">มาสาย</p>
+                      <h3>A07 คุณสมชาย เลยเวลา 10 นาที</h3>
+                      <p>ระบบยังไม่ยกเลิก เจ้าของร้านเลือก action เอง</p>
+                    </div>
+                    <div class="button-grid three">
+                      <button type="button">รอเพิ่ม</button>
+                      <button type="button">เลื่อนเข้าคิว</button>
+                      <button class="danger-button" type="button">ไม่มา</button>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="queue-column" aria-label="Today queue">
+                  <div class="queue-header-row">
+                    <h3>รายการวันนี้</h3>
+                    <button class="primary-small" type="button">เพิ่ม walk-in</button>
+                  </div>
+
+                  <div class="queue-list">
+                    <div class="queue-item active-item">
+                      <span class="queue-time">09:20</span>
+                      <div><strong>A08 คุณนนท์</strong><p>กำลังตัด ตัดผมชาย</p></div>
+                      <span class="state-text ready">ทำอยู่</span>
+                    </div>
+                    <div class="queue-item next-item">
+                      <span class="queue-time">รอ</span>
+                      <div><strong>A09 คุณอินทร์</strong><p>คิวถัดไป รอประมาณ 5 นาที</p></div>
+                      <span class="state-text">ถัดไป</span>
+                    </div>
+                    <div class="queue-item warning-item">
+                      <span class="queue-time">09:00</span>
+                      <div><strong>A07 คุณสมชาย</strong><p>เลยเวลานัด 10 นาที</p></div>
+                      <span class="state-text danger">มาสาย</span>
+                    </div>
+                    <div class="queue-item">
+                      <span class="queue-time">รอ</span>
+                      <div><strong>A10 คุณกรณ์</strong><p>walk-in ตัดผมชาย</p></div>
+                      <span class="state-text">คิว 2</span>
+                    </div>
+                    <div class="queue-item">
+                      <span class="queue-time">11:30</span>
+                      <div><strong>A11 คุณธีร์</strong><p>จองเวลา ยังไม่ถึงร้าน</p></div>
+                      <span class="state-text">รอเวลา</span>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </section>
+          </div>
+        </article>
+      </section>
+
+      <section class="asset-strip" aria-labelledby="asset-title">
+        <div>
+          <p class="project-label">Generated assets</p>
+          <h2 id="asset-title">Asset direction ที่ใช้ต่อ</h2>
+          <p>ใช้ `docs/assets/generated-v1/` เป็น visual source หลัก ส่วน SVG ชุดแรกเป็น draft เท่านั้น</p>
+        </div>
+        <div class="asset-row">
+          <img src="../../docs/assets/generated-v1/app-icon-pastel.png" alt="App icon asset" />
+          <img src="../../docs/assets/generated-v1/queue-ticket-cutout.png" alt="Queue ticket asset" />
+          <img src="../../docs/assets/generated-v1/barber-pole-cutout.png" alt="Barber pole asset" />
+          <img src="../../docs/assets/generated-v1/no-show-warning-cutout.png" alt="No-show warning asset" />
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

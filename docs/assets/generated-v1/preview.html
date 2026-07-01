@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generated Pastel Paper Queue Assets</title>
+    <style>
+      :root {
+        --paper: #fff8ee;
+        --surface: #fffdf8;
+        --ink: #3a2d25;
+        --muted: #7a6a5d;
+        --line: #eadccb;
+        --primary: #e7a77c;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "LINE Seed Sans TH", "Noto Sans Thai", system-ui, sans-serif;
+      }
+      main {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 40px 0;
+      }
+      h1 { margin: 0 0 8px; font-size: 32px; letter-spacing: -0.04em; }
+      p { margin: 0; color: var(--muted); line-height: 1.55; }
+      .notice {
+        margin-top: 18px;
+        border: 1px solid var(--line);
+        border-left: 5px solid var(--primary);
+        border-radius: 14px;
+        background: var(--surface);
+        padding: 14px 16px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-top: 28px;
+      }
+      .asset {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--surface);
+        padding: 16px;
+      }
+      .asset img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: contain;
+        border-radius: 14px;
+        background:
+          linear-gradient(45deg, rgba(234, 220, 203, 0.5) 25%, transparent 25%),
+          linear-gradient(-45deg, rgba(234, 220, 203, 0.5) 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, rgba(234, 220, 203, 0.5) 75%),
+          linear-gradient(-45deg, transparent 75%, rgba(234, 220, 203, 0.5) 75%);
+        background-size: 22px 22px;
+        background-position: 0 0, 0 11px, 11px -11px, -11px 0px;
+      }
+      .asset strong { display: block; margin-top: 12px; font-size: 15px; }
+      .asset span { color: var(--muted); font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Generated Pastel Paper Queue Assets</h1>
+      <p>Raster PNG asset pack generated from the Pastel Paper Queue direction.</p>
+      <div class="notice">These PNGs currently do not contain a real alpha channel. Use them as visual/source assets until transparent cutouts are cleaned or regenerated.</div>
+      <section class="grid" aria-label="Generated asset preview">
+        <div class="asset"><img src="./app-icon-pastel.png" alt="App icon pastel asset" /><strong>app-icon-pastel.png</strong><span>app icon / brand mark</span></div>
+        <div class="asset"><img src="./barber-chair-cutout.png" alt="Barber chair asset" /><strong>barber-chair-cutout.png</strong><span>empty state / status</span></div>
+        <div class="asset"><img src="./barber-pole-cutout.png" alt="Barber pole asset" /><strong>barber-pole-cutout.png</strong><span>shop cue</span></div>
+        <div class="asset"><img src="./queue-ticket-cutout.png" alt="Queue ticket asset" /><strong>queue-ticket-cutout.png</strong><span>queue tracking</span></div>
+        <div class="asset"><img src="./scissors-comb-cutout.png" alt="Scissors and comb asset" /><strong>scissors-comb-cutout.png</strong><span>service cue</span></div>
+        <div class="asset"><img src="./line-notification-cutout.png" alt="Notification asset" /><strong>line-notification-cutout.png</strong><span>notification cue</span></div>
+        <div class="asset"><img src="./no-show-warning-cutout.png" alt="No-show warning asset" /><strong>no-show-warning-cutout.png</strong><span>late/no-show</span></div>
+        <div class="asset"><img src="./walk-in-queue-cutout.png" alt="Walk-in queue asset" /><strong>walk-in-queue-cutout.png</strong><span>walk-in queue</span></div>
+      </section>
+    </main>
+  </body>
+</html>

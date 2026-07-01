@@ -1,0 +1,8 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">No-show warning</title>
+  <desc id="desc">Dusty rose warning icon for late or no-show queue</desc>
+  <path d="M58.8038 18.5C61.1132 14.5 66.8868 14.5 69.1962 18.5L112.497 93.5C114.806 97.5 111.919 102.5 107.301 102.5H20.6994C16.0806 102.5 13.1938 97.5 15.5032 93.5L58.8038 18.5Z" fill="#F9DEDA" stroke="#3A2D25" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M64 43V67" stroke="#A33D31" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="64" cy="82" r="5" fill="#A33D31"/>
+  <path d="M38 106H90" stroke="#E8A9A1" stroke-width="6" stroke-linecap="round"/>
+</svg>

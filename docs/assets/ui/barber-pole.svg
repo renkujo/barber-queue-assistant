@@ -1,0 +1,11 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Barber pole</title>
+  <desc id="desc">Soft pastel barber pole icon</desc>
+  <rect x="43" y="16" width="42" height="96" rx="17" fill="#FFFDF8" stroke="#3A2D25" stroke-width="5"/>
+  <path d="M47 41L81 24" stroke="#E7A77C" stroke-width="10" stroke-linecap="round"/>
+  <path d="M46 66L84 47" stroke="#A8C7A1" stroke-width="10" stroke-linecap="round"/>
+  <path d="M46 91L84 72" stroke="#E8A9A1" stroke-width="10" stroke-linecap="round"/>
+  <path d="M51 110L80 96" stroke="#E7A77C" stroke-width="10" stroke-linecap="round"/>
+  <path d="M49 16H79" stroke="#3A2D25" stroke-width="5" stroke-linecap="round"/>
+  <path d="M49 112H79" stroke="#3A2D25" stroke-width="5" stroke-linecap="round"/>
+</svg>

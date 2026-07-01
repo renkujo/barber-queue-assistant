@@ -1,0 +1,10 @@
+<svg width="192" height="144" viewBox="0 0 192 144" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Queue ticket</title>
+  <desc id="desc">Pastel queue ticket card</desc>
+  <path d="M24 30C24 23.3726 29.3726 18 36 18H156C162.627 18 168 23.3726 168 30V47C158.611 49.0781 151.6 57.4521 151.6 67.5C151.6 77.5479 158.611 85.9219 168 88V114C168 120.627 162.627 126 156 126H36C29.3726 126 24 120.627 24 114V88C33.3891 85.9219 40.4 77.5479 40.4 67.5C40.4 57.4521 33.3891 49.0781 24 47V30Z" fill="#FFFDF8" stroke="#DCC7B4" stroke-width="5"/>
+  <path d="M62 54H130" stroke="#E7A77C" stroke-width="6" stroke-linecap="round"/>
+  <path d="M54 74H138" stroke="#3A2D25" stroke-width="6" stroke-linecap="round"/>
+  <path d="M70 94H122" stroke="#A8C7A1" stroke-width="6" stroke-linecap="round"/>
+  <path d="M47 30V114" stroke="#EADCCB" stroke-width="3" stroke-dasharray="8 8"/>
+  <path d="M145 30V114" stroke="#EADCCB" stroke-width="3" stroke-dasharray="8 8"/>
+</svg>

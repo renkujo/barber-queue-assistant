@@ -1,0 +1,14 @@
+<svg width="192" height="144" viewBox="0 0 192 144" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Barber chair</title>
+  <desc id="desc">Soft line-art barber chair for empty state</desc>
+  <rect width="192" height="144" rx="24" fill="#FFF8EE"/>
+  <path d="M66 65C66 51.7452 76.7452 41 90 41H120C126.627 41 132 46.3726 132 53V80H84C74.0589 80 66 71.9411 66 62V65Z" fill="#FCE2CD" stroke="#3A2D25" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M52 84H142C148.627 84 154 89.3726 154 96V100H58C51.3726 100 46 94.6274 46 88C46 85.7909 47.7909 84 50 84H52Z" fill="#FFFDF8" stroke="#3A2D25" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M92 100V121" stroke="#3A2D25" stroke-width="5" stroke-linecap="round"/>
+  <path d="M70 122H116" stroke="#3A2D25" stroke-width="5" stroke-linecap="round"/>
+  <path d="M132 56H151C156.523 56 161 60.4772 161 66V79" stroke="#3A2D25" stroke-width="5" stroke-linecap="round"/>
+  <path d="M53 77L38 96" stroke="#3A2D25" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="44" cy="103" r="8" fill="#A8C7A1" stroke="#3A2D25" stroke-width="4"/>
+  <circle cx="151" cy="108" r="8" fill="#A8C7A1" stroke="#3A2D25" stroke-width="4"/>
+  <path d="M83 57H118" stroke="#D88D62" stroke-width="5" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,15 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Barber Queue Assistant logo mark</title>
+  <desc id="desc">Pastel barber pole with queue ticket outline</desc>
+  <rect width="256" height="256" rx="56" fill="#FFF8EE"/>
+  <path d="M74 56H182C195.255 56 206 66.7452 206 80V176C206 189.255 195.255 200 182 200H74C60.7452 200 50 189.255 50 176V80C50 66.7452 60.7452 56 74 56Z" fill="#FFFDF8" stroke="#DCC7B4" stroke-width="6"/>
+  <path d="M50 96C62.1503 96 72 86.1503 72 74" stroke="#DCC7B4" stroke-width="6" stroke-linecap="round"/>
+  <path d="M206 160C193.85 160 184 169.85 184 182" stroke="#DCC7B4" stroke-width="6" stroke-linecap="round"/>
+  <rect x="92" y="58" width="72" height="140" rx="24" fill="#FCE2CD" stroke="#3A2D25" stroke-width="7"/>
+  <path d="M96 102L160 72" stroke="#E7A77C" stroke-width="15" stroke-linecap="round"/>
+  <path d="M94 146L162 114" stroke="#E7A77C" stroke-width="15" stroke-linecap="round"/>
+  <path d="M99 184L158 156" stroke="#E7A77C" stroke-width="15" stroke-linecap="round"/>
+  <path d="M102 60L154 60" stroke="#3A2D25" stroke-width="7" stroke-linecap="round"/>
+  <path d="M102 198L154 198" stroke="#3A2D25" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="128" cy="128" r="10" fill="#A8C7A1" stroke="#3A2D25" stroke-width="5"/>
+</svg>

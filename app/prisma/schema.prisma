@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum QueueItemType {
+  BOOKING
+  WALK_IN
+  MANUAL
+}
+
+enum QueueItemStatus {
+  CONFIRMED
+  ARRIVED
+  WAITING
+  LATE
+  IN_PROGRESS
+  DONE
+  CANCELLED
+  NO_SHOW
+}
+
+enum QueueCreatedBy {
+  CUSTOMER
+  OWNER
+}
+
+enum TimeBlockType {
+  BREAK
+  CLOSED
+  MANUAL_BLOCK
+}
+
+enum NotificationChannel {
+  LINE
+  SMS
+  MANUAL
+  NONE
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMED
+  QUEUE_CREATED
+  REMINDER
+  CONFIRM_COMING
+  QUEUE_NEAR
+  LATE
+  CANCELLED
+  NO_SHOW
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+model Customer {
+  id             String      @id @default(cuid())
+  name           String
+  phone          String?
+  lineUserId     String?     @unique
+  note           String?
+  totalBookings  Int         @default(0)
+  completedCount Int         @default(0)
+  lateCount      Int         @default(0)
+  noShowCount    Int         @default(0)
+  cancelledCount Int         @default(0)
+  queueItems     QueueItem[]
+  notifications  NotificationLog[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Service {
+  id              String      @id @default(cuid())
+  name            String
+  durationMinutes Int
+  priceCents      Int?
+  isActive        Boolean     @default(true)
+  sortOrder       Int         @default(0)
+  queueItems      QueueItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model QueueItem {
+  id                     String             @id @default(cuid())
+  type                   QueueItemType
+  status                 QueueItemStatus    @default(CONFIRMED)
+  customerId             String?
+  customer               Customer?          @relation(fields: [customerId], references: [id])
+  customerNameSnapshot   String
+  phoneSnapshot          String?
+  lineUserIdSnapshot     String?
+  serviceId              String?
+  service                Service?           @relation(fields: [serviceId], references: [id])
+  serviceNameSnapshot    String
+  serviceDurationMinutes Int
+  date                   DateTime
+  startAt                DateTime?
+  estimatedAt            DateTime?
+  arrivedAt              DateTime?
+  startedAt              DateTime?
+  completedAt            DateTime?
+  cancelledAt            DateTime?
+  noShowAt               DateTime?
+  confirmedComingAt      DateTime?
+  note                   String?
+  ownerNote              String?
+  sortOrder              Int?
+  createdBy              QueueCreatedBy     @default(CUSTOMER)
+  notifications          NotificationLog[]
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  @@index([date, status])
+  @@index([startAt])
+  @@index([sortOrder])
+}
+
+model TimeBlock {
+  id        String        @id @default(cuid())
+  date      DateTime
+  startAt   DateTime
+  endAt     DateTime
+  reason    String
+  type      TimeBlockType @default(MANUAL_BLOCK)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([date, startAt])
+}
+
+model NotificationLog {
+  id             String             @id @default(cuid())
+  queueItemId    String?
+  queueItem      QueueItem?         @relation(fields: [queueItemId], references: [id])
+  customerId     String?
+  customer       Customer?          @relation(fields: [customerId], references: [id])
+  channel        NotificationChannel
+  type           NotificationType
+  status         NotificationStatus @default(PENDING)
+  recipient      String?
+  messagePreview String
+  sentAt         DateTime?
+  error          String?
+  createdAt      DateTime           @default(now())
+
+  @@index([queueItemId])
+  @@index([customerId])
+  @@index([status])
+}
+
+model ShopSettings {
+  id                           String   @id @default(cuid())
+  shopName                     String
+  timezone                     String   @default("Asia/Bangkok")
+  openDays                     Json
+  businessHours                Json
+  defaultGracePeriodMinutes    Int      @default(15)
+  defaultReminderMinutesBefore Int      @default(30)
+  queueIntakeEnabled           Boolean  @default(true)
+  bookingEnabled               Boolean  @default(true)
+  walkInEnabled                Boolean  @default(true)
+  lineOaEnabled                Boolean  @default(false)
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+}

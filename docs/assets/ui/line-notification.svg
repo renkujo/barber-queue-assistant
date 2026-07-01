@@ -1,0 +1,9 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">LINE notification available</title>
+  <desc id="desc">Soft chat notification asset</desc>
+  <path d="M30 30H88C97.9411 30 106 38.0589 106 48V73C106 82.9411 97.9411 91 88 91H66L45 108V91H30C20.0589 91 12 82.9411 12 73V48C12 38.0589 20.0589 30 30 30Z" fill="#DDEEDB" stroke="#3A2D25" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M35 61H47" stroke="#2F7A4F" stroke-width="6" stroke-linecap="round"/>
+  <path d="M57 61H69" stroke="#2F7A4F" stroke-width="6" stroke-linecap="round"/>
+  <path d="M79 61H91" stroke="#2F7A4F" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="98" cy="32" r="15" fill="#E7A77C" stroke="#3A2D25" stroke-width="5"/>
+</svg>

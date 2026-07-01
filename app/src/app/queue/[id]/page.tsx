@@ -1,0 +1,102 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { QueueItemStatus } from "@/generated/prisma/enums";
+import {
+  AppCard,
+  PageHeader,
+  Panel,
+  ScreenShell,
+  SectionHeader,
+  StatGrid,
+  StatTile,
+  StatusBadge,
+  TicketPanel,
+} from "@/components/barber/app-ui";
+import { Button, Icon } from "@/components/ui";
+import { getQueueItem } from "@/lib/queue/repository";
+
+type QueueTrackingPageProps = {
+  params: Promise<{ id: string }>;
+};
+
+const statusTone = (status: string) => {
+  if (status === QueueItemStatus.DONE || status === QueueItemStatus.IN_PROGRESS) return "positive";
+  if (status === QueueItemStatus.LATE || status === QueueItemStatus.NO_SHOW || status === QueueItemStatus.CANCELLED) return "warning";
+
+  return "warm";
+};
+
+const getTrackingMessage = (status: string) => {
+  if (status === QueueItemStatus.IN_PROGRESS) {
+    return { title: "กำลังให้บริการ", note: "ถึงคิวของคุณแล้ว เจ้าของร้านกำลังดำเนินการอยู่" };
+  }
+
+  if (status === QueueItemStatus.LATE) {
+    return { title: "คิวนี้ถูกทำเครื่องหมายว่ามาสาย", note: "ถ้ายังจะมา แนะนำติดต่อร้านโดยตรงเพื่อให้เจ้าของร้านจัดคิวใหม่" };
+  }
+
+  if (status === QueueItemStatus.NO_SHOW) {
+    return { title: "คิวนี้ถูกบันทึกว่าไม่มา", note: "คิวนี้ถูกปิดแล้ว หากต้องการรับบริการ ให้รับคิวใหม่หรือติดต่อร้าน" };
+  }
+
+  if (status === QueueItemStatus.CANCELLED) {
+    return { title: "คิวนี้ถูกยกเลิก", note: "คิวนี้ไม่อยู่ในรายการรอแล้ว หากต้องการรับบริการ ให้จองหรือรับคิวใหม่" };
+  }
+
+  if (status === QueueItemStatus.DONE) {
+    return { title: "บริการเสร็จแล้ว", note: "คิวนี้ถูกปิดงานเรียบร้อยแล้ว ขอบคุณที่ใช้บริการ" };
+  }
+
+  return { title: "แจ้งเตือนคิว", note: "ถ้าเข้าผ่าน LINE OA ภายหลัง ระบบจะส่งเตือนเมื่อใกล้ถึงคิวได้" };
+};
+
+const QueueTrackingPage = async ({ params }: QueueTrackingPageProps) => {
+  const { id } = await params;
+  const queueItem = await getQueueItem(id).catch(() => null);
+
+  if (!queueItem) {
+    notFound();
+  }
+
+  const trackingMessage = getTrackingMessage(queueItem.status);
+
+  return (
+    <ScreenShell>
+      <AppCard labelledBy="tracking-title" className="bqa-app-card--stacked">
+        <PageHeader
+          id="tracking-title"
+          title="สถานะคิว"
+          subtitle="คิวของคุณ"
+          imageSrc="/assets/generated-v1/queue-ticket-cutout.png"
+          badge={<StatusBadge tone={statusTone(queueItem.status)}>{queueItem.statusLabel}</StatusBadge>}
+        />
+
+        <TicketPanel label="รหัสคิว" value={queueItem.code} caption={queueItem.customerName} />
+
+        <StatGrid className="bqa-stat-grid--flush" aria-label="queue detail">
+          <StatTile icon={<Icon icon="lucide:scissors" aria-hidden="true" />} label="บริการ" value={<span className="bqa-stat-text">{queueItem.serviceName}</span>} />
+          <StatTile icon={<Icon icon="lucide:clock" aria-hidden="true" />} label="เวลา" value={<span className="bqa-stat-text">{queueItem.timeLabel}</span>} />
+        </StatGrid>
+
+        <Panel className="bqa-panel--flush">
+          <SectionHeader title={trackingMessage.title} note={trackingMessage.note} />
+        </Panel>
+
+        <div className="bqa-button-pair">
+          <Button asChild>
+            <Link href="/">
+              <Icon icon="lucide:chevron-left" aria-hidden="true" />กลับหน้าแรก
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/walk-in">
+              <Icon icon="lucide:users" aria-hidden="true" />รับคิวเพิ่ม
+            </Link>
+          </Button>
+        </div>
+      </AppCard>
+    </ScreenShell>
+  );
+};
+
+export default QueueTrackingPage;

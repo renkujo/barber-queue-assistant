@@ -1,0 +1,51 @@
+@font-face {
+  font-family: "LINE Seed Sans TH";
+  src: url("/fonts/line-seed-sans-th/LINESeedSansTH_W_Th.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "LINE Seed Sans TH";
+  src: url("/fonts/line-seed-sans-th/LINESeedSansTH_W_Rg.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "LINE Seed Sans TH";
+  src: url("/fonts/line-seed-sans-th/LINESeedSansTH_W_Bd.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "LINE Seed Sans TH";
+  src: url("/fonts/line-seed-sans-th/LINESeedSansTH_W_XBd.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --paper: #fff8ee;
+  --surface: #fffdf8;
+  --surface-warm: #fff4e7;
+  --surface-board: linear-gradient(180deg, rgba(255, 253, 248, 0.96), rgba(255, 244, 231, 0.72));
+  --ink: #3a2d25;
+  --muted: #7a6a5d;
+  --line: #eadccb;
+  --line-strong: #dcc7b4;
+  --primary: #e7a77c;
+  --primary-strong: #d88d62;
+  --primary-foreground: #3a2d25;
+  --primary-soft: #fce2cd;
+  --butter: #f7e3a1;
+  --sage: #a8c7a1;
+  --mint: #ddeedb;
+  --rose: #e8a9a1;
+  --rose-soft: #f9deda;
+}

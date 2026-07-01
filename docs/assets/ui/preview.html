@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pastel Paper Queue Assets</title>
+    <style>
+      :root {
+        --paper: #fff8ee;
+        --surface: #fffdf8;
+        --ink: #3a2d25;
+        --muted: #7a6a5d;
+        --line: #eadccb;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "LINE Seed Sans TH", "Noto Sans Thai", system-ui, sans-serif;
+      }
+      main {
+        width: min(1040px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 40px 0;
+      }
+      h1 { margin: 0 0 8px; font-size: 32px; letter-spacing: -0.04em; }
+      p { margin: 0; color: var(--muted); line-height: 1.55; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-top: 28px;
+      }
+      .asset {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--surface);
+        padding: 18px;
+      }
+      .asset img {
+        display: block;
+        width: 96px;
+        height: 96px;
+        object-fit: contain;
+        margin-bottom: 14px;
+      }
+      .asset strong { display: block; font-size: 15px; }
+      .asset span { color: var(--muted); font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Pastel Paper Queue Assets</h1>
+      <p>Initial SVG asset pack for Barber Queue Assistant.</p>
+      <section class="grid" aria-label="Asset preview">
+        <div class="asset"><img src="./logo-mark.svg" alt="Logo mark" /><strong>logo-mark.svg</strong><span>brand mark</span></div>
+        <div class="asset"><img src="./barber-pole.svg" alt="Barber pole" /><strong>barber-pole.svg</strong><span>shop cue</span></div>
+        <div class="asset"><img src="./queue-ticket.svg" alt="Queue ticket" /><strong>queue-ticket.svg</strong><span>queue code</span></div>
+        <div class="asset"><img src="./barber-chair.svg" alt="Barber chair" /><strong>barber-chair.svg</strong><span>empty state</span></div>
+        <div class="asset"><img src="./scissors-comb.svg" alt="Scissors and comb" /><strong>scissors-comb.svg</strong><span>service</span></div>
+        <div class="asset"><img src="./line-notification.svg" alt="Notification" /><strong>line-notification.svg</strong><span>LINE cue</span></div>
+        <div class="asset"><img src="./no-show-warning.svg" alt="No-show warning" /><strong>no-show-warning.svg</strong><span>warning</span></div>
+        <div class="asset"><img src="./walk-in-queue.svg" alt="Walk-in queue" /><strong>walk-in-queue.svg</strong><span>walk-in</span></div>
+      </section>
+    </main>
+  </body>
+</html>

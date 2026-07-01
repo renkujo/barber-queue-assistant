@@ -1,0 +1,39 @@
+.bqa-toast {
+  border: 1px solid var(--line-strong) !important;
+  border-radius: 16px !important;
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 16px 42px rgba(58, 45, 37, 0.14) !important;
+  font-family: "LINE Seed Sans TH", "Noto Sans Thai", system-ui, sans-serif !important;
+}
+
+.bqa-toast[data-type="success"] {
+  border-color: var(--sage) !important;
+  background: var(--mint) !important;
+}
+
+.bqa-toast[data-type="error"] {
+  border-color: var(--rose) !important;
+  background: var(--rose-soft) !important;
+}
+
+.bqa-toast[data-type="warning"] {
+  border-color: var(--butter) !important;
+  background: var(--surface-warm) !important;
+}
+
+.bqa-toast-title {
+  color: var(--ink) !important;
+  font-weight: 800 !important;
+}
+
+.bqa-toast-description {
+  color: var(--muted) !important;
+  font-weight: 600 !important;
+}
+
+.bqa-toast-close {
+  border-color: var(--line-strong) !important;
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+}
