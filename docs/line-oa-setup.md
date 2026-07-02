@@ -18,11 +18,15 @@ Implemented:
 
 Not implemented yet:
 
-- LIFF SDK profile login
 - LINE rich menu creation automation
-- Deep-link tracking from rich menu into a specific user session
 - Owner-facing notification settings UI
 - Production retry queue for failed LINE pushes
+
+Implemented after the foundation:
+
+- LIFF entry route at `/line`
+- `/line?target=book` redirects to `/book?lineUserId=...` after LIFF profile lookup
+- `/line?target=walk-in` redirects to `/walk-in?lineUserId=...` after LIFF profile lookup
 
 ## LINE side setup
 
@@ -54,6 +58,43 @@ LINE_CHANNEL_ACCESS_TOKEN=replace-with-channel-access-token
 ```
 
 Do not commit real values.
+
+## LIFF setup
+
+Create a LIFF app in the same LINE Developers channel if you want rich-menu links to automatically attach `lineUserId` to booking/walk-in forms.
+
+Recommended LIFF settings:
+
+- LIFF app name: `Barber Queue Assistant`
+- Size: `Full`
+- Endpoint URL:
+
+```text
+https://your-domain.example/line
+```
+
+For local tunnel testing:
+
+```text
+https://your-tunnel-url/line
+```
+
+After creating the LIFF app, copy the LIFF ID into `app/.env`:
+
+```env
+NEXT_PUBLIC_LINE_LIFF_ID=replace-with-liff-id
+```
+
+Restart the Next.js dev server after changing `NEXT_PUBLIC_*` env values.
+
+Use these entry URLs for LINE rich menu buttons:
+
+```text
+https://your-domain.example/line?target=book
+https://your-domain.example/line?target=walk-in
+```
+
+If `NEXT_PUBLIC_LINE_LIFF_ID` is missing or LIFF fails to initialize, `/line` shows fallback buttons to the normal public web forms instead of breaking the app.
 
 ## Webhook setup
 
@@ -106,7 +147,8 @@ Current binding is intentionally minimal.
 The app creates/updates `Customer.lineUserId` when:
 
 1. LINE sends a webhook `follow` or `message` event with `source.userId`.
-2. A customer opens `/book?lineUserId=...` or `/walk-in?lineUserId=...` and submits the form.
+2. A customer opens `/line?target=book` or `/line?target=walk-in` from LINE and LIFF injects `lineUserId` into the destination form.
+3. A customer opens `/book?lineUserId=...` or `/walk-in?lineUserId=...` directly and submits the form.
 
 If the webhook creates a placeholder customer first, the later form submission updates that customer with the real customer name and phone.
 
@@ -140,7 +182,7 @@ Use this only after credentials and webhook are configured.
 1. Start the app with LINE env vars loaded.
 2. Follow or message the LINE OA from a test LINE account.
 3. Confirm webhook response is `200` and `boundUserCount` increments.
-4. Create a booking or walk-in using a URL that includes the test `lineUserId`, or implement the LIFF/rich-menu entry slice first.
+4. Create a booking or walk-in from `/line?target=book` or `/line?target=walk-in`.
 5. Trigger a notification event such as owner start service.
 6. Check:
    - the LINE account receives a message;
@@ -174,9 +216,8 @@ tests/integration/notification-service.test.ts
 
 ## Recommended next implementation slice
 
-Add a real LINE entry strategy:
+Add rich menu and customer notification polish:
 
-1. Decide whether MVP uses LIFF SDK or signed rich-menu links first.
-2. If LIFF: add profile retrieval and inject `lineUserId` into `/book` / `/walk-in` entry state.
-3. If rich-menu link first: document the limitation that LINE user id is not automatically available from a normal web link.
-4. Add a visible customer hint that LINE notifications are enabled only after LINE identity is connected.
+1. Create rich menu buttons that point to `/line?target=book` and `/line?target=walk-in`.
+2. Add customer-facing copy that confirms LINE notifications are connected.
+3. Add a real-send smoke script or owner/dev-only test action if manual LINE testing becomes repetitive.
