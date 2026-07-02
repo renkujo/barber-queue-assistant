@@ -2,6 +2,8 @@
 
 This guide is for connecting the current Barber Queue Assistant notification foundation to a real LINE Official Account.
 
+For a Thai step-by-step tutorial with screenshots-oriented field guidance, local tunnel testing, LIFF setup, and troubleshooting, see [`line-oa-tutorial-th.md`](./line-oa-tutorial-th.md).
+
 The app still works without LINE. If LINE config or `lineUserId` is missing, queue actions continue normally and notification attempts are recorded as skipped in `NotificationLog`.
 
 ## Current implementation status
