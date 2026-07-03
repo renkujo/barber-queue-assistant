@@ -1086,6 +1086,130 @@
   color: #4f8b59;
 }
 
+.bqa-owner-notification-panel {
+  padding: 0;
+}
+
+.bqa-owner-notification-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 14px;
+}
+
+.bqa-owner-notification-heading h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.bqa-owner-notification-heading span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.bqa-owner-notification-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bqa-owner-notification-item {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 12px;
+}
+
+.bqa-owner-notification-item:last-child {
+  border-bottom: 0;
+}
+
+.bqa-owner-notification-icon {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.bqa-owner-notification-item--positive .bqa-owner-notification-icon {
+  border-color: color-mix(in srgb, var(--sage) 64%, var(--line));
+  background: color-mix(in srgb, var(--sage) 22%, var(--surface));
+  color: #35653d;
+}
+
+.bqa-owner-notification-item--warning .bqa-owner-notification-icon {
+  border-color: color-mix(in srgb, var(--rose) 64%, var(--line));
+  background: color-mix(in srgb, var(--rose-soft) 38%, var(--surface));
+  color: #743a36;
+}
+
+.bqa-owner-notification-copy {
+  min-width: 0;
+}
+
+.bqa-owner-notification-copy strong,
+.bqa-owner-notification-copy p,
+.bqa-owner-notification-copy small,
+.bqa-owner-notification-item time,
+.bqa-owner-notification-empty {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.bqa-owner-notification-copy strong {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bqa-owner-notification-copy p {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bqa-owner-notification-copy small {
+  display: block;
+  margin-top: 4px;
+  color: #743a36;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.bqa-owner-notification-item time {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.bqa-owner-notification-empty {
+  padding: 12px 14px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .bqa-owner-tip-panel {
   display: none;
   justify-content: space-between;

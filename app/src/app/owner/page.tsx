@@ -2,7 +2,7 @@ import { Notice } from "@/components/barber/app-ui";
 import { RouteToast } from "@/components/ui";
 import { createBreakAction } from "./actions";
 import { requireOwnerSession } from "@/lib/admin-auth";
-import { getOwnerClosedQueueItemsSafe, getOwnerQueueStatusSnapshotSafe } from "@/lib/queue/repository";
+import { getOwnerClosedQueueItemsSafe, getOwnerQueueStatusSnapshotSafe, getOwnerRecentNotificationLogsSafe } from "@/lib/queue/repository";
 import { CurrentNextSummary } from "./_components/current-next-summary";
 import { OwnerClosedQueueList } from "./_components/owner-closed-queue-list";
 import { OwnerFooterStatus } from "./_components/owner-footer-status";
@@ -33,7 +33,12 @@ const statusMessages: Record<string, string> = {
 const OwnerPage = async ({ searchParams }: OwnerPageProps) => {
   await requireOwnerSession();
 
-  const [params, snapshot, closedQueue] = await Promise.all([searchParams, getOwnerQueueStatusSnapshotSafe(), getOwnerClosedQueueItemsSafe()]);
+  const [params, snapshot, closedQueue, notificationLogs] = await Promise.all([
+    searchParams,
+    getOwnerQueueStatusSnapshotSafe(),
+    getOwnerClosedQueueItemsSafe(),
+    getOwnerRecentNotificationLogsSafe(),
+  ]);
   const todayQueue = snapshot.queue;
   const canMutateQueue = snapshot.source === "database";
   const current = todayQueue.find((item) => item.tone === "current");
@@ -71,6 +76,7 @@ const OwnerPage = async ({ searchParams }: OwnerPageProps) => {
           <OwnerSideRail
             breakAction={createBreakAction}
             currentCount={currentCount}
+            notificationLogs={notificationLogs}
             totalCount={todayQueue.length}
             waitingCount={waitingCount}
           />

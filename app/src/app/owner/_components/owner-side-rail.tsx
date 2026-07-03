@@ -1,14 +1,17 @@
 import Link from "next/link";
 import { Button, Icon } from "@/components/ui";
+import type { OwnerNotificationLogItem } from "@/lib/queue/repository";
+import { OwnerNotificationLogPanel } from "./owner-notification-log-panel";
 
 type OwnerSideRailProps = {
   currentCount: number;
   waitingCount: number;
   totalCount: number;
   breakAction: () => Promise<void>;
+  notificationLogs: OwnerNotificationLogItem[];
 };
 
-export const OwnerSideRail = ({ currentCount, waitingCount, totalCount, breakAction }: OwnerSideRailProps) => (
+export const OwnerSideRail = ({ currentCount, waitingCount, totalCount, breakAction, notificationLogs }: OwnerSideRailProps) => (
   <aside className="bqa-owner-side-rail" aria-label="การทำงานเร็วและสรุปวันนี้">
     <section className="bqa-owner-rail-panel" aria-labelledby="quick-actions-title">
       <h2 id="quick-actions-title">การทำงานเร็ว</h2>
@@ -48,6 +51,8 @@ export const OwnerSideRail = ({ currentCount, waitingCount, totalCount, breakAct
         </div>
       </dl>
     </section>
+
+    <OwnerNotificationLogPanel logs={notificationLogs} />
 
     <section className="bqa-owner-rail-panel bqa-owner-tip-panel" aria-labelledby="owner-tip-title">
       <div>

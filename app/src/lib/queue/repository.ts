@@ -1,4 +1,12 @@
-import { QueueCreatedBy, QueueItemStatus, QueueItemType, TimeBlockType } from "@/generated/prisma/enums";
+import {
+  NotificationChannel,
+  NotificationStatus,
+  NotificationType,
+  QueueCreatedBy,
+  QueueItemStatus,
+  QueueItemType,
+  TimeBlockType,
+} from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { services as fallbackServices, shopStatus, todayQueue } from "@/lib/queue-demo";
 import { createDateTime, formatThaiTime, getDayBounds, getTodayValue, toDateValue } from "./date";
@@ -66,6 +74,18 @@ export type QueueItemEditDetails = {
   statusLabel: string;
 };
 
+export type OwnerNotificationLogItem = {
+  id: string;
+  channelLabel: string;
+  typeLabel: string;
+  statusLabel: string;
+  timeLabel: string;
+  customerName: string;
+  messagePreview: string;
+  error: string;
+  tone: "positive" | "warning" | "neutral";
+};
+
 export type UpdateQueueItemInput = {
   id: string;
   customerName: string;
@@ -96,6 +116,31 @@ const statusLabels: Record<string, string> = {
   [QueueItemStatus.DONE]: "เสร็จแล้ว",
   [QueueItemStatus.CANCELLED]: "ยกเลิก",
   [QueueItemStatus.NO_SHOW]: "ไม่มา",
+};
+
+const notificationChannelLabels: Record<NotificationChannel, string> = {
+  [NotificationChannel.LINE]: "LINE",
+  [NotificationChannel.SMS]: "SMS",
+  [NotificationChannel.MANUAL]: "Manual",
+  [NotificationChannel.NONE]: "ไม่ส่ง",
+};
+
+const notificationStatusLabels: Record<NotificationStatus, string> = {
+  [NotificationStatus.PENDING]: "รอส่ง",
+  [NotificationStatus.SENT]: "ส่งแล้ว",
+  [NotificationStatus.FAILED]: "ส่งไม่สำเร็จ",
+  [NotificationStatus.SKIPPED]: "ข้าม",
+};
+
+const notificationTypeLabels: Record<NotificationType, string> = {
+  [NotificationType.BOOKING_CONFIRMED]: "จองสำเร็จ",
+  [NotificationType.QUEUE_CREATED]: "สร้างคิว",
+  [NotificationType.REMINDER]: "เตือนคิว",
+  [NotificationType.CONFIRM_COMING]: "ยืนยันมา",
+  [NotificationType.QUEUE_NEAR]: "ถึงคิวแล้ว",
+  [NotificationType.LATE]: "มาสาย",
+  [NotificationType.CANCELLED]: "ยกเลิก",
+  [NotificationType.NO_SHOW]: "ไม่มา",
 };
 
 const activeQueueStatusExclusions = [QueueItemStatus.CANCELLED, QueueItemStatus.DONE, QueueItemStatus.NO_SHOW];
@@ -209,6 +254,40 @@ const mapOwnerQueueItem = (
 ): OwnerQueueListItem => ({
   ...mapQueueItem(item, index),
   ownerNote: item.ownerNote ?? "",
+});
+
+const getNotificationTone = (status: NotificationStatus): OwnerNotificationLogItem["tone"] => {
+  if (status === NotificationStatus.SENT) {
+    return "positive";
+  }
+
+  if (status === NotificationStatus.FAILED) {
+    return "warning";
+  }
+
+  return "neutral";
+};
+
+const mapOwnerNotificationLog = (log: {
+  id: string;
+  channel: NotificationChannel;
+  type: NotificationType;
+  status: NotificationStatus;
+  messagePreview: string;
+  error: string | null;
+  createdAt: Date;
+  queueItem: { customerNameSnapshot: string } | null;
+  customer: { name: string } | null;
+}): OwnerNotificationLogItem => ({
+  id: log.id,
+  channelLabel: notificationChannelLabels[log.channel],
+  typeLabel: notificationTypeLabels[log.type],
+  statusLabel: notificationStatusLabels[log.status],
+  timeLabel: formatThaiTime(log.createdAt),
+  customerName: log.queueItem?.customerNameSnapshot ?? log.customer?.name ?? "ไม่ระบุลูกค้า",
+  messagePreview: log.messagePreview,
+  error: log.error ?? "",
+  tone: getNotificationTone(log.status),
 });
 
 export const getFallbackStatusSnapshot = (): QueueStatusSnapshot => ({
@@ -333,6 +412,35 @@ export const getOwnerClosedQueueItems = async (dateValue = getTodayValue()) => {
 export const getOwnerClosedQueueItemsSafe = async () => {
   try {
     return await getOwnerClosedQueueItems();
+  } catch {
+    return [];
+  }
+};
+
+export const getOwnerRecentNotificationLogs = async (limit = 8): Promise<OwnerNotificationLogItem[]> => {
+  const logs = await prisma.notificationLog.findMany({
+    take: limit,
+    orderBy: { createdAt: "desc" },
+    include: {
+      queueItem: {
+        select: {
+          customerNameSnapshot: true,
+        },
+      },
+      customer: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  return logs.map(mapOwnerNotificationLog);
+};
+
+export const getOwnerRecentNotificationLogsSafe = async () => {
+  try {
+    return await getOwnerRecentNotificationLogs();
   } catch {
     return [];
   }
