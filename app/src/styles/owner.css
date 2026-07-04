@@ -1017,10 +1017,7 @@
   }
 
   .bqa-owner-status-strip {
-    border-right: 0;
-    border-left: 0;
-    border-radius: 0;
-    padding-inline: 22px;
+    padding-inline: 16px;
   }
 
   .bqa-owner-status-copy strong {
@@ -1094,17 +1091,6 @@
   .bqa-owner-summary-icon svg {
     width: 16px;
     height: 16px;
-  }
-
-  .bqa-owner-queue-board {
-    border-right: 0;
-    border-left: 0;
-    border-radius: 0;
-  }
-
-  .bqa-owner-board-grid {
-    margin-right: 0;
-    margin-left: 0;
   }
 
   .bqa-owner-queue-heading {

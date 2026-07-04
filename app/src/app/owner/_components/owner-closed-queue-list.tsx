@@ -18,7 +18,7 @@ export const OwnerClosedQueueList = ({ queue }: { queue: QueueListItem[] }) => {
 
   return (
     <Card
-      className="overflow-hidden !rounded-[var(--owner-radius-board)] !border-[var(--line-strong)] !bg-[color-mix(in_srgb,var(--surface)_84%,var(--paper))] max-[559px]:!rounded-none max-[559px]:!border-x-0"
+      className="overflow-hidden !rounded-[var(--owner-radius-board)] !border-[var(--line-strong)] !bg-[color-mix(in_srgb,var(--surface)_84%,var(--paper))]"
       aria-labelledby="owner-closed-title"
     >
       <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-[var(--line)] px-3.5 py-2.5">
