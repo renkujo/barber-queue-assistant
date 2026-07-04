@@ -212,6 +212,7 @@
   --owner-radius-board: 14px;
   --owner-radius-strip: 14px;
   min-height: 100dvh;
+  overflow-x: clip;
   background: var(--paper);
 }
 
@@ -1037,13 +1038,30 @@
   }
 
   .bqa-owner-summary-strip {
+    grid-template-columns: 1fr;
+    gap: 0;
     margin-top: 12px;
-    gap: 16px;
-    padding-inline: 18px;
+    padding: 12px 16px;
   }
 
   .bqa-owner-summary-pane {
     gap: 12px;
+    align-items: flex-start;
+    padding-block: 8px;
+  }
+
+  .bqa-owner-summary-pane:first-child {
+    padding-top: 0;
+  }
+
+  .bqa-owner-summary-pane:last-child {
+    padding-bottom: 0;
+  }
+
+  .bqa-owner-summary-divider {
+    width: 100%;
+    height: 1px;
+    align-self: auto;
   }
 
   .bqa-owner-summary-pane strong {
@@ -1051,12 +1069,21 @@
   }
 
   .bqa-owner-summary-pane--next strong {
-    font-size: 20px;
+    overflow-wrap: anywhere;
+    font-size: 18px;
+    line-height: 1.15;
   }
 
   .bqa-owner-summary-pane p,
   .bqa-owner-summary-pane span {
     font-size: 13px;
+  }
+
+  .bqa-owner-summary-pane p {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 
   .bqa-owner-summary-icon {
@@ -1099,13 +1126,14 @@
   }
 
   .bqa-owner-queue-row {
-    min-height: 64px;
-    grid-template-columns: 58px minmax(0, 1fr) minmax(108px, 0.52fr);
-    padding: 11px 14px;
+    min-height: 0;
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 8px 10px;
+    padding: 12px 14px 14px;
   }
 
   .bqa-owner-queue-row--active {
-    min-height: 86px;
+    min-height: 0;
   }
 
   .bqa-owner-queue-time {
@@ -1113,13 +1141,30 @@
   }
 
   .bqa-owner-queue-main strong {
+    overflow-wrap: anywhere;
     font-size: 17px;
+  }
+
+  .bqa-owner-queue-manage {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    padding-top: 4px;
+  }
+
+  .bqa-owner-board-actions {
+    gap: 8px;
+  }
+
+  .bqa-owner-board-actions--terminal,
+  .bqa-owner-board-actions--quiet,
+  .bqa-owner-board-actions--primary > .bqa-owner-board-actions--quiet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .bqa-owner-board-actions .ui-button,
   .bqa-owner-passive-action {
-    min-height: 36px;
-    font-size: 12px;
+    min-height: 40px;
+    font-size: 13px;
   }
 
 }
