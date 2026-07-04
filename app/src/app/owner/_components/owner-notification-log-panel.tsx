@@ -19,9 +19,9 @@ type OwnerNotificationLogPanelProps = {
 };
 
 export const OwnerNotificationLogPanel = ({ logs }: OwnerNotificationLogPanelProps) => (
-  <Card className="bqa-owner-rail-panel bqa-owner-notification-panel overflow-hidden p-0" aria-labelledby="owner-notification-title">
+  <Card className="bqa-owner-notification-panel overflow-hidden !rounded-[14px] !border-[var(--line-strong)] !bg-[color-mix(in_srgb,var(--surface)_84%,var(--paper))] !p-0 !shadow-none" aria-labelledby="owner-notification-title">
     <CardHeader className="flex flex-row items-center justify-between gap-2.5 border-b border-[var(--line)] px-3.5 py-3">
-      <CardTitle id="owner-notification-title" className="mb-0 inline-flex items-center gap-2 text-base leading-tight">
+      <CardTitle id="owner-notification-title" className="inline-flex items-center gap-2 !mb-0 !text-base !leading-tight">
         <Icon icon="lucide:message-circle" aria-hidden="true" />แจ้งเตือน LINE
       </CardTitle>
       <span className="text-xs font-bold leading-none text-[var(--muted)]">{logs.length ? `${logs.length} ล่าสุด` : "ยังไม่มี"}</span>

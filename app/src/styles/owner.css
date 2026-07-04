@@ -473,8 +473,7 @@
 
 .bqa-owner-status-strip,
 .bqa-owner-summary-strip,
-.bqa-owner-queue-board,
-.bqa-owner-rail-panel {
+.bqa-owner-queue-board {
   border: 1px solid var(--line-strong);
   background: color-mix(in srgb, var(--surface) 84%, var(--paper));
   box-shadow: none;
@@ -1032,102 +1031,6 @@
 
 .bqa-owner-side-rail {
   display: none;
-}
-
-.bqa-owner-rail-panel {
-  border-radius: 14px;
-  padding: 0;
-}
-
-.bqa-owner-rail-panel h2 {
-  margin: 0;
-  color: var(--ink);
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.bqa-owner-rail-header {
-  padding: 14px 14px 0;
-}
-
-.bqa-owner-rail-actions {
-  display: grid;
-  gap: 10px;
-  padding: 12px 14px 14px;
-}
-
-.bqa-owner-rail-actions .ui-button {
-  min-height: 38px;
-  border-radius: 10px;
-  font-size: 13px;
-}
-
-.bqa-owner-rail-summary {
-  display: grid;
-  margin: 0;
-}
-
-.bqa-owner-rail-summary-content {
-  padding: 4px 14px 8px;
-}
-
-.bqa-owner-rail-summary div {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  border-bottom: 1px solid var(--line);
-  padding: 8px 0;
-}
-
-.bqa-owner-rail-summary div:last-child {
-  border-bottom: 0;
-}
-
-.bqa-owner-rail-summary dt {
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.bqa-owner-rail-summary dd {
-  margin: 0;
-  color: var(--ink);
-  font-size: 18px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.bqa-owner-rail-summary div:nth-child(2) dd {
-  color: #4f8b59;
-}
-
-.bqa-owner-tip-panel {
-  display: none;
-  justify-content: space-between;
-  gap: 18px;
-  background: color-mix(in srgb, var(--surface-warm) 72%, var(--surface));
-}
-
-.bqa-owner-tip-panel h2 {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.bqa-owner-tip-panel p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-.bqa-owner-tip-panel > svg {
-  align-self: flex-end;
-  color: color-mix(in srgb, var(--primary) 62%, var(--line-strong));
-  font-size: 38px;
 }
 
 .bqa-owner-footer-status {

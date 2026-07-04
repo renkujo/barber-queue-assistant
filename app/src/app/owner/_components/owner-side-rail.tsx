@@ -13,22 +13,22 @@ type OwnerSideRailProps = {
 
 export const OwnerSideRail = ({ currentCount, waitingCount, totalCount, breakAction, notificationLogs }: OwnerSideRailProps) => (
   <aside className="bqa-owner-side-rail" aria-label="การทำงานเร็วและสรุปวันนี้">
-    <Card className="bqa-owner-rail-panel" aria-labelledby="quick-actions-title">
-      <CardHeader className="bqa-owner-rail-header">
-        <CardTitle id="quick-actions-title">การทำงานเร็ว</CardTitle>
+    <Card className="!rounded-[14px] !border-[var(--line-strong)] !bg-[color-mix(in_srgb,var(--surface)_84%,var(--paper))] !p-0 !shadow-none" aria-labelledby="quick-actions-title">
+      <CardHeader className="px-3.5 pt-3.5 pb-0">
+        <CardTitle id="quick-actions-title" className="!mb-0 !text-base !leading-tight">การทำงานเร็ว</CardTitle>
       </CardHeader>
-      <CardContent className="bqa-owner-rail-actions">
-        <Button asChild variant="outline" size="lg" fullWidth>
+      <CardContent className="grid gap-2.5 px-3.5 pt-3 pb-3.5">
+        <Button asChild variant="outline" size="lg" fullWidth className="!min-h-[38px] !rounded-[10px] !text-[13px]">
           <Link href="/owner/walk-in">
             <Icon icon="lucide:plus" aria-hidden="true" />เพิ่มคิว
           </Link>
         </Button>
         <form action={breakAction}>
-          <Button variant="outline" type="submit" size="lg" fullWidth>
+          <Button variant="outline" type="submit" size="lg" fullWidth className="!min-h-[38px] !rounded-[10px] !text-[13px]">
             <Icon icon="lucide:coffee" aria-hidden="true" />พักร้าน
           </Button>
         </form>
-        <Button asChild variant="outline" size="lg" fullWidth>
+        <Button asChild variant="outline" size="lg" fullWidth className="!min-h-[38px] !rounded-[10px] !text-[13px]">
           <Link href="/owner">
             <Icon icon="lucide:refresh-cw" aria-hidden="true" />รีเฟรชคิว
           </Link>
@@ -36,23 +36,23 @@ export const OwnerSideRail = ({ currentCount, waitingCount, totalCount, breakAct
       </CardContent>
     </Card>
 
-    <Card className="bqa-owner-rail-panel" aria-labelledby="today-summary-title">
-      <CardHeader className="bqa-owner-rail-header">
-        <CardTitle id="today-summary-title">สรุปวันนี้</CardTitle>
+    <Card className="!rounded-[14px] !border-[var(--line-strong)] !bg-[color-mix(in_srgb,var(--surface)_84%,var(--paper))] !p-0 !shadow-none" aria-labelledby="today-summary-title">
+      <CardHeader className="px-3.5 pt-3.5 pb-0">
+        <CardTitle id="today-summary-title" className="!mb-0 !text-base !leading-tight">สรุปวันนี้</CardTitle>
       </CardHeader>
-      <CardContent className="bqa-owner-rail-summary-content">
-        <dl className="bqa-owner-rail-summary">
-          <div>
-            <dt>คิวทั้งหมด</dt>
-            <dd>{totalCount}</dd>
+      <CardContent className="px-3.5 pt-1 pb-2">
+        <dl className="m-0 grid">
+          <div className="flex items-center justify-between gap-4 border-b border-[var(--line)] py-2">
+            <dt className="text-sm font-medium text-[var(--muted)]">คิวทั้งหมด</dt>
+            <dd className="m-0 text-lg font-bold tabular-nums text-[var(--ink)]">{totalCount}</dd>
           </div>
-          <div>
-            <dt>กำลังตัด</dt>
-            <dd>{currentCount}</dd>
+          <div className="flex items-center justify-between gap-4 border-b border-[var(--line)] py-2">
+            <dt className="text-sm font-medium text-[var(--muted)]">กำลังตัด</dt>
+            <dd className="m-0 text-lg font-bold tabular-nums text-[#4f8b59]">{currentCount}</dd>
           </div>
-          <div>
-            <dt>รอคิว</dt>
-            <dd>{waitingCount}</dd>
+          <div className="flex items-center justify-between gap-4 py-2">
+            <dt className="text-sm font-medium text-[var(--muted)]">รอคิว</dt>
+            <dd className="m-0 text-lg font-bold tabular-nums text-[var(--ink)]">{waitingCount}</dd>
           </div>
         </dl>
       </CardContent>
@@ -60,14 +60,14 @@ export const OwnerSideRail = ({ currentCount, waitingCount, totalCount, breakAct
 
     <OwnerNotificationLogPanel logs={notificationLogs} />
 
-    <Card className="bqa-owner-rail-panel bqa-owner-tip-panel" aria-labelledby="owner-tip-title">
+    <Card className="hidden justify-between gap-[18px] !rounded-[14px] !border-[var(--line-strong)] !bg-[color-mix(in_srgb,var(--surface-warm)_72%,var(--surface))] !p-3.5 !shadow-none" aria-labelledby="owner-tip-title">
       <div>
-        <CardTitle id="owner-tip-title">
+        <CardTitle id="owner-tip-title" className="inline-flex items-center gap-2 !mb-2.5 !text-base !leading-tight">
           <Icon icon="lucide:star" aria-hidden="true" />ทิป
         </CardTitle>
-        <p>แตะ “เริ่มตัด” เพื่อเริ่มคิวถัดไป</p>
+        <p className="m-0 text-sm leading-relaxed text-[var(--muted)]">แตะ “เริ่มตัด” เพื่อเริ่มคิวถัดไป</p>
       </div>
-      <Icon icon="lucide:scissors" aria-hidden="true" />
+      <Icon icon="lucide:scissors" className="self-end text-[38px] text-[color-mix(in_srgb,var(--primary)_62%,var(--line-strong))]" aria-hidden="true" />
     </Card>
   </aside>
 );
