@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, Icon } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import type { OwnerNotificationLogItem } from "@/lib/queue/repository";
 
 const toneIcon = {
@@ -7,42 +8,54 @@ const toneIcon = {
   neutral: "lucide:minus",
 } as const;
 
+const toneIconClassName = {
+  positive: "border-[var(--sage)] bg-[var(--mint)] text-[#35653d]",
+  warning: "border-[var(--rose)] bg-[var(--rose-soft)] text-[#743a36]",
+  neutral: "border-[var(--line)] bg-[var(--surface)] text-[var(--muted)]",
+} as const;
+
 type OwnerNotificationLogPanelProps = {
   logs: OwnerNotificationLogItem[];
 };
 
 export const OwnerNotificationLogPanel = ({ logs }: OwnerNotificationLogPanelProps) => (
-  <Card className="bqa-owner-rail-panel bqa-owner-notification-panel" aria-labelledby="owner-notification-title">
-    <CardHeader className="bqa-owner-notification-heading">
-      <CardTitle id="owner-notification-title">
+  <Card className="bqa-owner-rail-panel bqa-owner-notification-panel overflow-hidden p-0" aria-labelledby="owner-notification-title">
+    <CardHeader className="flex flex-row items-center justify-between gap-2.5 border-b border-[var(--line)] px-3.5 py-3">
+      <CardTitle id="owner-notification-title" className="mb-0 inline-flex items-center gap-2 text-base leading-tight">
         <Icon icon="lucide:message-circle" aria-hidden="true" />แจ้งเตือน LINE
       </CardTitle>
-      <span>{logs.length ? `${logs.length} ล่าสุด` : "ยังไม่มี"}</span>
+      <span className="text-xs font-bold leading-none text-[var(--muted)]">{logs.length ? `${logs.length} ล่าสุด` : "ยังไม่มี"}</span>
     </CardHeader>
 
     {logs.length ? (
-      <CardContent className="bqa-owner-notification-content">
-        <ol className="bqa-owner-notification-list" aria-label="รายการแจ้งเตือนล่าสุด">
+      <CardContent className="p-0">
+        <ol className="m-0 grid list-none p-0" aria-label="รายการแจ้งเตือนล่าสุด">
           {logs.map((log) => (
-            <li className={`bqa-owner-notification-item bqa-owner-notification-item--${log.tone}`} key={log.id}>
-              <span className="bqa-owner-notification-icon" aria-hidden="true">
+            <li className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-start gap-2.5 border-b border-[var(--line)] px-3 py-2.5 last:border-b-0" key={log.id}>
+              <span
+                className={cn(
+                  "inline-flex size-7 items-center justify-center rounded-[9px] border text-sm",
+                  toneIconClassName[log.tone],
+                )}
+                aria-hidden="true"
+              >
                 <Icon icon={toneIcon[log.tone]} />
               </span>
-              <div className="bqa-owner-notification-copy">
-                <strong>
+              <div className="min-w-0">
+                <strong className="block truncate text-[13px] font-bold leading-snug text-[var(--ink)]">
                   {log.statusLabel} · {log.customerName}
                 </strong>
-                <p>{log.typeLabel}</p>
-                {log.error ? <small>{log.error}</small> : null}
+                <p className="mt-0.5 mb-0 text-xs font-semibold leading-snug text-[var(--muted)]">{log.typeLabel}</p>
+                {log.error ? <small className="mt-1 block text-[11px] font-bold leading-snug text-[#743a36]">{log.error}</small> : null}
               </div>
-              <time>{log.timeLabel}</time>
+              <time className="text-[11px] leading-snug font-bold tabular-nums text-[var(--muted)]">{log.timeLabel}</time>
             </li>
           ))}
         </ol>
       </CardContent>
     ) : (
-      <CardContent className="bqa-owner-notification-content">
-        <p className="bqa-owner-notification-empty">เมื่อมีการส่งหรือข้าม LINE notification จะแสดงตรงนี้</p>
+      <CardContent className="px-3.5 py-3">
+        <p className="m-0 text-xs font-bold leading-snug text-[var(--muted)]">เมื่อมีการส่งหรือข้าม LINE notification จะแสดงตรงนี้</p>
       </CardContent>
     )}
   </Card>

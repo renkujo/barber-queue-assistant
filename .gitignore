@@ -6,3 +6,5 @@
 
 # editor/temp
 *.log
+# CocoIndex Code (ccc)
+/.cocoindex_code/
