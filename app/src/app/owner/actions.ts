@@ -6,7 +6,14 @@ import { redirect } from "next/navigation";
 import { NotificationType, QueueItemStatus } from "@/generated/prisma/enums";
 import { clearOwnerSession, requireOwnerSession, setOwnerSession, verifyPasscode } from "@/lib/admin-auth";
 import { notifyQueueEventSafe } from "@/lib/notifications/queue-notifications";
-import { createBreakTimeBlock, createOwnerWalkIn, restoreClosedQueueItem, updateQueueItem, updateQueueItemStatus } from "@/lib/queue/repository";
+import {
+  createBreakTimeBlock,
+  createOwnerWalkIn,
+  restoreClosedQueueItem,
+  setQueueIntakeEnabled,
+  updateQueueItem,
+  updateQueueItemStatus,
+} from "@/lib/queue/repository";
 
 const allowedStatus = new Set<string>(Object.values(QueueItemStatus));
 
@@ -168,6 +175,25 @@ export const createBreakAction = async () => {
   revalidatePath("/book");
   revalidatePath("/owner");
   redirect("/owner?status=break-created");
+};
+
+export const updateQueueIntakeAction = async (formData: FormData) => {
+  await requireOwnerSession();
+
+  const enabled = String(formData.get("enabled") ?? "") === "true";
+
+  try {
+    await setQueueIntakeEnabled(enabled);
+  } catch {
+    redirect("/owner?error=intake-failed");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/book");
+  revalidatePath("/walk-in");
+  revalidatePath("/owner");
+  revalidatePath("/api/queue/status");
+  redirect(enabled ? "/owner?status=intake-opened" : "/owner?status=intake-closed");
 };
 
 

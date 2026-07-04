@@ -1,8 +1,8 @@
 import { Notice } from "@/components/barber/app-ui";
 import { RouteToast } from "@/components/ui";
-import { createBreakAction } from "./actions";
+import { createBreakAction, updateQueueIntakeAction } from "./actions";
 import { requireOwnerSession } from "@/lib/admin-auth";
-import { getOwnerClosedQueueItemsSafe, getOwnerQueueStatusSnapshotSafe, getOwnerRecentNotificationLogsSafe } from "@/lib/queue/repository";
+import { getOwnerClosedQueueItemsSafe, getOwnerQueueStatusSnapshotSafe, getOwnerRecentNotificationLogsSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
 import { CurrentNextSummary } from "./_components/current-next-summary";
 import { OwnerClosedQueueList } from "./_components/owner-closed-queue-list";
 import { OwnerFooterStatus } from "./_components/owner-footer-status";
@@ -19,12 +19,15 @@ const errorMessages: Record<string, string> = {
   "invalid-action": "คำสั่งไม่ถูกต้อง ลอง refresh แล้วทำใหม่อีกครั้ง",
   "action-failed": "ยังอัปเดตสถานะไม่ได้ ตรวจว่าเป็นคิวจากฐานข้อมูลจริงก่อน",
   "break-failed": "ยังเพิ่มเวลาพักไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
+  "intake-failed": "ยังเปลี่ยนสถานะรับคิวไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
   "restore-failed": "ยังเปิดคิวนี้กลับไม่ได้ ตรวจว่าเป็นคิวที่ปิดแล้วของวันนี้ก่อน",
 };
 
 const statusMessages: Record<string, string> = {
   "status-updated": "อัปเดตสถานะคิวแล้ว",
   "break-created": "พักร้าน 30 นาทีแล้ว ช่วงเวลานี้จะไม่เปิดให้ลูกค้าจอง",
+  "intake-closed": "ปิดรับคิวจากลูกค้าแล้ว เจ้าของร้านยังเพิ่มคิวเองได้",
+  "intake-opened": "เปิดรับคิวจากลูกค้าแล้ว",
   "queue-updated": "แก้ไขคิวเรียบร้อยแล้ว",
   "queue-restored": "เปิดคิวกลับเข้ารายการวันนี้แล้ว",
   "walk-in-created": "เพิ่ม walk-in เข้าคิววันนี้แล้ว",
@@ -33,11 +36,12 @@ const statusMessages: Record<string, string> = {
 const OwnerPage = async ({ searchParams }: OwnerPageProps) => {
   await requireOwnerSession();
 
-  const [params, snapshot, closedQueue, notificationLogs] = await Promise.all([
+  const [params, snapshot, closedQueue, notificationLogs, intakeSettings] = await Promise.all([
     searchParams,
     getOwnerQueueStatusSnapshotSafe(),
     getOwnerClosedQueueItemsSafe(),
     getOwnerRecentNotificationLogsSafe(),
+    getShopIntakeSettingsSafe(),
   ]);
   const todayQueue = snapshot.queue;
   const canMutateQueue = snapshot.source === "database";
@@ -65,7 +69,7 @@ const OwnerPage = async ({ searchParams }: OwnerPageProps) => {
         {statusMessage ? <Notice tone="warm">{statusMessage}</Notice> : null}
         {errorMessage ? <Notice>{errorMessage}</Notice> : null}
 
-        <ShopStatusStrip action={createBreakAction} />
+        <ShopStatusStrip breakAction={createBreakAction} intakeAction={updateQueueIntakeAction} settings={intakeSettings} />
         <CurrentNextSummary current={current} next={next} />
 
         <div className="bqa-owner-board-grid">

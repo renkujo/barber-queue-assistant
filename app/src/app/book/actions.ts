@@ -38,6 +38,10 @@ export const createBookingAction = async (formData: FormData) => {
     queueItemId = queueItem.id;
     await notifyQueueEventSafe(queueItemId, NotificationType.BOOKING_CONFIRMED);
   } catch (error) {
+    if (error instanceof Error && (error.message === "Queue intake is closed." || error.message === "Booking is closed.")) {
+      redirect("/book?error=closed");
+    }
+
     if (error instanceof Error && error.message === "Booking slot is not available.") {
       redirect("/book?error=slot-unavailable");
     }

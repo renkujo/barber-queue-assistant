@@ -40,6 +40,15 @@ export type QueueStatusSnapshot = {
   source: "database" | "fallback";
 };
 
+export type ShopIntakeSettings = {
+  shopName: string;
+  queueIntakeEnabled: boolean;
+  bookingEnabled: boolean;
+  walkInEnabled: boolean;
+  bookingAvailable: boolean;
+  walkInAvailable: boolean;
+};
+
 export type CreateBookingInput = {
   customerName: string;
   phone?: string;
@@ -104,6 +113,13 @@ export type BookingSlot = {
 };
 
 const defaultBookingTimes = ["09:30", "10:30", "13:00", "14:30", "16:00", "17:00"];
+
+const defaultShopSettingsInput = {
+  id: "default-shop",
+  shopName: "ร้านช่างหนึ่ง",
+  openDays: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+  businessHours: { open: "09:00", close: "19:00" },
+} as const;
 
 export const getDefaultBookingTimes = () => defaultBookingTimes;
 
@@ -289,6 +305,79 @@ const mapOwnerNotificationLog = (log: {
   error: log.error ?? "",
   tone: getNotificationTone(log.status),
 });
+
+const mapShopIntakeSettings = (settings: {
+  shopName: string;
+  queueIntakeEnabled: boolean;
+  bookingEnabled: boolean;
+  walkInEnabled: boolean;
+}): ShopIntakeSettings => ({
+  shopName: settings.shopName,
+  queueIntakeEnabled: settings.queueIntakeEnabled,
+  bookingEnabled: settings.bookingEnabled,
+  walkInEnabled: settings.walkInEnabled,
+  bookingAvailable: settings.queueIntakeEnabled && settings.bookingEnabled,
+  walkInAvailable: settings.queueIntakeEnabled && settings.walkInEnabled,
+});
+
+const getOrCreateShopSettings = async () => {
+  const existingSettings = await prisma.shopSettings.findFirst({ orderBy: { createdAt: "asc" } });
+
+  if (existingSettings) {
+    return existingSettings;
+  }
+
+  return prisma.shopSettings.create({
+    data: defaultShopSettingsInput,
+  });
+};
+
+const assertPublicQueueIntakeOpen = async (mode: "booking" | "walk-in") => {
+  const settings = await getShopIntakeSettings();
+
+  if (!settings.queueIntakeEnabled) {
+    throw new Error("Queue intake is closed.");
+  }
+
+  if (mode === "booking" && !settings.bookingEnabled) {
+    throw new Error("Booking is closed.");
+  }
+
+  if (mode === "walk-in" && !settings.walkInEnabled) {
+    throw new Error("Walk-in is closed.");
+  }
+};
+
+export const getShopIntakeSettings = async (): Promise<ShopIntakeSettings> => {
+  const settings = await getOrCreateShopSettings();
+
+  return mapShopIntakeSettings(settings);
+};
+
+export const getShopIntakeSettingsSafe = async (): Promise<ShopIntakeSettings> => {
+  try {
+    return await getShopIntakeSettings();
+  } catch {
+    return {
+      shopName: shopStatus.shopName,
+      queueIntakeEnabled: true,
+      bookingEnabled: true,
+      walkInEnabled: true,
+      bookingAvailable: true,
+      walkInAvailable: true,
+    };
+  }
+};
+
+export const setQueueIntakeEnabled = async (enabled: boolean): Promise<ShopIntakeSettings> => {
+  const settings = await getOrCreateShopSettings();
+  const updatedSettings = await prisma.shopSettings.update({
+    where: { id: settings.id },
+    data: { queueIntakeEnabled: enabled },
+  });
+
+  return mapShopIntakeSettings(updatedSettings);
+};
 
 export const getFallbackStatusSnapshot = (): QueueStatusSnapshot => ({
   shop: shopStatus,
@@ -674,6 +763,8 @@ export const ensureDefaultServices = async () => {
 };
 
 export const createBooking = async (input: CreateBookingInput) => {
+  await assertPublicQueueIntakeOpen("booking");
+
   const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId });
   const service = await findService(input.serviceId);
   const startAt = createDateTime(input.dateValue, input.timeValue);
@@ -705,6 +796,8 @@ export const createBooking = async (input: CreateBookingInput) => {
 };
 
 export const createWalkIn = async (input: CreateWalkInInput) => {
+  await assertPublicQueueIntakeOpen("walk-in");
+
   const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId });
   const service = await findService(input.serviceId);
   const todayValue = getTodayValue();

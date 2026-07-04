@@ -33,7 +33,11 @@ export const createWalkInAction = async (formData: FormData) => {
     const queueItem = await createWalkIn(parsed.data);
     queueItemId = queueItem.id;
     await notifyQueueEventSafe(queueItemId, NotificationType.QUEUE_CREATED);
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && (error.message === "Queue intake is closed." || error.message === "Walk-in is closed.")) {
+      redirect("/walk-in?error=closed");
+    }
+
     redirect("/walk-in?error=database");
   }
 

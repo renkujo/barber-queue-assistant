@@ -13,7 +13,7 @@ import {
   SelectValue,
   Textarea,
 } from "@/components/ui";
-import { getQueueStatusSnapshotSafe, getServicesSafe } from "@/lib/queue/repository";
+import { getQueueStatusSnapshotSafe, getServicesSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
 import { createWalkInAction } from "./actions";
 
 type WalkInPageProps = {
@@ -22,14 +22,21 @@ type WalkInPageProps = {
 
 const errorMessages: Record<string, string> = {
   invalid: "กรอกข้อมูลไม่ครบ ลองตรวจชื่อและบริการอีกครั้ง",
+  closed: "ตอนนี้ร้านปิดรับคิวจากลูกค้าแล้ว ลองเช็คอีกครั้งภายหลัง",
   database: "ยังรับคิวไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
 };
 
 const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
-  const [params, services, snapshot] = await Promise.all([searchParams, getServicesSafe(), getQueueStatusSnapshotSafe()]);
+  const [params, services, snapshot, intakeSettings] = await Promise.all([
+    searchParams,
+    getServicesSafe(),
+    getQueueStatusSnapshotSafe(),
+    getShopIntakeSettingsSafe(),
+  ]);
   const errorMessage = params.error ? errorMessages[params.error] : null;
   const lineUserId = params.lineUserId?.trim();
   const defaultServiceId = services[0]?.id;
+  const walkInClosed = !intakeSettings.walkInAvailable;
 
   return (
     <ScreenShell>
@@ -54,6 +61,7 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
         </StatGrid>
 
         {errorMessage ? <Notice>{errorMessage}</Notice> : null}
+        {walkInClosed ? <Notice tone="warm">ตอนนี้ร้านปิดรับคิวจากลูกค้าแล้ว เจ้าของร้านจะเปิดรับอีกครั้งเมื่อพร้อม</Notice> : null}
         <RouteToast message={errorMessage} type="error" toastKey={`walk-in:${params.error ?? ""}`} />
 
         <form action={createWalkInAction}>
@@ -78,7 +86,7 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
           <FormField id="note" label="หมายเหตุ">
             <Textarea id="note" name="note" placeholder="เช่น รอที่ร้านแล้ว" />
           </FormField>
-          <Button type="submit" size="lg" fullWidth>
+          <Button type="submit" size="lg" fullWidth disabled={walkInClosed}>
             <Icon icon="lucide:users" aria-hidden="true" />รับคิววันนี้
           </Button>
           </FormStack>

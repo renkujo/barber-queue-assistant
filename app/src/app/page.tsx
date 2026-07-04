@@ -15,7 +15,7 @@ import {
 } from "@/components/barber/app-ui";
 import { Button, FormField, Icon, Input } from "@/components/ui";
 import { RouteToast } from "@/components/ui";
-import { getQueueStatusSnapshotSafe, getServicesSafe } from "@/lib/queue/repository";
+import { getQueueStatusSnapshotSafe, getServicesSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
 import { lookupQueueAction } from "./actions";
 
 const brandMarkPath = "/assets/generated-v1/app-icon-pastel.png";
@@ -31,9 +31,15 @@ const trackingErrorMessages: Record<string, string> = {
 };
 
 const HomePage = async ({ searchParams }: HomePageProps) => {
-  const [params, snapshot, services] = await Promise.all([searchParams, getQueueStatusSnapshotSafe(), getServicesSafe()]);
+  const [params, snapshot, services, intakeSettings] = await Promise.all([
+    searchParams,
+    getQueueStatusSnapshotSafe(),
+    getServicesSafe(),
+    getShopIntakeSettingsSafe(),
+  ]);
   const shopStatus = snapshot.shop;
   const trackingError = params.error ? trackingErrorMessages[params.error] : null;
+  const intakeOpen = intakeSettings.queueIntakeEnabled;
 
   return (
     <ScreenShell>
@@ -43,15 +49,17 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
           title="จองคิวตัดผม"
           subtitle={shopStatus.shopName}
           imageSrc={brandMarkPath}
-          badge={<StatusBadge tone="positive">เปิดอยู่</StatusBadge>}
+          badge={<StatusBadge tone={intakeOpen ? "positive" : "warning"}>{intakeOpen ? "เปิดรับคิว" : "ปิดรับคิว"}</StatusBadge>}
           largeImage
         />
 
         <StatusPanel
-          title="คิวตอนนี้ยังรับได้"
-          description={`${shopStatus.openLabel} ลูกค้าดูสถานะคิวเองได้จากหน้านี้`}
+          title={intakeOpen ? "คิวตอนนี้ยังรับได้" : "ตอนนี้ร้านปิดรับคิว"}
+          description={intakeOpen ? `${shopStatus.openLabel} ลูกค้าดูสถานะคิวเองได้จากหน้านี้` : "เจ้าของร้านปิดรับคิวจากลูกค้าชั่วคราว กลับมาเช็คใหม่อีกครั้งภายหลัง"}
           imageSrc={statusMascotPath}
         />
+
+        {!intakeOpen ? <Notice tone="warm">ยังดูสถานะคิวเดิมได้ แต่ตอนนี้ไม่สามารถจองหรือรับคิวใหม่จากหน้านี้ได้</Notice> : null}
 
         <StatGrid aria-label="สถานะคิว">
           <StatTile icon={<Icon icon="lucide:users" aria-hidden="true" />} label="คิวตอนนี้" value={shopStatus.currentQueueCount} unit="คน" />

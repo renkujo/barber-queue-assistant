@@ -14,7 +14,7 @@ import {
   Textarea,
 } from "@/components/ui";
 import { getTomorrowValue, getTodayValue } from "@/lib/queue/date";
-import { getAvailableBookingSlotsSafe, getServicesSafe } from "@/lib/queue/repository";
+import { getAvailableBookingSlotsSafe, getServicesSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
 import { createBookingAction } from "./actions";
 
 type BookPageProps = {
@@ -23,17 +23,19 @@ type BookPageProps = {
 
 const errorMessages: Record<string, string> = {
   invalid: "กรอกข้อมูลไม่ครบ ลองตรวจชื่อ บริการ วัน และเวลาอีกครั้ง",
+  closed: "ตอนนี้ร้านปิดรับคิวจากลูกค้าแล้ว ลองเช็คอีกครั้งภายหลัง",
   "slot-unavailable": "เวลานี้ถูกจองหรือถูกพักร้านแล้ว เลือกเวลาอื่นแล้วลองใหม่",
   database: "ยังบันทึกคิวไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
 };
 
 const BookPage = async ({ searchParams }: BookPageProps) => {
-  const [params, services] = await Promise.all([searchParams, getServicesSafe()]);
+  const [params, services, intakeSettings] = await Promise.all([searchParams, getServicesSafe(), getShopIntakeSettingsSafe()]);
   const todayValue = getTodayValue();
   const tomorrowValue = getTomorrowValue();
   const errorMessage = params.error ? errorMessages[params.error] : null;
   const lineUserId = params.lineUserId?.trim();
   const defaultServiceId = services[0]?.id;
+  const bookingClosed = !intakeSettings.bookingAvailable;
   const [todaySlots, tomorrowSlots] = await Promise.all([
     getAvailableBookingSlotsSafe(todayValue, defaultServiceId),
     getAvailableBookingSlotsSafe(tomorrowValue, defaultServiceId),
@@ -66,6 +68,7 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
         />
 
         {errorMessage ? <Notice>{errorMessage}</Notice> : null}
+        {bookingClosed ? <Notice tone="warm">ตอนนี้ร้านปิดรับคิวจากลูกค้าแล้ว เจ้าของร้านจะเปิดรับอีกครั้งเมื่อพร้อม</Notice> : null}
         <RouteToast message={errorMessage} type="error" toastKey={`book:${params.error ?? ""}`} />
 
         <form action={createBookingAction}>
@@ -116,7 +119,7 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
             <Textarea id="note" name="note" placeholder="เช่น ขอทรงเปิดข้าง" />
           </FormField>
 
-          <Button type="submit" size="lg" fullWidth>
+          <Button type="submit" size="lg" fullWidth disabled={bookingClosed}>
             <Icon icon="lucide:clock" aria-hidden="true" />ยืนยันคิว
           </Button>
           </FormStack>

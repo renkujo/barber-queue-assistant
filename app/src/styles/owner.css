@@ -507,12 +507,21 @@
   box-shadow: 0 0 0 5px color-mix(in srgb, #4f8b59 10%, transparent);
 }
 
+.bqa-owner-status-strip--closed .bqa-owner-status-dot {
+  background: var(--rose);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--rose) 14%, transparent);
+}
+
 .bqa-owner-status-copy strong {
   display: block;
   color: #4f8b59;
   font-size: clamp(17px, 2.1vw, 20px);
   font-weight: 700;
   line-height: 1.08;
+}
+
+.bqa-owner-status-strip--closed .bqa-owner-status-copy strong {
+  color: #9a514c;
 }
 
 .bqa-owner-status-copy p {
@@ -523,7 +532,15 @@
   line-height: 1.25;
 }
 
-.bqa-owner-break-action {
+.bqa-owner-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.bqa-owner-break-action,
+.bqa-owner-intake-action {
   min-height: 38px;
   border-radius: 10px;
   padding-inline: 12px;
@@ -1017,7 +1034,18 @@
   }
 
   .bqa-owner-status-strip {
+    grid-template-columns: 1fr;
+    gap: 12px;
     padding-inline: 16px;
+  }
+
+  .bqa-owner-status-copy {
+    align-items: flex-start;
+  }
+
+  .bqa-owner-status-copy p {
+    max-width: 26ch;
+    line-height: 1.35;
   }
 
   .bqa-owner-status-copy strong {
@@ -1032,6 +1060,18 @@
     min-height: 42px;
     padding-inline: 12px;
     font-size: 14px;
+  }
+
+  .bqa-owner-status-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bqa-owner-status-actions form,
+  .bqa-owner-status-actions .ui-button {
+    width: 100%;
+    min-width: 0;
   }
 
   .bqa-owner-summary-strip {
