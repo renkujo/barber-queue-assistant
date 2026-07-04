@@ -936,71 +936,6 @@
   font-weight: 700;
 }
 
-.bqa-owner-closed-list {
-  overflow: hidden;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--owner-radius-board);
-  background: color-mix(in srgb, var(--surface) 84%, var(--paper));
-}
-
-.bqa-owner-closed-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border-bottom: 1px solid var(--line);
-  padding: 10px 14px;
-}
-
-.bqa-owner-closed-heading h2,
-.bqa-owner-closed-heading p {
-  margin: 0;
-}
-
-.bqa-owner-closed-content {
-  padding: 0;
-}
-
-.bqa-owner-closed-heading h2 {
-  color: var(--ink);
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.bqa-owner-closed-heading p {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.bqa-owner-closed-table {
-  min-width: 720px;
-}
-
-.bqa-owner-closed-table strong {
-  min-width: 0;
-  color: var(--ink);
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
-.bqa-owner-closed-table .ui-table-head:first-child,
-.bqa-owner-closed-table .ui-table-cell:first-child {
-  width: 72px;
-}
-
-.bqa-owner-closed-table .ui-table-head:last-child,
-.bqa-owner-closed-table .ui-table-cell:last-child {
-  width: 116px;
-}
-
-.bqa-owner-closed-table .ui-table-head:nth-child(4),
-.bqa-owner-closed-table .ui-table-cell:nth-child(4) {
-  width: 104px;
-}
-
 .bqa-owner-restore-button {
   min-height: 32px;
   border-color: var(--line-strong);
@@ -1014,19 +949,6 @@
   background: color-mix(in srgb, var(--primary-soft) 42%, var(--surface));
   color: var(--ink);
   box-shadow: none;
-}
-
-.bqa-owner-closed-time {
-  color: color-mix(in srgb, var(--ink) 74%, var(--muted));
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.bqa-owner-closed-note {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .bqa-owner-side-rail {
@@ -1200,15 +1122,6 @@
     font-size: 12px;
   }
 
-  .bqa-owner-closed-list {
-    border-right: 0;
-    border-left: 0;
-    border-radius: 0;
-  }
-
-  .bqa-owner-closed-table {
-    min-width: 680px;
-  }
 }
 
 @media (min-width: 980px) {
