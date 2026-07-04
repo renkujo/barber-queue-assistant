@@ -644,7 +644,7 @@
   padding: 14px 16px;
 }
 
-.bqa-owner-queue-heading h1 {
+.bqa-owner-queue-heading .ui-card-title {
   margin: 0;
   color: var(--ink);
   font-size: clamp(23px, 3.8vw, 28px);
@@ -652,7 +652,7 @@
   line-height: 1.08;
 }
 
-.bqa-owner-queue-heading p {
+.bqa-owner-queue-heading .ui-card-description {
   margin: 5px 0 0;
   color: var(--muted);
   font-size: 13px;
@@ -674,6 +674,10 @@
 
 .bqa-owner-queue-list {
   border-top: 1px solid var(--line);
+}
+
+.bqa-owner-queue-content {
+  padding: 0;
 }
 
 .bqa-owner-queue-row {
@@ -954,6 +958,10 @@
   margin: 0;
 }
 
+.bqa-owner-closed-content {
+  padding: 0;
+}
+
 .bqa-owner-closed-heading h2 {
   color: var(--ink);
   font-size: 15px;
@@ -1028,20 +1036,25 @@
 
 .bqa-owner-rail-panel {
   border-radius: 14px;
-  padding: 14px;
+  padding: 0;
 }
 
 .bqa-owner-rail-panel h2 {
-  margin: 0 0 12px;
+  margin: 0;
   color: var(--ink);
   font-size: 16px;
   font-weight: 700;
   line-height: 1.2;
 }
 
+.bqa-owner-rail-header {
+  padding: 14px 14px 0;
+}
+
 .bqa-owner-rail-actions {
   display: grid;
   gap: 10px;
+  padding: 12px 14px 14px;
 }
 
 .bqa-owner-rail-actions .ui-button {
@@ -1053,6 +1066,10 @@
 .bqa-owner-rail-summary {
   display: grid;
   margin: 0;
+}
+
+.bqa-owner-rail-summary-content {
+  padding: 4px 14px 8px;
 }
 
 .bqa-owner-rail-summary div {
@@ -1087,6 +1104,10 @@
 }
 
 .bqa-owner-notification-panel {
+  padding: 0;
+}
+
+.bqa-owner-notification-content {
   padding: 0;
 }
 
@@ -1366,11 +1387,11 @@
     padding-inline: var(--owner-gutter-mobile);
   }
 
-  .bqa-owner-queue-heading h1 {
+  .bqa-owner-queue-heading .ui-card-title {
     font-size: 21px;
   }
 
-  .bqa-owner-queue-heading p {
+  .bqa-owner-queue-heading .ui-card-description {
     font-size: 13px;
   }
 

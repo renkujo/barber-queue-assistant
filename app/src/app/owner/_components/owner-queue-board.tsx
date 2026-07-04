@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { type ReactNode } from "react";
 import { QueueItemStatus } from "@/generated/prisma/enums";
-import { Button, Icon, type IButtonProps } from "@/components/ui";
+import { Button, Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle, Icon, type IButtonProps } from "@/components/ui";
 import { StatusBadge } from "@/components/barber/app-ui";
 import { updateQueueStatusAction } from "../actions";
 import { ConfirmStatusActionButton } from "../confirm-status-action-button";
@@ -212,40 +212,44 @@ export const OwnerQueueBoard = ({
   primaryItemId?: string;
   queue: QueueListItem[];
 }) => (
-  <section className="bqa-owner-queue-board" aria-labelledby="owner-queue-title">
-    <div className="bqa-owner-queue-heading">
+  <Card className="bqa-owner-queue-board" aria-labelledby="owner-queue-title">
+    <CardHeader className="bqa-owner-queue-heading">
       <div>
-        <h1 id="owner-queue-title">รายการวันนี้</h1>
-        <p>{queue.length} คิวในระบบวันนี้</p>
+        <CardTitle id="owner-queue-title">รายการวันนี้</CardTitle>
+        <CardDescription>{queue.length} คิวในระบบวันนี้</CardDescription>
       </div>
-      <Button asChild size="lg" className="bqa-owner-add-walkin">
-        <Link href="/owner/walk-in">
-          <Icon icon="lucide:plus" aria-hidden="true" />เพิ่ม walk-in
-        </Link>
-      </Button>
-    </div>
+      <CardAction>
+        <Button asChild size="lg" className="bqa-owner-add-walkin">
+          <Link href="/owner/walk-in">
+            <Icon icon="lucide:plus" aria-hidden="true" />เพิ่ม walk-in
+          </Link>
+        </Button>
+      </CardAction>
+    </CardHeader>
 
-    <div className="bqa-owner-queue-head" aria-hidden="true">
-      <span><Icon icon="lucide:clock" />เวลา</span>
-      <span>คิว</span>
-      <span>บริการ / หมายเหตุ</span>
-      <span>สถานะ</span>
-      <span>จัดการ</span>
-    </div>
+    <CardContent className="bqa-owner-queue-content">
+      <div className="bqa-owner-queue-head" aria-hidden="true">
+        <span><Icon icon="lucide:clock" />เวลา</span>
+        <span>คิว</span>
+        <span>บริการ / หมายเหตุ</span>
+        <span>สถานะ</span>
+        <span>จัดการ</span>
+      </div>
 
-    <div className="bqa-owner-queue-list">
-      {queue.length > 0 ? (
-        queue.map((item) => (
-          <OwnerQueueRow
-            canMutateQueue={canMutateQueue}
-            isPrimaryCandidate={item.id === primaryItemId}
-            item={item}
-            key={item.id}
-          />
-        ))
-      ) : (
-        <div className="bqa-owner-queue-empty">ยังไม่มีคิววันนี้</div>
-      )}
-    </div>
-  </section>
+      <div className="bqa-owner-queue-list">
+        {queue.length > 0 ? (
+          queue.map((item) => (
+            <OwnerQueueRow
+              canMutateQueue={canMutateQueue}
+              isPrimaryCandidate={item.id === primaryItemId}
+              item={item}
+              key={item.id}
+            />
+          ))
+        ) : (
+          <div className="bqa-owner-queue-empty">ยังไม่มีคิววันนี้</div>
+        )}
+      </div>
+    </CardContent>
+  </Card>
 );

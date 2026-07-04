@@ -27,6 +27,19 @@
   padding: 16px;
 }
 
+.ui-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+}
+
+.ui-card-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .ui-button {
   display: inline-flex;
   align-items: center;

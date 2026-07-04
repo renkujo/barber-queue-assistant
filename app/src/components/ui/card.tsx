@@ -30,3 +30,15 @@ export type ICardContentProps = ComponentPropsWithoutRef<"div">;
 export const CardContent = ({ className, ...props }: ICardContentProps) => (
   <div className={cn("ui-card-content", className)} {...props} />
 );
+
+export type ICardFooterProps = ComponentPropsWithoutRef<"div">;
+
+export const CardFooter = ({ className, ...props }: ICardFooterProps) => (
+  <div className={cn("ui-card-footer", className)} {...props} />
+);
+
+export type ICardActionProps = ComponentPropsWithoutRef<"div">;
+
+export const CardAction = ({ className, ...props }: ICardActionProps) => (
+  <div className={cn("ui-card-action", className)} {...props} />
+);
