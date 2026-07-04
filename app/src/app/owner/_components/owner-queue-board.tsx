@@ -1,11 +1,26 @@
 import Link from "next/link";
 import { type ReactNode } from "react";
-import { QueueItemStatus } from "@/generated/prisma/enums";
-import { Button, Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle, Icon, type IButtonProps } from "@/components/ui";
 import { StatusBadge } from "@/components/barber/app-ui";
+import {
+  Button,
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Icon,
+  type IButtonProps,
+} from "@/components/ui";
+import { QueueItemStatus } from "@/generated/prisma/enums";
+import { cn } from "@/lib/cn";
+import type { QueueListItem } from "@/lib/queue/repository";
 import { updateQueueStatusAction } from "../actions";
 import { ConfirmStatusActionButton } from "../confirm-status-action-button";
-import type { QueueListItem } from "@/lib/queue/repository";
+
+type OwnerQueueRowItem = QueueListItem & {
+  ownerNote?: string;
+};
 
 const rowTone = (tone?: "current" | "next" | "warning") => {
   if (tone === "current") return "positive";
@@ -100,8 +115,8 @@ const NoShowConfirmButton = ({ item, disabled }: { item: QueueListItem; disabled
   />
 );
 
-const QueueRowNote = ({ item }: { item: QueueListItem }) => {
-  const ownerNote = (item as QueueListItem & { ownerNote?: string }).ownerNote;
+const QueueRowNote = ({ item }: { item: OwnerQueueRowItem }) => {
+  const ownerNote = item.ownerNote;
 
   if (!ownerNote) {
     return <>{item.note}</>;
@@ -114,6 +129,40 @@ const QueueRowNote = ({ item }: { item: QueueListItem }) => {
     </span>
   );
 };
+
+const QueueRowEditLink = ({ item }: { item: QueueListItem }) => (
+  <Link href={`/owner/queue/${item.id}/edit`} className="bqa-owner-queue-edit">
+    <Icon icon="lucide:square-pen" aria-hidden="true" />แก้ไข
+  </Link>
+);
+
+const QueueRowTime = ({ item }: { item: QueueListItem }) => (
+  <div className="bqa-owner-queue-time">{item.timeLabel}</div>
+);
+
+const QueueRowIdentity = ({ canMutateQueue, item }: { canMutateQueue: boolean; item: OwnerQueueRowItem }) => (
+  <div className="bqa-owner-queue-main">
+    <strong>
+      {item.code} {item.customerName}
+    </strong>
+    {canMutateQueue ? <QueueRowEditLink item={item} /> : null}
+    <p className="bqa-owner-queue-mobile-note">
+      <QueueRowNote item={item} />
+    </p>
+  </div>
+);
+
+const QueueRowServiceNote = ({ item }: { item: OwnerQueueRowItem }) => (
+  <div className="bqa-owner-queue-note">
+    <QueueRowNote item={item} />
+  </div>
+);
+
+const QueueRowStatus = ({ item }: { item: QueueListItem }) => (
+  <div className="bqa-owner-queue-status">
+    <StatusBadge tone={rowTone(item.tone)}>{item.statusLabel}</StatusBadge>
+  </div>
+);
 
 const QueueRowActions = ({
   disabled,
@@ -174,29 +223,13 @@ const OwnerQueueRow = ({
 }: {
   canMutateQueue: boolean;
   isPrimaryCandidate: boolean;
-  item: QueueListItem;
+  item: OwnerQueueRowItem;
 }) => (
-  <article className={`bqa-owner-queue-row ${isPrimaryCandidate ? "bqa-owner-queue-row--active" : ""} bqa-tone-${rowTone(item.tone)}`}>
-    <div className="bqa-owner-queue-time">{item.timeLabel}</div>
-    <div className="bqa-owner-queue-main">
-      <strong>
-        {item.code} {item.customerName}
-      </strong>
-      {canMutateQueue ? (
-        <Link href={`/owner/queue/${item.id}/edit`} className="bqa-owner-queue-edit">
-          <Icon icon="lucide:square-pen" aria-hidden="true" />แก้ไข
-        </Link>
-      ) : null}
-      <p className="bqa-owner-queue-mobile-note">
-        <QueueRowNote item={item} />
-      </p>
-    </div>
-    <div className="bqa-owner-queue-note">
-      <QueueRowNote item={item} />
-    </div>
-    <div className="bqa-owner-queue-status">
-      <StatusBadge tone={rowTone(item.tone)}>{item.statusLabel}</StatusBadge>
-    </div>
+  <article className={cn("bqa-owner-queue-row", isPrimaryCandidate && "bqa-owner-queue-row--active", `bqa-tone-${rowTone(item.tone)}`)}>
+    <QueueRowTime item={item} />
+    <QueueRowIdentity canMutateQueue={canMutateQueue} item={item} />
+    <QueueRowServiceNote item={item} />
+    <QueueRowStatus item={item} />
     <div className="bqa-owner-queue-manage">
       <QueueRowActions item={item} disabled={!canMutateQueue} isPrimaryCandidate={isPrimaryCandidate} />
     </div>
