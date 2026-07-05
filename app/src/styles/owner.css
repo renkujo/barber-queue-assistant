@@ -284,6 +284,74 @@
   font-weight: 700;
 }
 
+.bqa-owner-menu-dialog {
+  padding: 18px;
+}
+
+.bqa-owner-menu-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.bqa-owner-menu-link {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-height: 66px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 88%, var(--paper));
+  color: var(--ink);
+  padding: 11px 12px;
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    transform 120ms ease;
+}
+
+.bqa-owner-menu-link:hover {
+  border-color: color-mix(in srgb, var(--primary) 70%, var(--line-strong));
+  background: color-mix(in srgb, var(--primary-soft) 24%, var(--surface));
+}
+
+.bqa-owner-menu-link:active {
+  transform: translateY(1px) scale(0.992);
+}
+
+.bqa-owner-menu-icon {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-warm);
+  color: var(--ink);
+}
+
+.bqa-owner-menu-link strong,
+.bqa-owner-menu-link small {
+  display: block;
+}
+
+.bqa-owner-menu-link strong {
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.bqa-owner-menu-link small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
 .bqa-owner-board-content {
   padding: 0 0 24px;
 }
@@ -988,15 +1056,15 @@
 }
 
 .bqa-owner-board-actions .bqa-owner-action-button--start {
-  border-color: color-mix(in srgb, var(--primary-strong) 82%, var(--ink));
-  background: var(--primary-strong);
-  color: var(--primary-foreground);
+  border-color: color-mix(in srgb, var(--primary-strong) 58%, var(--ink));
+  background: color-mix(in srgb, var(--primary-strong) 72%, var(--ink));
+  color: var(--paper);
 }
 
 .bqa-owner-board-actions .bqa-owner-action-button--start:hover {
-  border-color: color-mix(in srgb, var(--primary-strong) 88%, var(--ink));
-  background: color-mix(in srgb, var(--primary-strong) 88%, var(--ink));
-  color: var(--primary-foreground);
+  border-color: color-mix(in srgb, var(--primary-strong) 48%, var(--ink));
+  background: color-mix(in srgb, var(--primary-strong) 62%, var(--ink));
+  color: var(--paper);
 }
 
 .bqa-owner-board-actions .bqa-owner-action-button--done {

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button, Icon } from "@/components/ui";
+import { OwnerMenuButton } from "./owner-menu-button";
 
 export const OwnerTopbar = () => (
   <header className="bqa-owner-board-topbar">
@@ -19,12 +20,7 @@ export const OwnerTopbar = () => (
           <span>ตั้งค่า</span>
         </Link>
       </Button>
-      <Button asChild variant="outline" size="md" className="bqa-owner-board-icon-button">
-        <Link href="/owner/walk-in">
-          <Icon icon="lucide:list" aria-hidden="true" />
-          <span>เมนู</span>
-        </Link>
-      </Button>
+      <OwnerMenuButton />
       <Button asChild variant="outline" size="md" className="bqa-owner-board-icon-button bqa-owner-board-refresh-button">
         <Link href="/owner">
           <Icon icon="lucide:refresh-cw" aria-hidden="true" />
