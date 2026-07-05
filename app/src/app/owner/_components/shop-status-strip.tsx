@@ -9,6 +9,33 @@ type ShopStatusStripProps = {
   waitEstimate: QueueStatusSnapshot["shop"];
 };
 
+const formatFriendlyWait = (minutes: number) => {
+  if (minutes <= 0) {
+    return "ยังไม่ต้องรอ";
+  }
+
+  if (minutes < 60) {
+    return `ประมาณ ${minutes} นาที`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (!remainingMinutes) {
+    return `ประมาณ ${hours} ชม.`;
+  }
+
+  return `ประมาณ ${hours} ชม. ${remainingMinutes} นาที`;
+};
+
+const getWaitSourceLabel = (waitEstimate: QueueStatusSnapshot["shop"]) => {
+  if (waitEstimate.waitEstimateSource === "manual") {
+    return "เจ้าของร้านปรับเอง";
+  }
+
+  return "คำนวณจากคิวตอนนี้";
+};
+
 const WaitAdjustButton = ({
   children,
   currentWaitMinutes,
@@ -43,9 +70,9 @@ export const ShopStatusStrip = ({ breakAction, intakeAction, settings, waitActio
 
     <div className="bqa-owner-wait-control" aria-label="ปรับเวลารอที่แจ้งลูกค้า">
       <div>
-        <span>เวลารอแจ้งลูกค้า</span>
-        <strong>{waitEstimate.estimatedWaitMinutes} นาที</strong>
-        <small>{waitEstimate.waitEstimateSource === "manual" ? "ปรับเอง" : "คำนวณจากคิว"}</small>
+        <span>เวลารอโดยประมาณ</span>
+        <strong>{formatFriendlyWait(waitEstimate.estimatedWaitMinutes)}</strong>
+        <small>{getWaitSourceLabel(waitEstimate)}</small>
       </div>
       <div className="bqa-owner-wait-actions">
         <WaitAdjustButton currentWaitMinutes={waitEstimate.estimatedWaitMinutes} intent="add-10" waitAction={waitAction}>+10</WaitAdjustButton>

@@ -677,9 +677,9 @@
   display: block;
   margin-top: 2px;
   color: var(--ink);
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
-  line-height: 1;
+  line-height: 1.15;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1315,7 +1315,7 @@
   }
 
   .bqa-owner-wait-control strong {
-    font-size: 20px;
+    font-size: clamp(18px, 5vw, 20px);
   }
 
   .bqa-owner-wait-actions {
@@ -1426,8 +1426,15 @@
   }
 
   .bqa-owner-queue-main strong {
+    display: block;
     overflow-wrap: anywhere;
     font-size: 17px;
+  }
+
+  .bqa-owner-queue-edit {
+    width: fit-content;
+    margin-top: 6px;
+    margin-left: 0;
   }
 
   .bqa-owner-queue-manage {
