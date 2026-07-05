@@ -213,13 +213,26 @@ const QueueRowReorderActions = ({
 
   const isFirst = rowIndex === 0;
   const isLast = rowIndex === totalCount - 1;
-
-  return (
-    <div className="bqa-owner-reorder-actions" aria-label={`จัดลำดับ ${item.code} ${item.customerName}`}>
+  const reorderControls = (
+    <>
       <ReorderActionButton disabled={disabled || isFirst} intent="up" itemId={item.id} label="ขึ้น" />
       <ReorderActionButton disabled={disabled || isLast} intent="down" itemId={item.id} label="ลง" />
       <ReorderActionButton disabled={disabled || isLast} intent="bottom" itemId={item.id} label="ท้าย" />
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      <details className="bqa-owner-reorder-disclosure">
+        <summary>จัดลำดับ</summary>
+        <div className="bqa-owner-reorder-actions" aria-label={`จัดลำดับ ${item.code} ${item.customerName}`}>
+          {reorderControls}
+        </div>
+      </details>
+      <div className="bqa-owner-reorder-actions bqa-owner-reorder-actions--desktop" aria-label={`จัดลำดับ ${item.code} ${item.customerName}`}>
+        {reorderControls}
+      </div>
+    </>
   );
 };
 
