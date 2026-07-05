@@ -15,7 +15,7 @@ import {
 import { QueueItemStatus } from "@/generated/prisma/enums";
 import { cn } from "@/lib/cn";
 import type { QueueListItem } from "@/lib/queue/repository";
-import { updateQueueStatusAction } from "../actions";
+import { updateQueueOrderAction, updateQueueStatusAction } from "../actions";
 import { ConfirmStatusActionButton } from "../confirm-status-action-button";
 
 type OwnerQueueRowItem = QueueListItem & {
@@ -37,6 +37,8 @@ type StatusActionButtonProps = {
   disabled?: boolean;
   className?: string;
 };
+
+type QueueReorderIntent = "up" | "down" | "bottom";
 
 const StatusActionButton = ({
   itemId,
@@ -164,6 +166,63 @@ const QueueRowStatus = ({ item }: { item: QueueListItem }) => (
   </div>
 );
 
+const ReorderActionButton = ({
+  disabled,
+  intent,
+  itemId,
+  label,
+}: {
+  disabled: boolean;
+  intent: QueueReorderIntent;
+  itemId: string;
+  label: string;
+}) => {
+  if (disabled) {
+    return (
+      <Button variant="outline" type="button" size="sm" disabled fullWidth className="bqa-owner-reorder-button">
+        {label}
+      </Button>
+    );
+  }
+
+  return (
+    <form action={updateQueueOrderAction}>
+      <input name="queueItemId" type="hidden" value={itemId} />
+      <input name="intent" type="hidden" value={intent} />
+      <Button variant="outline" type="submit" size="sm" fullWidth className="bqa-owner-reorder-button">
+        {label}
+      </Button>
+    </form>
+  );
+};
+
+const QueueRowReorderActions = ({
+  disabled,
+  item,
+  rowIndex,
+  totalCount,
+}: {
+  disabled: boolean;
+  item: QueueListItem;
+  rowIndex: number;
+  totalCount: number;
+}) => {
+  if (totalCount < 2 || item.status === QueueItemStatus.IN_PROGRESS) {
+    return null;
+  }
+
+  const isFirst = rowIndex === 0;
+  const isLast = rowIndex === totalCount - 1;
+
+  return (
+    <div className="bqa-owner-reorder-actions" aria-label={`จัดลำดับ ${item.code} ${item.customerName}`}>
+      <ReorderActionButton disabled={disabled || isFirst} intent="up" itemId={item.id} label="ขึ้น" />
+      <ReorderActionButton disabled={disabled || isLast} intent="down" itemId={item.id} label="ลง" />
+      <ReorderActionButton disabled={disabled || isLast} intent="bottom" itemId={item.id} label="ท้าย" />
+    </div>
+  );
+};
+
 const QueueRowActions = ({
   disabled,
   isPrimaryCandidate,
@@ -220,10 +279,14 @@ const OwnerQueueRow = ({
   canMutateQueue,
   isPrimaryCandidate,
   item,
+  rowIndex,
+  totalCount,
 }: {
   canMutateQueue: boolean;
   isPrimaryCandidate: boolean;
   item: OwnerQueueRowItem;
+  rowIndex: number;
+  totalCount: number;
 }) => (
   <article className={cn("bqa-owner-queue-row", isPrimaryCandidate && "bqa-owner-queue-row--active", `bqa-tone-${rowTone(item.tone)}`)}>
     <QueueRowTime item={item} />
@@ -232,6 +295,7 @@ const OwnerQueueRow = ({
     <QueueRowStatus item={item} />
     <div className="bqa-owner-queue-manage">
       <QueueRowActions item={item} disabled={!canMutateQueue} isPrimaryCandidate={isPrimaryCandidate} />
+      <QueueRowReorderActions disabled={!canMutateQueue} item={item} rowIndex={rowIndex} totalCount={totalCount} />
     </div>
   </article>
 );
@@ -271,12 +335,14 @@ export const OwnerQueueBoard = ({
 
       <div className="bqa-owner-queue-list">
         {queue.length > 0 ? (
-          queue.map((item) => (
+          queue.map((item, index) => (
             <OwnerQueueRow
               canMutateQueue={canMutateQueue}
               isPrimaryCandidate={item.id === primaryItemId}
               item={item}
               key={item.id}
+              rowIndex={index}
+              totalCount={queue.length}
             />
           ))
         ) : (

@@ -2,7 +2,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { QueueCreatedBy, QueueItemStatus, QueueItemType } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { createDateTime, getDayBounds, getTodayValue, getTomorrowValue } from "@/lib/queue/date";
-import { createWalkIn, getQueueStatusSnapshot, restoreClosedQueueItem, updateQueueItemStatus } from "@/lib/queue/repository";
+import { createWalkIn, getQueueStatusSnapshot, reorderQueueItem, restoreClosedQueueItem, updateQueueItemStatus } from "@/lib/queue/repository";
 
 const testPrefix = "VI-REPO";
 const serviceId = "vitest-service";
@@ -187,6 +187,54 @@ describe("queue repository status workflow", () => {
 
     await expect(restoreClosedQueueItem(activeItem.id)).rejects.toThrow("Queue item cannot be restored.");
     await expect(restoreClosedQueueItem(tomorrowItem.id)).rejects.toThrow("Queue item cannot be restored.");
+  });
+
+  it("reorders active queue items within the same day", async () => {
+    const dateValue = "2099-12-30";
+    const first = await createQueueItem({ name: `${testPrefix} reorder first`, dateValue, sortOrder: 1 });
+    await createQueueItem({ name: `${testPrefix} reorder second`, dateValue, sortOrder: 2 });
+    const third = await createQueueItem({ name: `${testPrefix} reorder third`, dateValue, sortOrder: 3 });
+    const { start, end } = getDayBounds(dateValue);
+
+    await reorderQueueItem(third.id, "up");
+
+    const afterMoveUp = await prisma.queueItem.findMany({
+      where: {
+        customerNameSnapshot: { startsWith: `${testPrefix} reorder` },
+        date: { gte: start, lt: end },
+      },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    });
+
+    expect(afterMoveUp.map((item) => item.customerNameSnapshot)).toEqual([
+      `${testPrefix} reorder first`,
+      `${testPrefix} reorder third`,
+      `${testPrefix} reorder second`,
+    ]);
+
+    await reorderQueueItem(third.id, "bottom");
+
+    const afterMoveBottom = await prisma.queueItem.findMany({
+      where: {
+        customerNameSnapshot: { startsWith: `${testPrefix} reorder` },
+        date: { gte: start, lt: end },
+      },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    });
+
+    expect(afterMoveBottom.map((item) => item.customerNameSnapshot)).toEqual([
+      `${testPrefix} reorder first`,
+      `${testPrefix} reorder second`,
+      `${testPrefix} reorder third`,
+    ]);
+
+    await expect(reorderQueueItem(first.id, "up")).resolves.toBeTruthy();
+  });
+
+  it("rejects reordering the in-progress queue item", async () => {
+    const item = await createQueueItem({ name: `${testPrefix} reorder current`, status: QueueItemStatus.IN_PROGRESS });
+
+    await expect(reorderQueueItem(item.id, "bottom")).rejects.toThrow("Queue item cannot be reordered.");
   });
 
   it("returns an empty database snapshot instead of fallback when no active queue exists", async () => {

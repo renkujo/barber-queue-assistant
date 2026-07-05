@@ -20,6 +20,7 @@ const errorMessages: Record<string, string> = {
   "action-failed": "ยังอัปเดตสถานะไม่ได้ ตรวจว่าเป็นคิวจากฐานข้อมูลจริงก่อน",
   "break-failed": "ยังเพิ่มเวลาพักไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
   "intake-failed": "ยังเปลี่ยนสถานะรับคิวไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
+  "reorder-failed": "ยังเลื่อนลำดับคิวไม่ได้ ตรวจว่าเป็นคิว active ของวันนี้ก่อน",
   "restore-failed": "ยังเปิดคิวนี้กลับไม่ได้ ตรวจว่าเป็นคิวที่ปิดแล้วของวันนี้ก่อน",
 };
 
@@ -30,6 +31,7 @@ const statusMessages: Record<string, string> = {
   "intake-opened": "เปิดรับคิวจากลูกค้าแล้ว",
   "queue-updated": "แก้ไขคิวเรียบร้อยแล้ว",
   "queue-restored": "เปิดคิวกลับเข้ารายการวันนี้แล้ว",
+  "queue-reordered": "เลื่อนลำดับคิวแล้ว",
   "walk-in-created": "เพิ่ม walk-in เข้าคิววันนี้แล้ว",
 };
 

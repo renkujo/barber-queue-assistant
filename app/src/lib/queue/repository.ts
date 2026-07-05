@@ -106,6 +106,8 @@ export type UpdateQueueItemInput = {
   ownerNote?: string;
 };
 
+export type QueueReorderIntent = "up" | "down" | "bottom";
+
 export type BookingSlot = {
   value: string;
   label: string;
@@ -159,7 +161,7 @@ const notificationTypeLabels: Record<NotificationType, string> = {
   [NotificationType.NO_SHOW]: "ไม่มา",
 };
 
-const activeQueueStatusExclusions = [QueueItemStatus.CANCELLED, QueueItemStatus.DONE, QueueItemStatus.NO_SHOW];
+const activeQueueStatusExclusions: QueueItemStatus[] = [QueueItemStatus.CANCELLED, QueueItemStatus.DONE, QueueItemStatus.NO_SHOW];
 const closedQueueStatuses: QueueItemStatus[] = [QueueItemStatus.CANCELLED, QueueItemStatus.DONE, QueueItemStatus.NO_SHOW];
 
 const customerCounterByStatus = {
@@ -568,6 +570,67 @@ export const restoreClosedQueueItem = async (id: string) => {
         noShowAt: null,
       },
     });
+  });
+};
+
+export const reorderQueueItem = async (id: string, intent: QueueReorderIntent) => {
+  const existingItem = await prisma.queueItem.findUnique({ where: { id } });
+
+  if (!existingItem) {
+    throw new Error("Queue item not found.");
+  }
+
+  if (existingItem.status === QueueItemStatus.IN_PROGRESS || activeQueueStatusExclusions.includes(existingItem.status)) {
+    throw new Error("Queue item cannot be reordered.");
+  }
+
+  const { start, end } = getDayBounds(toDateValue(existingItem.date));
+
+  return prisma.$transaction(async (tx) => {
+    const queueItems = await tx.queueItem.findMany({
+      where: {
+        date: {
+          gte: start,
+          lt: end,
+        },
+        status: {
+          notIn: activeQueueStatusExclusions,
+        },
+      },
+      orderBy: [{ sortOrder: "asc" }, { startAt: "asc" }, { estimatedAt: "asc" }, { createdAt: "asc" }],
+      select: { id: true },
+    });
+    const currentIndex = queueItems.findIndex((item) => item.id === id);
+
+    if (currentIndex === -1) {
+      throw new Error("Queue item cannot be reordered.");
+    }
+
+    const reorderedItems = [...queueItems];
+
+    if (intent === "up" && currentIndex > 0) {
+      [reorderedItems[currentIndex - 1], reorderedItems[currentIndex]] = [reorderedItems[currentIndex], reorderedItems[currentIndex - 1]];
+    }
+
+    if (intent === "down" && currentIndex < reorderedItems.length - 1) {
+      [reorderedItems[currentIndex], reorderedItems[currentIndex + 1]] = [reorderedItems[currentIndex + 1], reorderedItems[currentIndex]];
+    }
+
+    if (intent === "bottom" && currentIndex < reorderedItems.length - 1) {
+      const [selectedItem] = reorderedItems.splice(currentIndex, 1);
+      reorderedItems.push(selectedItem);
+    }
+
+    await Promise.all(
+      reorderedItems.map((item, index) =>
+        tx.queueItem.update({
+          where: { id: item.id },
+          data: { sortOrder: index + 1 },
+        }),
+      ),
+    );
+
+    return tx.queueItem.findUniqueOrThrow({ where: { id } });
   });
 };
 

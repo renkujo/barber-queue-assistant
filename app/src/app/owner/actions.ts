@@ -9,6 +9,8 @@ import { notifyQueueEventSafe } from "@/lib/notifications/queue-notifications";
 import {
   createBreakTimeBlock,
   createOwnerWalkIn,
+  reorderQueueItem,
+  type QueueReorderIntent,
   restoreClosedQueueItem,
   setQueueIntakeEnabled,
   updateQueueItem,
@@ -16,6 +18,7 @@ import {
 } from "@/lib/queue/repository";
 
 const allowedStatus = new Set<string>(Object.values(QueueItemStatus));
+const allowedReorderIntent = new Set<QueueReorderIntent>(["up", "down", "bottom"]);
 
 const notificationTypeByStatus: Partial<Record<QueueItemStatus, NotificationType>> = {
   [QueueItemStatus.IN_PROGRESS]: NotificationType.QUEUE_NEAR,
@@ -110,6 +113,28 @@ export const restoreQueueItemAction = async (formData: FormData) => {
   revalidatePath(`/queue/${queueItemId}`);
   revalidatePath("/api/queue/status");
   redirect("/owner?status=queue-restored");
+};
+
+export const updateQueueOrderAction = async (formData: FormData) => {
+  await requireOwnerSession();
+
+  const queueItemId = String(formData.get("queueItemId") ?? "");
+  const intent = String(formData.get("intent") ?? "") as QueueReorderIntent;
+
+  if (!queueItemId || !allowedReorderIntent.has(intent)) {
+    redirect("/owner?error=invalid-action");
+  }
+
+  try {
+    await reorderQueueItem(queueItemId, intent);
+  } catch {
+    redirect("/owner?error=reorder-failed");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/owner");
+  revalidatePath("/api/queue/status");
+  redirect("/owner?status=queue-reordered");
 };
 
 export const updateQueueItemAction = async (formData: FormData) => {

@@ -827,6 +827,8 @@
 .bqa-owner-queue-manage {
   grid-column: 3;
   grid-row: 1 / span 2;
+  display: grid;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -835,8 +837,33 @@
   gap: 6px;
 }
 
-.bqa-owner-board-actions form {
+.bqa-owner-board-actions form,
+.bqa-owner-reorder-actions form {
   min-width: 0;
+}
+
+.bqa-owner-reorder-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.bqa-owner-reorder-button {
+  min-height: 30px;
+  border-color: var(--line-strong);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 88%, var(--paper));
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.bqa-owner-reorder-button:hover {
+  border-color: color-mix(in srgb, var(--primary) 62%, var(--line-strong));
+  background: color-mix(in srgb, var(--primary-soft) 28%, var(--surface));
+  color: var(--ink);
+  box-shadow: none;
 }
 
 .bqa-owner-board-actions--quiet {
@@ -1193,6 +1220,11 @@
     font-size: 13px;
   }
 
+  .bqa-owner-reorder-button {
+    min-height: 36px;
+    font-size: 12px;
+  }
+
 }
 
 @media (min-width: 980px) {
@@ -1282,6 +1314,11 @@
   .bqa-owner-passive-action {
     min-height: 36px;
     font-size: 13px;
+  }
+
+  .bqa-owner-reorder-button {
+    min-height: 30px;
+    font-size: 12px;
   }
 
   .bqa-owner-board-actions--terminal,
