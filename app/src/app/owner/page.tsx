@@ -1,6 +1,6 @@
 import { Notice } from "@/components/barber/app-ui";
 import { RouteToast } from "@/components/ui";
-import { createBreakAction, updateQueueIntakeAction } from "./actions";
+import { createBreakAction, updateManualWaitAction, updateQueueIntakeAction } from "./actions";
 import { requireOwnerSession } from "@/lib/admin-auth";
 import { getOwnerClosedQueueItemsSafe, getOwnerQueueStatusSnapshotSafe, getOwnerRecentNotificationLogsSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
 import { CurrentNextSummary } from "./_components/current-next-summary";
@@ -22,6 +22,7 @@ const errorMessages: Record<string, string> = {
   "intake-failed": "ยังเปลี่ยนสถานะรับคิวไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
   "reorder-failed": "ยังเลื่อนลำดับคิวไม่ได้ ตรวจว่าเป็นคิว active ของวันนี้ก่อน",
   "restore-failed": "ยังเปิดคิวนี้กลับไม่ได้ ตรวจว่าเป็นคิวที่ปิดแล้วของวันนี้ก่อน",
+  "wait-failed": "ยังปรับเวลารอไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
 };
 
 const statusMessages: Record<string, string> = {
@@ -32,6 +33,8 @@ const statusMessages: Record<string, string> = {
   "queue-updated": "แก้ไขคิวเรียบร้อยแล้ว",
   "queue-restored": "เปิดคิวกลับเข้ารายการวันนี้แล้ว",
   "queue-reordered": "เลื่อนลำดับคิวแล้ว",
+  "wait-reset": "รีเซ็ตเวลารอกลับเป็นค่าคำนวณแล้ว",
+  "wait-updated": "ปรับเวลารอที่แจ้งลูกค้าแล้ว",
   "walk-in-created": "เพิ่ม walk-in เข้าคิววันนี้แล้ว",
 };
 
@@ -71,7 +74,13 @@ const OwnerPage = async ({ searchParams }: OwnerPageProps) => {
         {statusMessage ? <Notice tone="warm">{statusMessage}</Notice> : null}
         {errorMessage ? <Notice>{errorMessage}</Notice> : null}
 
-        <ShopStatusStrip breakAction={createBreakAction} intakeAction={updateQueueIntakeAction} settings={intakeSettings} />
+        <ShopStatusStrip
+          breakAction={createBreakAction}
+          intakeAction={updateQueueIntakeAction}
+          settings={intakeSettings}
+          waitAction={updateManualWaitAction}
+          waitEstimate={snapshot.shop}
+        />
         <CurrentNextSummary current={current} next={next} />
 
         <div className="bqa-owner-board-grid">

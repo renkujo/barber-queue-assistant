@@ -482,7 +482,7 @@
 
 .bqa-owner-status-strip {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 14px;
   align-items: center;
   min-height: 64px;
@@ -530,6 +530,61 @@
   font-size: clamp(13px, 1.8vw, 15px);
   font-weight: 500;
   line-height: 1.25;
+}
+
+.bqa-owner-wait-control {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 86%, var(--paper));
+  padding: 8px 10px;
+}
+
+.bqa-owner-wait-control span,
+.bqa-owner-wait-control small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.bqa-owner-wait-control strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.bqa-owner-wait-control small {
+  margin-top: 4px;
+  font-size: 10px;
+}
+
+.bqa-owner-wait-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.bqa-owner-wait-actions form {
+  min-width: 0;
+}
+
+.bqa-owner-wait-action {
+  min-height: 32px;
+  min-width: 54px;
+  border-radius: 8px;
+  padding-inline: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: none;
 }
 
 .bqa-owner-status-actions {
@@ -1130,6 +1185,25 @@
     width: 100%;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bqa-owner-wait-control {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .bqa-owner-wait-control strong {
+    font-size: 20px;
+  }
+
+  .bqa-owner-wait-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .bqa-owner-wait-action {
+    width: 100%;
+    min-height: 38px;
   }
 
   .bqa-owner-status-actions form,

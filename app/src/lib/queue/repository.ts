@@ -35,7 +35,10 @@ export type OwnerQueueListItem = QueueListItem & {
 };
 
 export type QueueStatusSnapshot = {
-  shop: typeof shopStatus;
+  shop: typeof shopStatus & {
+    manualWaitMinutes: number | null;
+    waitEstimateSource: "computed" | "manual";
+  };
   queue: QueueListItem[];
   source: "database" | "fallback";
 };
@@ -381,8 +384,21 @@ export const setQueueIntakeEnabled = async (enabled: boolean): Promise<ShopIntak
   return mapShopIntakeSettings(updatedSettings);
 };
 
+export const setManualWaitMinutes = async (minutes: number | null) => {
+  if (minutes !== null && (!Number.isInteger(minutes) || minutes < 0 || minutes > 240)) {
+    throw new Error("Invalid manual wait minutes.");
+  }
+
+  const settings = await getOrCreateShopSettings();
+
+  return prisma.shopSettings.update({
+    where: { id: settings.id },
+    data: { manualWaitMinutes: minutes },
+  });
+};
+
 export const getFallbackStatusSnapshot = (): QueueStatusSnapshot => ({
-  shop: shopStatus,
+  shop: { ...shopStatus, manualWaitMinutes: null, waitEstimateSource: "computed" },
   queue: todayQueue.map((item, index) => ({ id: `fallback-${index}`, status: item.statusLabel, ...item })),
   source: "fallback",
 });
@@ -415,24 +431,31 @@ export const getServicesSafe = async () => {
 
 export const getQueueStatusSnapshot = async (dateValue = getTodayValue()): Promise<QueueStatusSnapshot> => {
   const { start, end } = getDayBounds(dateValue);
-  const queueItems = await prisma.queueItem.findMany({
-    where: {
-      date: {
-        gte: start,
-        lt: end,
+  const [queueItems, settings] = await Promise.all([
+    prisma.queueItem.findMany({
+      where: {
+        date: {
+          gte: start,
+          lt: end,
+        },
+        status: {
+          notIn: activeQueueStatusExclusions,
+        },
       },
-      status: {
-        notIn: activeQueueStatusExclusions,
-      },
-    },
-    orderBy: [{ sortOrder: "asc" }, { startAt: "asc" }, { estimatedAt: "asc" }, { createdAt: "asc" }],
-  });
+      orderBy: [{ sortOrder: "asc" }, { startAt: "asc" }, { estimatedAt: "asc" }, { createdAt: "asc" }],
+    }),
+    getOrCreateShopSettings(),
+  ]);
+  const computedWaitMinutes = queueItems.reduce((total, item) => total + item.serviceDurationMinutes, 0);
+  const manualWaitMinutes = settings.manualWaitMinutes;
 
   return {
     shop: {
       ...shopStatus,
       currentQueueCount: queueItems.length,
-      estimatedWaitMinutes: queueItems.reduce((total, item) => total + item.serviceDurationMinutes, 0),
+      estimatedWaitMinutes: manualWaitMinutes ?? computedWaitMinutes,
+      manualWaitMinutes,
+      waitEstimateSource: manualWaitMinutes === null ? "computed" : "manual",
     },
     queue: queueItems.map(mapQueueItem),
     source: "database",

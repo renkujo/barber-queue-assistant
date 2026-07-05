@@ -1,19 +1,56 @@
-import type { ShopIntakeSettings } from "@/lib/queue/repository";
+import type { QueueStatusSnapshot, ShopIntakeSettings } from "@/lib/queue/repository";
 import { Button, Icon } from "@/components/ui";
 
 type ShopStatusStripProps = {
   breakAction: () => Promise<void>;
   intakeAction: (formData: FormData) => Promise<void>;
   settings: ShopIntakeSettings;
+  waitAction: (formData: FormData) => Promise<void>;
+  waitEstimate: QueueStatusSnapshot["shop"];
 };
 
-export const ShopStatusStrip = ({ breakAction, intakeAction, settings }: ShopStatusStripProps) => (
+const WaitAdjustButton = ({
+  children,
+  currentWaitMinutes,
+  disabled,
+  intent,
+  waitAction,
+}: {
+  children: string;
+  currentWaitMinutes: number;
+  disabled?: boolean;
+  intent: "add-10" | "add-20" | "reset";
+  waitAction: (formData: FormData) => Promise<void>;
+}) => (
+  <form action={waitAction}>
+    <input name="intent" type="hidden" value={intent} />
+    <input name="currentWaitMinutes" type="hidden" value={currentWaitMinutes} />
+    <Button variant="outline" type="submit" size="sm" disabled={disabled} className="bqa-owner-wait-action">
+      {children}
+    </Button>
+  </form>
+);
+
+export const ShopStatusStrip = ({ breakAction, intakeAction, settings, waitAction, waitEstimate }: ShopStatusStripProps) => (
   <section className={`bqa-owner-status-strip ${settings.queueIntakeEnabled ? "" : "bqa-owner-status-strip--closed"}`} aria-label="สถานะร้าน">
     <div className="bqa-owner-status-copy">
       <span className="bqa-owner-status-dot" aria-hidden="true" />
       <div>
         <strong>{settings.queueIntakeEnabled ? "ร้านเปิดรับคิว" : "ปิดรับคิวแล้ว"}</strong>
         <p>{settings.queueIntakeEnabled ? "ลูกค้าจองและรับคิวเองได้" : "ลูกค้าสร้างคิวไม่ได้ เจ้าของร้านยังเพิ่มเองได้"}</p>
+      </div>
+    </div>
+
+    <div className="bqa-owner-wait-control" aria-label="ปรับเวลารอที่แจ้งลูกค้า">
+      <div>
+        <span>เวลารอแจ้งลูกค้า</span>
+        <strong>{waitEstimate.estimatedWaitMinutes} นาที</strong>
+        <small>{waitEstimate.waitEstimateSource === "manual" ? "ปรับเอง" : "คำนวณจากคิว"}</small>
+      </div>
+      <div className="bqa-owner-wait-actions">
+        <WaitAdjustButton currentWaitMinutes={waitEstimate.estimatedWaitMinutes} intent="add-10" waitAction={waitAction}>+10</WaitAdjustButton>
+        <WaitAdjustButton currentWaitMinutes={waitEstimate.estimatedWaitMinutes} intent="add-20" waitAction={waitAction}>+20</WaitAdjustButton>
+        <WaitAdjustButton currentWaitMinutes={waitEstimate.estimatedWaitMinutes} intent="reset" waitAction={waitAction} disabled={waitEstimate.manualWaitMinutes === null}>รีเซ็ต</WaitAdjustButton>
       </div>
     </div>
 

@@ -168,6 +168,7 @@ model ShopSettings {
   queueIntakeEnabled           Boolean  @default(true)
   bookingEnabled               Boolean  @default(true)
   walkInEnabled                Boolean  @default(true)
+  manualWaitMinutes            Int?
   lineOaEnabled                Boolean  @default(false)
   createdAt                    DateTime @default(now())
   updatedAt                    DateTime @updatedAt

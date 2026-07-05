@@ -12,6 +12,7 @@ import {
   reorderQueueItem,
   type QueueReorderIntent,
   restoreClosedQueueItem,
+  setManualWaitMinutes,
   setQueueIntakeEnabled,
   updateQueueItem,
   updateQueueItemStatus,
@@ -19,6 +20,7 @@ import {
 
 const allowedStatus = new Set<string>(Object.values(QueueItemStatus));
 const allowedReorderIntent = new Set<QueueReorderIntent>(["up", "down", "bottom"]);
+const allowedWaitAction = new Set(["add-10", "add-20", "reset"]);
 
 const notificationTypeByStatus: Partial<Record<QueueItemStatus, NotificationType>> = {
   [QueueItemStatus.IN_PROGRESS]: NotificationType.QUEUE_NEAR,
@@ -219,6 +221,31 @@ export const updateQueueIntakeAction = async (formData: FormData) => {
   revalidatePath("/owner");
   revalidatePath("/api/queue/status");
   redirect(enabled ? "/owner?status=intake-opened" : "/owner?status=intake-closed");
+};
+
+export const updateManualWaitAction = async (formData: FormData) => {
+  await requireOwnerSession();
+
+  const intent = String(formData.get("intent") ?? "");
+  const currentWaitMinutes = Number(formData.get("currentWaitMinutes") ?? 0);
+
+  if (!allowedWaitAction.has(intent) || !Number.isInteger(currentWaitMinutes) || currentWaitMinutes < 0) {
+    redirect("/owner?error=invalid-action");
+  }
+
+  const nextWaitMinutes = intent === "reset" ? null : Math.min(currentWaitMinutes + (intent === "add-20" ? 20 : 10), 240);
+
+  try {
+    await setManualWaitMinutes(nextWaitMinutes);
+  } catch {
+    redirect("/owner?error=wait-failed");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/walk-in");
+  revalidatePath("/owner");
+  revalidatePath("/api/queue/status");
+  redirect(nextWaitMinutes === null ? "/owner?status=wait-reset" : "/owner?status=wait-updated");
 };
 
 

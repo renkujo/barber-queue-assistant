@@ -2,12 +2,14 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { QueueCreatedBy, QueueItemStatus, QueueItemType } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { createDateTime, getDayBounds, getTodayValue, getTomorrowValue } from "@/lib/queue/date";
-import { createWalkIn, getQueueStatusSnapshot, reorderQueueItem, restoreClosedQueueItem, updateQueueItemStatus } from "@/lib/queue/repository";
+import { createWalkIn, getQueueStatusSnapshot, reorderQueueItem, restoreClosedQueueItem, setManualWaitMinutes, updateQueueItemStatus } from "@/lib/queue/repository";
 
 const testPrefix = "VI-REPO";
 const serviceId = "vitest-service";
 
 const cleanup = async () => {
+  await prisma.shopSettings.updateMany({ data: { manualWaitMinutes: null, queueIntakeEnabled: true } });
+
   const queueItems = await prisma.queueItem.findMany({
     where: {
       customerNameSnapshot: {
@@ -243,5 +245,29 @@ describe("queue repository status workflow", () => {
     expect(snapshot.source).toBe("database");
     expect(snapshot.queue).toHaveLength(0);
     expect(snapshot.shop.currentQueueCount).toBe(0);
+  });
+
+  it("uses manual wait minutes when owner overrides the estimate", async () => {
+    const dateValue = "2099-12-29";
+    await createQueueItem({ name: `${testPrefix} wait first`, dateValue, sortOrder: 1 });
+    await createQueueItem({ name: `${testPrefix} wait second`, dateValue, sortOrder: 2 });
+
+    const computedSnapshot = await getQueueStatusSnapshot(dateValue);
+    expect(computedSnapshot.shop.estimatedWaitMinutes).toBe(60);
+    expect(computedSnapshot.shop.waitEstimateSource).toBe("computed");
+
+    await setManualWaitMinutes(25);
+
+    const manualSnapshot = await getQueueStatusSnapshot(dateValue);
+    expect(manualSnapshot.shop.estimatedWaitMinutes).toBe(25);
+    expect(manualSnapshot.shop.manualWaitMinutes).toBe(25);
+    expect(manualSnapshot.shop.waitEstimateSource).toBe("manual");
+
+    await setManualWaitMinutes(null);
+
+    const resetSnapshot = await getQueueStatusSnapshot(dateValue);
+    expect(resetSnapshot.shop.estimatedWaitMinutes).toBe(60);
+    expect(resetSnapshot.shop.manualWaitMinutes).toBeNull();
+    expect(resetSnapshot.shop.waitEstimateSource).toBe("computed");
   });
 });
