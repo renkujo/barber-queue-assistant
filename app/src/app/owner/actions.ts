@@ -14,6 +14,7 @@ import {
   restoreClosedQueueItem,
   setManualWaitMinutes,
   setQueueIntakeEnabled,
+  updateOwnerShopSettings,
   updateQueueItem,
   updateQueueItemStatus,
 } from "@/lib/queue/repository";
@@ -45,6 +46,16 @@ const queueItemEditSchema = z.object({
   timeValue: z.string().trim().optional(),
   note: z.string().trim().optional(),
   ownerNote: z.string().trim().optional(),
+});
+
+const ownerSettingsSchema = z.object({
+  shopName: z.string().trim().min(1),
+  openTime: z.string().trim().regex(/^\d{2}:\d{2}$/),
+  closeTime: z.string().trim().regex(/^\d{2}:\d{2}$/),
+  queueIntakeEnabled: z.enum(["true", "false"]).transform((value) => value === "true"),
+  bookingEnabled: z.enum(["true", "false"]).transform((value) => value === "true"),
+  walkInEnabled: z.enum(["true", "false"]).transform((value) => value === "true"),
+  manualWaitMinutes: z.string().trim().optional(),
 });
 
 export const loginOwner = async (formData: FormData) => {
@@ -246,6 +257,53 @@ export const updateManualWaitAction = async (formData: FormData) => {
   revalidatePath("/owner");
   revalidatePath("/api/queue/status");
   redirect(nextWaitMinutes === null ? "/owner?status=wait-reset" : "/owner?status=wait-updated");
+};
+
+export const updateOwnerSettingsAction = async (formData: FormData) => {
+  await requireOwnerSession();
+
+  const parsed = ownerSettingsSchema.safeParse({
+    shopName: formData.get("shopName"),
+    openTime: formData.get("openTime"),
+    closeTime: formData.get("closeTime"),
+    queueIntakeEnabled: formData.get("queueIntakeEnabled"),
+    bookingEnabled: formData.get("bookingEnabled"),
+    walkInEnabled: formData.get("walkInEnabled"),
+    manualWaitMinutes: formData.get("manualWaitMinutes"),
+  });
+
+  if (!parsed.success) {
+    redirect("/owner/settings?error=invalid");
+  }
+
+  const manualWaitText = parsed.data.manualWaitMinutes ?? "";
+  const manualWaitMinutes = manualWaitText ? Number(manualWaitText) : null;
+
+  if (manualWaitMinutes !== null && (!Number.isInteger(manualWaitMinutes) || manualWaitMinutes < 0 || manualWaitMinutes > 240)) {
+    redirect("/owner/settings?error=invalid-wait");
+  }
+
+  try {
+    await updateOwnerShopSettings({
+      shopName: parsed.data.shopName,
+      openTime: parsed.data.openTime,
+      closeTime: parsed.data.closeTime,
+      queueIntakeEnabled: parsed.data.queueIntakeEnabled,
+      bookingEnabled: parsed.data.bookingEnabled,
+      walkInEnabled: parsed.data.walkInEnabled,
+      manualWaitMinutes,
+    });
+  } catch {
+    redirect("/owner/settings?error=database");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/book");
+  revalidatePath("/walk-in");
+  revalidatePath("/owner");
+  revalidatePath("/owner/settings");
+  revalidatePath("/api/queue/status");
+  redirect("/owner/settings?status=settings-updated");
 };
 
 

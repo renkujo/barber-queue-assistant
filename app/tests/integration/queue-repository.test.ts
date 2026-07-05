@@ -2,13 +2,30 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { QueueCreatedBy, QueueItemStatus, QueueItemType } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { createDateTime, getDayBounds, getTodayValue, getTomorrowValue } from "@/lib/queue/date";
-import { createWalkIn, getQueueStatusSnapshot, reorderQueueItem, restoreClosedQueueItem, setManualWaitMinutes, updateQueueItemStatus } from "@/lib/queue/repository";
+import {
+  createWalkIn,
+  getQueueStatusSnapshot,
+  reorderQueueItem,
+  restoreClosedQueueItem,
+  setManualWaitMinutes,
+  updateOwnerShopSettings,
+  updateQueueItemStatus,
+} from "@/lib/queue/repository";
 
 const testPrefix = "VI-REPO";
 const serviceId = "vitest-service";
 
 const cleanup = async () => {
-  await prisma.shopSettings.updateMany({ data: { manualWaitMinutes: null, queueIntakeEnabled: true } });
+  await prisma.shopSettings.updateMany({
+    data: {
+      shopName: "ร้านช่างหนึ่ง",
+      businessHours: { open: "09:00", close: "19:00" },
+      manualWaitMinutes: null,
+      queueIntakeEnabled: true,
+      bookingEnabled: true,
+      walkInEnabled: true,
+    },
+  });
 
   const queueItems = await prisma.queueItem.findMany({
     where: {
@@ -269,5 +286,22 @@ describe("queue repository status workflow", () => {
     expect(resetSnapshot.shop.estimatedWaitMinutes).toBe(60);
     expect(resetSnapshot.shop.manualWaitMinutes).toBeNull();
     expect(resetSnapshot.shop.waitEstimateSource).toBe("computed");
+  });
+
+  it("uses owner shop settings in queue status snapshots", async () => {
+    await updateOwnerShopSettings({
+      shopName: `${testPrefix} Shop`,
+      openTime: "10:15",
+      closeTime: "18:45",
+      queueIntakeEnabled: true,
+      bookingEnabled: false,
+      walkInEnabled: true,
+      manualWaitMinutes: null,
+    });
+
+    const snapshot = await getQueueStatusSnapshot("2099-12-28");
+
+    expect(snapshot.shop.shopName).toBe(`${testPrefix} Shop`);
+    expect(snapshot.shop.openLabel).toBe("เปิด 10:15 - 18:45 น.");
   });
 });

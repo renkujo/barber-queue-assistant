@@ -13,9 +13,11 @@ export const OwnerTopbar = () => (
     </Link>
 
     <nav className="bqa-owner-board-topbar-actions" aria-label="คำสั่งเจ้าของร้าน">
-      <Button variant="outline" size="md" type="button" disabled className="bqa-owner-board-icon-button">
-        <Icon icon="lucide:settings" aria-hidden="true" />
-        <span>ตั้งค่า</span>
+      <Button asChild variant="outline" size="md" className="bqa-owner-board-icon-button">
+        <Link href="/owner/settings">
+          <Icon icon="lucide:settings" aria-hidden="true" />
+          <span>ตั้งค่า</span>
+        </Link>
       </Button>
       <Button asChild variant="outline" size="md" className="bqa-owner-board-icon-button">
         <Link href="/owner/walk-in">

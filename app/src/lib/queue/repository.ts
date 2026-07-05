@@ -52,6 +52,18 @@ export type ShopIntakeSettings = {
   walkInAvailable: boolean;
 };
 
+export type OwnerShopSettings = {
+  shopName: string;
+  openTime: string;
+  closeTime: string;
+  queueIntakeEnabled: boolean;
+  bookingEnabled: boolean;
+  walkInEnabled: boolean;
+  manualWaitMinutes: number | null;
+};
+
+export type UpdateOwnerShopSettingsInput = OwnerShopSettings;
+
 export type CreateBookingInput = {
   customerName: string;
   phone?: string;
@@ -325,6 +337,38 @@ const mapShopIntakeSettings = (settings: {
   walkInAvailable: settings.queueIntakeEnabled && settings.walkInEnabled,
 });
 
+const getBusinessHours = (businessHours: unknown) => {
+  if (businessHours && typeof businessHours === "object" && "open" in businessHours && "close" in businessHours) {
+    return {
+      open: String((businessHours as { open?: unknown }).open ?? defaultShopSettingsInput.businessHours.open),
+      close: String((businessHours as { close?: unknown }).close ?? defaultShopSettingsInput.businessHours.close),
+    };
+  }
+
+  return defaultShopSettingsInput.businessHours;
+};
+
+const mapOwnerShopSettings = (settings: {
+  shopName: string;
+  businessHours: unknown;
+  queueIntakeEnabled: boolean;
+  bookingEnabled: boolean;
+  walkInEnabled: boolean;
+  manualWaitMinutes: number | null;
+}): OwnerShopSettings => {
+  const businessHours = getBusinessHours(settings.businessHours);
+
+  return {
+    shopName: settings.shopName,
+    openTime: businessHours.open,
+    closeTime: businessHours.close,
+    queueIntakeEnabled: settings.queueIntakeEnabled,
+    bookingEnabled: settings.bookingEnabled,
+    walkInEnabled: settings.walkInEnabled,
+    manualWaitMinutes: settings.manualWaitMinutes,
+  };
+};
+
 const getOrCreateShopSettings = async () => {
   const existingSettings = await prisma.shopSettings.findFirst({ orderBy: { createdAt: "asc" } });
 
@@ -397,6 +441,48 @@ export const setManualWaitMinutes = async (minutes: number | null) => {
   });
 };
 
+export const getOwnerShopSettings = async (): Promise<OwnerShopSettings> => {
+  const settings = await getOrCreateShopSettings();
+
+  return mapOwnerShopSettings(settings);
+};
+
+export const getOwnerShopSettingsSafe = async (): Promise<OwnerShopSettings> => {
+  try {
+    return await getOwnerShopSettings();
+  } catch {
+    return {
+      shopName: shopStatus.shopName,
+      openTime: defaultShopSettingsInput.businessHours.open,
+      closeTime: defaultShopSettingsInput.businessHours.close,
+      queueIntakeEnabled: true,
+      bookingEnabled: true,
+      walkInEnabled: true,
+      manualWaitMinutes: null,
+    };
+  }
+};
+
+export const updateOwnerShopSettings = async (input: UpdateOwnerShopSettingsInput): Promise<OwnerShopSettings> => {
+  const settings = await getOrCreateShopSettings();
+  const updatedSettings = await prisma.shopSettings.update({
+    where: { id: settings.id },
+    data: {
+      shopName: input.shopName,
+      businessHours: {
+        open: input.openTime,
+        close: input.closeTime,
+      },
+      queueIntakeEnabled: input.queueIntakeEnabled,
+      bookingEnabled: input.bookingEnabled,
+      walkInEnabled: input.walkInEnabled,
+      manualWaitMinutes: input.manualWaitMinutes,
+    },
+  });
+
+  return mapOwnerShopSettings(updatedSettings);
+};
+
 export const getFallbackStatusSnapshot = (): QueueStatusSnapshot => ({
   shop: { ...shopStatus, manualWaitMinutes: null, waitEstimateSource: "computed" },
   queue: todayQueue.map((item, index) => ({ id: `fallback-${index}`, status: item.statusLabel, ...item })),
@@ -448,10 +534,13 @@ export const getQueueStatusSnapshot = async (dateValue = getTodayValue()): Promi
   ]);
   const computedWaitMinutes = queueItems.reduce((total, item) => total + item.serviceDurationMinutes, 0);
   const manualWaitMinutes = settings.manualWaitMinutes;
+  const businessHours = getBusinessHours(settings.businessHours);
 
   return {
     shop: {
       ...shopStatus,
+      shopName: settings.shopName,
+      openLabel: `เปิด ${businessHours.open} - ${businessHours.close} น.`,
       currentQueueCount: queueItems.length,
       estimatedWaitMinutes: manualWaitMinutes ?? computedWaitMinutes,
       manualWaitMinutes,
