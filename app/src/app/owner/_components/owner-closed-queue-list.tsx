@@ -1,6 +1,18 @@
 import { QueueItemStatus } from "@/generated/prisma/enums";
 import { StatusBadge } from "@/components/barber/app-ui";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui";
 import type { QueueListItem } from "@/lib/queue/repository";
 import { RestoreQueueActionButton } from "./restore-queue-action-button";
 
@@ -27,36 +39,62 @@ export const OwnerClosedQueueList = ({ queue }: { queue: QueueListItem[] }) => {
       </CardHeader>
 
       <CardContent className="p-0">
-        <Table className="bqa-owner-closed-table min-w-[720px] max-[559px]:min-w-[680px]">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[72px]">เวลา</TableHead>
-              <TableHead>คิว</TableHead>
-              <TableHead>หมายเหตุ</TableHead>
-              <TableHead className="w-[104px]">สถานะ</TableHead>
-              <TableHead className="w-[116px]">จัดการ</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {queue.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="w-[72px] font-bold tabular-nums text-[color-mix(in_srgb,var(--ink)_74%,var(--muted))]">{item.timeLabel}</TableCell>
-                <TableCell>
-                  <strong className="min-w-0 text-sm font-bold leading-tight text-[var(--ink)]">
+        <ol className="m-0 grid list-none divide-y divide-[var(--line)] p-0 min-[760px]:hidden" aria-label="คิวที่ปิดแล้ววันนี้">
+          {queue.map((item) => (
+            <li className="grid gap-3 px-3.5 py-3" key={item.id}>
+              <div className="grid grid-cols-[52px_minmax(0,1fr)] gap-3">
+                <time className="pt-0.5 text-sm font-bold tabular-nums text-[color-mix(in_srgb,var(--ink)_74%,var(--muted))]">
+                  {item.timeLabel}
+                </time>
+                <div className="min-w-0">
+                  <strong className="block min-w-0 text-sm font-bold leading-snug text-[var(--ink)]">
                     {item.code} {item.customerName}
                   </strong>
-                </TableCell>
-                <TableCell className="min-w-0 truncate whitespace-nowrap">{item.note}</TableCell>
-                <TableCell className="w-[104px]">
-                  <StatusBadge tone={closedTone(item.status)}>{item.statusLabel}</StatusBadge>
-                </TableCell>
-                <TableCell className="w-[116px]">
-                  <RestoreQueueActionButton itemId={item.id} customerLabel={`${item.code} ${item.customerName}`} />
-                </TableCell>
+                  <p className="mt-1 line-clamp-2 text-xs font-medium leading-snug text-[var(--muted)]">
+                    {item.note || item.serviceName}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 pl-[64px]">
+                <StatusBadge tone={closedTone(item.status)}>{item.statusLabel}</StatusBadge>
+                <RestoreQueueActionButton itemId={item.id} customerLabel={`${item.code} ${item.customerName}`} />
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <div className="hidden min-[760px]:block">
+          <Table className="bqa-owner-closed-table min-w-[720px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[72px]">เวลา</TableHead>
+                <TableHead>คิว</TableHead>
+                <TableHead>หมายเหตุ</TableHead>
+                <TableHead className="w-[104px]">สถานะ</TableHead>
+                <TableHead className="w-[116px]">จัดการ</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {queue.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="w-[72px] font-bold tabular-nums text-[color-mix(in_srgb,var(--ink)_74%,var(--muted))]">{item.timeLabel}</TableCell>
+                  <TableCell>
+                    <strong className="min-w-0 text-sm font-bold leading-tight text-[var(--ink)]">
+                      {item.code} {item.customerName}
+                    </strong>
+                  </TableCell>
+                  <TableCell className="min-w-0 truncate whitespace-nowrap">{item.note}</TableCell>
+                  <TableCell className="w-[104px]">
+                    <StatusBadge tone={closedTone(item.status)}>{item.statusLabel}</StatusBadge>
+                  </TableCell>
+                  <TableCell className="w-[116px]">
+                    <RestoreQueueActionButton itemId={item.id} customerLabel={`${item.code} ${item.customerName}`} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );
