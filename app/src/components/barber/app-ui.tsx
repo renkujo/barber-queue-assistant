@@ -206,7 +206,22 @@ export const Notice = ({
   className?: string;
 }) => (
   <Alert tone={tone === "warm" ? "warm" : "danger"} className={cn("bqa-notice", tone === "warm" ? "bqa-notice--warm" : "bqa-notice--warning", className)}>
-    {children}
+    <span className="bqa-notice-icon" aria-hidden="true">
+      {tone === "warm" ? (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 11v5" />
+          <path d="M12 8h.01" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" aria-hidden="true">
+          <path d="M10.3 4.2 2.5 18a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z" />
+          <path d="M12 9v4" />
+          <path d="M12 17h.01" />
+        </svg>
+      )}
+    </span>
+    <span className="bqa-notice-copy">{children}</span>
   </Alert>
 );
 
