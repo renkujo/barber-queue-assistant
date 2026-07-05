@@ -352,6 +352,55 @@
   line-height: 1.35;
 }
 
+.bqa-owner-service-edit {
+  display: grid;
+  gap: 10px;
+}
+
+.bqa-owner-service-edit summary {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--surface-warm);
+  color: var(--ink);
+  cursor: pointer;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 800;
+  list-style: none;
+}
+
+.bqa-owner-service-edit summary::-webkit-details-marker {
+  display: none;
+}
+
+.bqa-owner-service-edit summary span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.bqa-owner-service-edit summary > svg:last-child {
+  color: var(--muted);
+  transition: transform 150ms ease;
+}
+
+.bqa-owner-service-edit[open] summary {
+  border-color: color-mix(in srgb, var(--primary) 70%, var(--line-strong));
+  background: color-mix(in srgb, var(--primary-soft) 34%, var(--surface-warm));
+}
+
+.bqa-owner-service-edit[open] summary > svg:last-child {
+  transform: rotate(180deg);
+}
+
+.bqa-owner-service-edit form {
+  margin-top: 10px;
+}
+
 .bqa-owner-board-content {
   padding: 0 0 24px;
 }

@@ -89,42 +89,51 @@ const OwnerServiceSettingsPage = async ({ searchParams }: OwnerServiceSettingsPa
                     <StatusBadge tone={service.isActive ? "positive" : "neutral"}>{service.isActive ? "เปิดใช้" : "ปิดใช้"}</StatusBadge>
                   </CardHeader>
                   <CardContent className="px-3.5 pb-3 pt-0">
-                    <form action={updateOwnerServiceAction}>
-                      <input name="serviceId" type="hidden" value={service.id} />
-                      <FormStack>
-                        <FormField id={`service-name-${service.id}`} label="ชื่อบริการ">
-                          <Input id={`service-name-${service.id}`} name="name" defaultValue={service.name} required />
-                        </FormField>
-                        <FormGrid>
-                          <FormField id={`service-duration-${service.id}`} label="ระยะเวลา (นาที)">
-                            <Input id={`service-duration-${service.id}`} name="durationMinutes" defaultValue={service.durationMinutes} min={5} max={480} required type="number" />
+                    <details className="bqa-owner-service-edit">
+                      <summary>
+                        <span>
+                          <Icon icon="lucide:pencil" aria-hidden="true" />แก้ไขบริการ
+                        </span>
+                        <Icon icon="lucide:chevron-down" aria-hidden="true" />
+                      </summary>
+
+                      <form action={updateOwnerServiceAction}>
+                        <input name="serviceId" type="hidden" value={service.id} />
+                        <FormStack>
+                          <FormField id={`service-name-${service.id}`} label="ชื่อบริการ">
+                            <Input id={`service-name-${service.id}`} name="name" defaultValue={service.name} required />
                           </FormField>
-                          <FormField id={`service-price-${service.id}`} label="ราคา (บาท)">
-                            <Input id={`service-price-${service.id}`} name="priceBaht" defaultValue={service.priceBaht} min={0} placeholder="เว้นว่าง = สอบถามราคา" type="number" />
-                          </FormField>
-                        </FormGrid>
-                        <FormGrid>
-                          <FormField id={`service-sort-${service.id}`} label="ลำดับ">
-                            <Input id={`service-sort-${service.id}`} name="sortOrder" defaultValue={service.sortOrder} min={0} max={9999} required type="number" />
-                          </FormField>
-                          <FormField id={`service-active-${service.id}`} label="สถานะ">
-                            <Select name="isActive" defaultValue={String(service.isActive)} required>
-                              <SelectTrigger id={`service-active-${service.id}`}>
-                                <SelectValue placeholder="เลือกสถานะ" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {activeOptions.map((option) => (
-                                  <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormField>
-                        </FormGrid>
-                        <Button type="submit" fullWidth>
-                          <Icon icon="lucide:save" aria-hidden="true" />บันทึกบริการ
-                        </Button>
-                      </FormStack>
-                    </form>
+                          <FormGrid>
+                            <FormField id={`service-duration-${service.id}`} label="ระยะเวลา (นาที)">
+                              <Input id={`service-duration-${service.id}`} name="durationMinutes" defaultValue={service.durationMinutes} min={5} max={480} required type="number" />
+                            </FormField>
+                            <FormField id={`service-price-${service.id}`} label="ราคา (บาท)">
+                              <Input id={`service-price-${service.id}`} name="priceBaht" defaultValue={service.priceBaht} min={0} placeholder="เว้นว่าง = สอบถามราคา" type="number" />
+                            </FormField>
+                          </FormGrid>
+                          <FormGrid>
+                            <FormField id={`service-sort-${service.id}`} label="ลำดับ">
+                              <Input id={`service-sort-${service.id}`} name="sortOrder" defaultValue={service.sortOrder} min={0} max={9999} required type="number" />
+                            </FormField>
+                            <FormField id={`service-active-${service.id}`} label="สถานะ">
+                              <Select name="isActive" defaultValue={String(service.isActive)} required>
+                                <SelectTrigger id={`service-active-${service.id}`}>
+                                  <SelectValue placeholder="เลือกสถานะ" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {activeOptions.map((option) => (
+                                    <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormField>
+                          </FormGrid>
+                          <Button type="submit" fullWidth>
+                            <Icon icon="lucide:save" aria-hidden="true" />บันทึกบริการ
+                          </Button>
+                        </FormStack>
+                      </form>
+                    </details>
 
                     <form action={toggleOwnerServiceAction} className="mt-2">
                       <input name="serviceId" type="hidden" value={service.id} />
