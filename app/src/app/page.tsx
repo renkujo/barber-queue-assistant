@@ -74,7 +74,7 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
         <Panel aria-labelledby="service-title">
           <SectionHeader id="service-title" title="บริการยอดนิยม" note="ประมาณเวลา" />
           <div className="bqa-service-list">
-            {services.map((service) => (
+            {services.length ? services.map((service) => (
               <ServiceRow
                 icon={<Icon icon="lucide:scissors" aria-hidden="true" />}
                 key={service.id}
@@ -82,7 +82,7 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
                 price={service.priceLabel}
                 duration={`${service.durationMinutes} นาที`}
               />
-            ))}
+            )) : <Notice tone="warm">ตอนนี้ยังไม่มีบริการที่เปิดใช้</Notice>}
           </div>
         </Panel>
 

@@ -145,7 +145,7 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
             </form>
           </Panel>
 
-          <div className="bqa-owner-support-stack">
+          <div className="bqa-owner-support-stack bqa-owner-support-stack--visible-mobile">
             <Panel className="bqa-owner-support-panel">
               <SectionHeader title="ผลของการตั้งค่า" note="ใช้ควบคุมหน้าลูกค้าแบบเร็ว" action={<Icon icon="lucide:settings" className="bqa-muted-icon" aria-hidden="true" />} />
               <div className="bqa-owner-step-list">
@@ -164,6 +164,15 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
                   </p>
                 </div>
               </div>
+            </Panel>
+
+            <Panel className="bqa-owner-support-panel">
+              <SectionHeader title="บริการ" note="จัดการรายการบริการ ราคา และเวลาที่ลูกค้าเลือกได้" action={<Icon icon="lucide:scissors" className="bqa-muted-icon" aria-hidden="true" />} />
+              <Button asChild variant="outline" fullWidth>
+                <Link href="/owner/settings/services">
+                  <Icon icon="lucide:list-plus" aria-hidden="true" />จัดการบริการ
+                </Link>
+              </Button>
             </Panel>
           </div>
         </OwnerGrid>

@@ -18,6 +18,22 @@ export type QueueService = {
   priceLabel: string;
 };
 
+export type OwnerServiceSettingsItem = QueueService & {
+  isActive: boolean;
+  priceCents: number | null;
+  priceBaht: string;
+  sortOrder: number;
+};
+
+export type UpsertOwnerServiceInput = {
+  id?: string;
+  name: string;
+  durationMinutes: number;
+  priceBaht?: number | null;
+  sortOrder: number;
+  isActive: boolean;
+};
+
 export type QueueListItem = {
   id: string;
   code: string;
@@ -221,6 +237,40 @@ const getPriceLabel = (priceCents?: number | null) => {
 };
 
 const priceLabelToCents = (priceLabel: string) => Number(priceLabel.replace(/\D/g, "")) * 100 || null;
+
+const priceBahtToCents = (priceBaht?: number | null) => {
+  if (priceBaht === undefined || priceBaht === null || priceBaht <= 0) {
+    return null;
+  }
+
+  return Math.round(priceBaht * 100);
+};
+
+const centsToBahtInput = (priceCents?: number | null) => {
+  if (!priceCents) {
+    return "";
+  }
+
+  return `${Math.round(priceCents / 100)}`;
+};
+
+const mapOwnerServiceSettingsItem = (service: {
+  id: string;
+  name: string;
+  durationMinutes: number;
+  priceCents: number | null;
+  isActive: boolean;
+  sortOrder: number;
+}): OwnerServiceSettingsItem => ({
+  id: service.id,
+  name: service.name,
+  durationMinutes: service.durationMinutes,
+  priceCents: service.priceCents,
+  priceBaht: centsToBahtInput(service.priceCents),
+  priceLabel: getPriceLabel(service.priceCents),
+  isActive: service.isActive,
+  sortOrder: service.sortOrder,
+});
 
 const addMinutes = (date: Date, minutes: number) => new Date(date.getTime() + minutes * 60 * 1000);
 
@@ -490,16 +540,19 @@ export const getFallbackStatusSnapshot = (): QueueStatusSnapshot => ({
 });
 
 export const getServices = async (): Promise<QueueService[]> => {
-  const services = await prisma.service.findMany({
-    where: { isActive: true },
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
-  });
+  const [activeServices, serviceCount] = await Promise.all([
+    prisma.service.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    }),
+    prisma.service.count(),
+  ]);
 
-  if (!services.length) {
+  if (!serviceCount) {
     return fallbackServices;
   }
 
-  return services.map((service) => ({
+  return activeServices.map((service) => ({
     id: service.id,
     name: service.name,
     durationMinutes: service.durationMinutes,
@@ -514,6 +567,69 @@ export const getServicesSafe = async () => {
     return fallbackServices;
   }
 };
+
+export const getOwnerServiceSettings = async (): Promise<OwnerServiceSettingsItem[]> => {
+  const [services, serviceCount] = await Promise.all([
+    prisma.service.findMany({
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    }),
+    prisma.service.count(),
+  ]);
+
+  if (!serviceCount) {
+    await ensureDefaultServices();
+    const seededServices = await prisma.service.findMany({
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    });
+
+    return seededServices.map(mapOwnerServiceSettingsItem);
+  }
+
+  return services.map(mapOwnerServiceSettingsItem);
+};
+
+export const getOwnerServiceSettingsSafe = async () => {
+  try {
+    return await getOwnerServiceSettings();
+  } catch {
+    return fallbackServices.map((service, index) => ({
+      ...service,
+      isActive: true,
+      priceCents: priceLabelToCents(service.priceLabel),
+      priceBaht: centsToBahtInput(priceLabelToCents(service.priceLabel)),
+      sortOrder: index,
+    }));
+  }
+};
+
+export const createOwnerService = async (input: UpsertOwnerServiceInput) =>
+  prisma.service.create({
+    data: {
+      name: input.name,
+      durationMinutes: input.durationMinutes,
+      priceCents: priceBahtToCents(input.priceBaht),
+      isActive: input.isActive,
+      sortOrder: input.sortOrder,
+    },
+  });
+
+export const updateOwnerService = async (input: UpsertOwnerServiceInput & { id: string }) =>
+  prisma.service.update({
+    where: { id: input.id },
+    data: {
+      name: input.name,
+      durationMinutes: input.durationMinutes,
+      priceCents: priceBahtToCents(input.priceBaht),
+      isActive: input.isActive,
+      sortOrder: input.sortOrder,
+    },
+  });
+
+export const setOwnerServiceActive = async (id: string, isActive: boolean) =>
+  prisma.service.update({
+    where: { id },
+    data: { isActive },
+  });
 
 export const getQueueStatusSnapshot = async (dateValue = getTodayValue()): Promise<QueueStatusSnapshot> => {
   const { start, end } = getDayBounds(dateValue);

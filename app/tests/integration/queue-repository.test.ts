@@ -4,10 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { createDateTime, getDayBounds, getTodayValue, getTomorrowValue } from "@/lib/queue/date";
 import {
   createWalkIn,
+  createOwnerService,
+  getOwnerServiceSettings,
   getQueueStatusSnapshot,
+  getServices,
   reorderQueueItem,
   restoreClosedQueueItem,
   setManualWaitMinutes,
+  setOwnerServiceActive,
+  updateOwnerService,
   updateOwnerShopSettings,
   updateQueueItemStatus,
 } from "@/lib/queue/repository";
@@ -54,6 +59,14 @@ const cleanup = async () => {
       },
     });
   }
+
+  await prisma.service.deleteMany({
+    where: {
+      name: {
+        startsWith: `${testPrefix} Service Settings`,
+      },
+    },
+  });
 };
 
 const ensureService = async () => {
@@ -303,5 +316,41 @@ describe("queue repository status workflow", () => {
 
     expect(snapshot.shop.shopName).toBe(`${testPrefix} Shop`);
     expect(snapshot.shop.openLabel).toBe("เปิด 10:15 - 18:45 น.");
+  });
+
+  it("manages services with soft delete semantics", async () => {
+    const service = await createOwnerService({
+      name: `${testPrefix} Service Settings Cut`,
+      durationMinutes: 25,
+      priceBaht: 300,
+      sortOrder: 321,
+      isActive: true,
+    });
+
+    const activeServices = await getServices();
+    expect(activeServices.some((item) => item.id === service.id)).toBe(true);
+
+    await updateOwnerService({
+      id: service.id,
+      name: `${testPrefix} Service Settings Premium Cut`,
+      durationMinutes: 35,
+      priceBaht: 450,
+      sortOrder: 322,
+      isActive: false,
+    });
+
+    const ownerServices = await getOwnerServiceSettings();
+    const inactiveService = ownerServices.find((item) => item.id === service.id);
+    expect(inactiveService?.isActive).toBe(false);
+    expect(inactiveService?.durationMinutes).toBe(35);
+    expect(inactiveService?.priceLabel).toBe("450 บาท");
+
+    const activeServicesAfterDisable = await getServices();
+    expect(activeServicesAfterDisable.some((item) => item.id === service.id)).toBe(false);
+
+    await setOwnerServiceActive(service.id, true);
+
+    const activeServicesAfterRestore = await getServices();
+    expect(activeServicesAfterRestore.some((item) => item.id === service.id)).toBe(true);
   });
 });

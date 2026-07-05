@@ -8,12 +8,15 @@ import { clearOwnerSession, requireOwnerSession, setOwnerSession, verifyPasscode
 import { notifyQueueEventSafe } from "@/lib/notifications/queue-notifications";
 import {
   createBreakTimeBlock,
+  createOwnerService,
   createOwnerWalkIn,
   reorderQueueItem,
   type QueueReorderIntent,
   restoreClosedQueueItem,
   setManualWaitMinutes,
+  setOwnerServiceActive,
   setQueueIntakeEnabled,
+  updateOwnerService,
   updateOwnerShopSettings,
   updateQueueItem,
   updateQueueItemStatus,
@@ -57,6 +60,34 @@ const ownerSettingsSchema = z.object({
   walkInEnabled: z.enum(["true", "false"]).transform((value) => value === "true"),
   manualWaitMinutes: z.string().trim().optional(),
 });
+
+const serviceSettingsSchema = z.object({
+  serviceId: z.string().trim().optional(),
+  name: z.string().trim().min(1),
+  durationMinutes: z.coerce.number().int().min(5).max(480),
+  priceBaht: z.string().trim().optional(),
+  sortOrder: z.coerce.number().int().min(0).max(9999),
+  isActive: z.enum(["true", "false"]).transform((value) => value === "true"),
+});
+
+const serviceActiveSchema = z.object({
+  serviceId: z.string().trim().min(1),
+  isActive: z.enum(["true", "false"]).transform((value) => value === "true"),
+});
+
+const getOptionalPriceBaht = (value?: string) => {
+  if (!value) {
+    return null;
+  }
+
+  const priceBaht = Number(value);
+
+  if (!Number.isFinite(priceBaht) || priceBaht < 0 || priceBaht > 100000) {
+    throw new Error("Invalid service price.");
+  }
+
+  return priceBaht;
+};
 
 export const loginOwner = async (formData: FormData) => {
   const passcode = String(formData.get("passcode") ?? "");
@@ -304,6 +335,104 @@ export const updateOwnerSettingsAction = async (formData: FormData) => {
   revalidatePath("/owner/settings");
   revalidatePath("/api/queue/status");
   redirect("/owner/settings?status=settings-updated");
+};
+
+export const createOwnerServiceAction = async (formData: FormData) => {
+  await requireOwnerSession();
+
+  const parsed = serviceSettingsSchema.safeParse({
+    name: formData.get("name"),
+    durationMinutes: formData.get("durationMinutes"),
+    priceBaht: formData.get("priceBaht"),
+    sortOrder: formData.get("sortOrder"),
+    isActive: formData.get("isActive"),
+  });
+
+  if (!parsed.success) {
+    redirect("/owner/settings/services?error=invalid");
+  }
+
+  try {
+    await createOwnerService({
+      name: parsed.data.name,
+      durationMinutes: parsed.data.durationMinutes,
+      priceBaht: getOptionalPriceBaht(parsed.data.priceBaht),
+      sortOrder: parsed.data.sortOrder,
+      isActive: parsed.data.isActive,
+    });
+  } catch {
+    redirect("/owner/settings/services?error=database");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/book");
+  revalidatePath("/walk-in");
+  revalidatePath("/owner/walk-in");
+  revalidatePath("/owner/settings/services");
+  redirect("/owner/settings/services?status=service-created");
+};
+
+export const updateOwnerServiceAction = async (formData: FormData) => {
+  await requireOwnerSession();
+
+  const parsed = serviceSettingsSchema.safeParse({
+    serviceId: formData.get("serviceId"),
+    name: formData.get("name"),
+    durationMinutes: formData.get("durationMinutes"),
+    priceBaht: formData.get("priceBaht"),
+    sortOrder: formData.get("sortOrder"),
+    isActive: formData.get("isActive"),
+  });
+
+  if (!parsed.success || !parsed.data.serviceId) {
+    redirect("/owner/settings/services?error=invalid");
+  }
+
+  try {
+    await updateOwnerService({
+      id: parsed.data.serviceId,
+      name: parsed.data.name,
+      durationMinutes: parsed.data.durationMinutes,
+      priceBaht: getOptionalPriceBaht(parsed.data.priceBaht),
+      sortOrder: parsed.data.sortOrder,
+      isActive: parsed.data.isActive,
+    });
+  } catch {
+    redirect("/owner/settings/services?error=database");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/book");
+  revalidatePath("/walk-in");
+  revalidatePath("/owner/walk-in");
+  revalidatePath("/owner/settings/services");
+  redirect("/owner/settings/services?status=service-updated");
+};
+
+export const toggleOwnerServiceAction = async (formData: FormData) => {
+  await requireOwnerSession();
+
+  const parsed = serviceActiveSchema.safeParse({
+    serviceId: formData.get("serviceId"),
+    isActive: formData.get("isActive"),
+  });
+
+  if (!parsed.success) {
+    redirect("/owner/settings/services?error=invalid");
+  }
+
+  try {
+    await setOwnerServiceActive(parsed.data.serviceId, parsed.data.isActive);
+  } catch {
+    redirect("/owner/settings/services?error=database");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/book");
+  revalidatePath("/walk-in");
+  revalidatePath("/owner/walk-in");
+  revalidatePath("/owner/settings/services");
+  redirect(parsed.data.isActive ? "/owner/settings/services?status=service-restored" : "/owner/settings/services?status=service-disabled");
 };
 
 

@@ -33,6 +33,7 @@ const OwnerWalkInPage = async ({ searchParams }: OwnerWalkInPageProps) => {
   const [params, services] = await Promise.all([searchParams, getServicesSafe()]);
   const errorMessage = params.error ? errorMessages[params.error] : null;
   const defaultServiceId = services[0]?.id;
+  const hasServices = services.length > 0;
   const visibleServices = services.slice(0, 4);
 
   return (
@@ -53,6 +54,7 @@ const OwnerWalkInPage = async ({ searchParams }: OwnerWalkInPageProps) => {
         />
 
         {errorMessage ? <Notice>{errorMessage}</Notice> : null}
+        {!hasServices ? <Notice>ยังไม่มีบริการที่เปิดใช้ เปิดใช้หรือเพิ่มบริการก่อนเพิ่ม walk-in</Notice> : null}
         <RouteToast message={errorMessage} type="error" toastKey={`owner-walk-in:${params.error ?? ""}`} />
 
         <OwnerGrid className="bqa-owner-grid--workbench">
@@ -83,7 +85,7 @@ const OwnerWalkInPage = async ({ searchParams }: OwnerWalkInPageProps) => {
                 <FormField id="note" label="หมายเหตุ">
                   <Textarea id="note" name="note" placeholder="เช่น รอหน้าร้าน / โทรมา" />
                 </FormField>
-                <Button type="submit" size="lg" fullWidth>
+                <Button type="submit" size="lg" fullWidth disabled={!hasServices}>
                   <Icon icon="lucide:plus" aria-hidden="true" />เพิ่มเข้าคิววันนี้
                 </Button>
               </FormStack>

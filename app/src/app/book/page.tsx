@@ -35,6 +35,7 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
   const errorMessage = params.error ? errorMessages[params.error] : null;
   const lineUserId = params.lineUserId?.trim();
   const defaultServiceId = services[0]?.id;
+  const hasServices = services.length > 0;
   const bookingClosed = !intakeSettings.bookingAvailable;
   const [todaySlots, tomorrowSlots] = await Promise.all([
     getAvailableBookingSlotsSafe(todayValue, defaultServiceId),
@@ -69,6 +70,7 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
 
         {errorMessage ? <Notice>{errorMessage}</Notice> : null}
         {bookingClosed ? <Notice tone="warm">ตอนนี้ร้านปิดรับคิวจากลูกค้าแล้ว เจ้าของร้านจะเปิดรับอีกครั้งเมื่อพร้อม</Notice> : null}
+        {!hasServices ? <Notice>ยังไม่มีบริการที่เปิดใช้ ตอนนี้ยังจองเวลาไม่ได้</Notice> : null}
         <RouteToast message={errorMessage} type="error" toastKey={`book:${params.error ?? ""}`} />
 
         <form action={createBookingAction}>
@@ -119,7 +121,7 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
             <Textarea id="note" name="note" placeholder="เช่น ขอทรงเปิดข้าง" />
           </FormField>
 
-          <Button type="submit" size="lg" fullWidth disabled={bookingClosed}>
+          <Button type="submit" size="lg" fullWidth disabled={bookingClosed || !hasServices}>
             <Icon icon="lucide:clock" aria-hidden="true" />ยืนยันคิว
           </Button>
           </FormStack>

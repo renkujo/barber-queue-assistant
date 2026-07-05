@@ -464,6 +464,10 @@
   .bqa-owner-form-content--compact .bqa-owner-support-stack {
     display: none;
   }
+
+  .bqa-owner-form-content--compact .bqa-owner-support-stack--visible-mobile {
+    display: grid;
+  }
 }
 
 .bqa-owner-board-content > .bqa-notice {
