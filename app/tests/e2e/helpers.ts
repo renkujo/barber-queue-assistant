@@ -64,3 +64,23 @@ export const loginOwner = async (page: Page) => {
   await page.getByRole("button", { name: "เข้าสู่ระบบ" }).click();
   await expect(page).toHaveURL(/\/owner(?:\?.*)?$/);
 };
+
+export const promoteQueueRowToPrimary = async (page: Page, queueRow: ReturnType<Page["locator"]>) => {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    if ((await queueRow.getByRole("button", { name: "เริ่มตัด" }).count()) > 0) {
+      return;
+    }
+
+    const upButton = queueRow.locator(".bqa-owner-reorder-actions--desktop").getByRole("button", { name: "ขึ้น" });
+
+    if ((await upButton.count()) === 0 || !(await upButton.isEnabled())) {
+      break;
+    }
+
+    await upButton.click();
+    await expect(page).toHaveURL(/\/owner(?:\?.*)?$/);
+    await expect(queueRow).toBeVisible();
+  }
+
+  await expect(queueRow.getByRole("button", { name: "เริ่มตัด" })).toBeVisible();
+};

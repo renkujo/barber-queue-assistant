@@ -52,7 +52,7 @@ const WaitAdjustButton = ({
   <form action={waitAction}>
     <input name="intent" type="hidden" value={intent} />
     <input name="currentWaitMinutes" type="hidden" value={currentWaitMinutes} />
-    <Button variant="outline" type="submit" size="sm" disabled={disabled} className="bqa-owner-wait-action">
+    <Button variant="outline" type="submit" size="xs" disabled={disabled} className="bqa-owner-wait-action">
       {children}
     </Button>
   </form>
@@ -84,13 +84,13 @@ export const ShopStatusStrip = ({ breakAction, intakeAction, settings, waitActio
     <div className="bqa-owner-status-actions">
       <form action={intakeAction}>
         <input name="enabled" type="hidden" value={settings.queueIntakeEnabled ? "false" : "true"} />
-        <Button variant={settings.queueIntakeEnabled ? "outline" : "default"} type="submit" size="lg" className="bqa-owner-intake-action">
+        <Button variant={settings.queueIntakeEnabled ? "outline" : "default"} type="submit" size="md" className="bqa-owner-intake-action">
           <Icon icon={settings.queueIntakeEnabled ? "lucide:pause" : "lucide:play"} aria-hidden="true" />
           {settings.queueIntakeEnabled ? "ปิดรับคิว" : "เปิดรับคิว"}
         </Button>
       </form>
       <form action={breakAction}>
-        <Button variant="outline" type="submit" size="lg" className="bqa-owner-break-action">
+        <Button variant="outline" type="submit" size="md" className="bqa-owner-break-action">
           <Icon icon="lucide:clock" aria-hidden="true" />พัก 30 นาที
         </Button>
       </form>

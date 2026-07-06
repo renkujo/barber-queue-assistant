@@ -24,7 +24,7 @@ export const OwnerNotificationLogPanel = ({ logs }: OwnerNotificationLogPanelPro
       <CardTitle id="owner-notification-title" className="inline-flex items-center gap-2 !mb-0 !text-base !leading-tight">
         <Icon icon="lucide:message-circle" aria-hidden="true" />แจ้งเตือน LINE
       </CardTitle>
-      <span className="text-xs font-bold leading-none text-[var(--muted)]">{logs.length ? `${logs.length} ล่าสุด` : "ยังไม่มี"}</span>
+      <span className="text-xs font-medium leading-none text-[var(--muted)]">{logs.length ? `${logs.length} ล่าสุด` : "ยังไม่มี"}</span>
     </CardHeader>
 
     {logs.length ? (
@@ -42,20 +42,20 @@ export const OwnerNotificationLogPanel = ({ logs }: OwnerNotificationLogPanelPro
                 <Icon icon={toneIcon[log.tone]} />
               </span>
               <div className="min-w-0">
-                <strong className="block truncate text-[13px] font-bold leading-snug text-[var(--ink)]">
+                <strong className="block truncate text-[13px] font-medium leading-snug text-[var(--ink)]">
                   {log.statusLabel} · {log.customerName}
                 </strong>
-                <p className="mt-0.5 mb-0 text-xs font-semibold leading-snug text-[var(--muted)]">{log.typeLabel}</p>
-                {log.error ? <small className="mt-1 block text-[11px] font-bold leading-snug text-[#743a36]">{log.error}</small> : null}
+                <p className="mt-0.5 mb-0 text-xs font-medium leading-snug text-[var(--muted)]">{log.typeLabel}</p>
+                {log.error ? <small className="mt-1 block text-[11px] font-medium leading-snug text-[#743a36]">{log.error}</small> : null}
               </div>
-              <time className="text-[11px] leading-snug font-bold tabular-nums text-[var(--muted)]">{log.timeLabel}</time>
+              <time className="text-[11px] leading-snug font-medium tabular-nums text-[var(--muted)]">{log.timeLabel}</time>
             </li>
           ))}
         </ol>
       </CardContent>
     ) : (
       <CardContent className="px-3.5 py-3">
-        <p className="m-0 text-xs font-bold leading-snug text-[var(--muted)]">เมื่อมีการส่งหรือข้าม LINE notification จะแสดงตรงนี้</p>
+        <p className="m-0 text-xs font-medium leading-snug text-[var(--muted)]">เมื่อมีการส่งหรือข้าม LINE notification จะแสดงตรงนี้</p>
       </CardContent>
     )}
   </Card>

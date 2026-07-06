@@ -87,7 +87,7 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
         </Panel>
 
         <Panel aria-labelledby="tracking-title">
-          <SectionHeader id="tracking-title" title="เช็คคิวของฉัน" note="กรอกรหัสคิวเพื่อดูสถานะล่าสุด" />
+          <SectionHeader id="tracking-title" title="เช็คคิวของฉัน" note="กรอกรหัสคิวเพื่อดูว่าถึงคิวหรือยัง" />
           {trackingError ? <Notice>{trackingError}</Notice> : null}
           <RouteToast message={trackingError} type="error" toastKey={`home:${params.error ?? ""}`} />
           <form action={lookupQueueAction}>

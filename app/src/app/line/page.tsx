@@ -18,14 +18,12 @@ const LineEntryPage = async ({ searchParams }: LineEntryPageProps) => {
   const targetPath = getTargetPath(params.target);
 
   return (
-    <ScreenShell variant="center">
-      <AppCard labelledBy="line-entry-title" className="bqa-app-card--stacked">
+    <ScreenShell className="bqa-book-shell bqa-line-shell">
+      <AppCard labelledBy="line-entry-title" className="bqa-book-card bqa-line-card">
         <PageHeader
           id="line-entry-title"
-          title="เชื่อม LINE เพื่อแจ้งเตือนคิว"
-          subtitle="LINE entry"
-          imageSrc="/assets/generated-v1/line-notification-cutout.png"
-          largeImage
+          title="เชื่อม LINE เพื่อรับแจ้งเตือน"
+          subtitle="แจ้งเตือนคิว"
         />
         <LineEntryClient liffId={process.env.NEXT_PUBLIC_LINE_LIFF_ID} targetPath={targetPath} />
       </AppCard>

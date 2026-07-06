@@ -8,7 +8,7 @@
   margin: 0;
   color: var(--ink);
   font-size: 30px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.2;
 }
 
@@ -70,7 +70,7 @@
   background: var(--surface-warm);
   color: var(--ink);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -92,7 +92,7 @@
   margin-top: 3px;
   color: var(--muted);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.45;
 }
 
@@ -111,7 +111,7 @@
   gap: 6px;
   color: var(--muted);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
@@ -234,18 +234,24 @@
   display: inline-flex;
   min-width: 0;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   color: inherit;
   text-decoration: none;
 }
 
-.bqa-owner-board-brand img {
+.bqa-owner-board-brand-mark {
+  display: grid;
+  width: 44px;
+  height: 44px;
   flex: 0 0 auto;
-  border: 1px solid var(--line);
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: var(--surface-warm);
+  place-items: center;
+}
+
+.bqa-owner-board-brand-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .bqa-owner-board-brand span,
@@ -281,7 +287,7 @@
   border-radius: 10px;
   padding-inline: 12px;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .bqa-owner-menu-dialog {
@@ -340,7 +346,7 @@
 
 .bqa-owner-menu-link strong {
   font-size: 14px;
-  font-weight: 850;
+  font-weight: 700;
   line-height: 1.2;
 }
 
@@ -348,7 +354,7 @@
   margin-top: 3px;
   color: var(--muted);
   font-size: 12px;
-  font-weight: 650;
+  font-weight: 500;
   line-height: 1.35;
 }
 
@@ -369,7 +375,7 @@
   cursor: pointer;
   padding: 0 12px;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   list-style: none;
 }
 
@@ -471,10 +477,6 @@
   border-radius: 12px;
 }
 
-.bqa-owner-form-content--compact .ui-button--lg {
-  min-height: 42px;
-}
-
 .bqa-owner-form-content--compact .bqa-owner-support-stack,
 .bqa-owner-form-content--compact .bqa-owner-step-list,
 .bqa-owner-form-content--compact .bqa-owner-service-strip {
@@ -573,11 +575,6 @@
     font-size: 12px;
   }
 
-  .bqa-owner-form-content--compact .ui-button--lg {
-    min-height: 40px;
-    font-size: 14px;
-  }
-
   .bqa-owner-form-content--compact .bqa-owner-support-stack {
     display: none;
   }
@@ -669,7 +666,7 @@
   display: block;
   color: var(--muted);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.2;
 }
 
@@ -678,7 +675,7 @@
   margin-top: 2px;
   color: var(--ink);
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
 }
@@ -699,12 +696,9 @@
 }
 
 .bqa-owner-wait-action {
-  min-height: 32px;
   min-width: 54px;
   border-radius: 8px;
-  padding-inline: 8px;
-  font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
   box-shadow: none;
 }
 
@@ -717,10 +711,7 @@
 
 .bqa-owner-break-action,
 .bqa-owner-intake-action {
-  min-height: 38px;
   border-radius: 10px;
-  padding-inline: 12px;
-  font-size: clamp(14px, 1.8vw, 16px);
   font-weight: 700;
 }
 
@@ -854,10 +845,7 @@
 }
 
 .bqa-owner-add-walkin {
-  min-height: 38px;
   border-radius: 10px;
-  padding-inline: 12px;
-  font-size: 14px;
   font-weight: 700;
 }
 
@@ -921,7 +909,7 @@
   grid-column: 1;
   color: color-mix(in srgb, var(--ink) 72%, var(--muted));
   font-size: clamp(16px, 3.2vw, 19px);
-  font-weight: 700;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   line-height: 1.15;
 }
@@ -954,7 +942,7 @@
   padding: 3px 7px;
   color: var(--muted);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1;
   text-decoration: none;
 }
@@ -984,7 +972,7 @@
 
 .bqa-owner-board-note-stack span:last-child {
   color: var(--ink);
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .bqa-owner-queue-status {
@@ -997,7 +985,7 @@
   border-radius: 7px;
   padding-inline: 8px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .bqa-owner-queue-manage {
@@ -1042,8 +1030,8 @@
   background: color-mix(in srgb, var(--surface) 90%, var(--paper));
   color: var(--muted);
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   list-style: none;
 }
 
@@ -1062,13 +1050,11 @@
 }
 
 .bqa-owner-reorder-button {
-  min-height: 30px;
   border-color: var(--line-strong);
   border-radius: 8px;
   background: color-mix(in srgb, var(--surface) 88%, var(--paper));
   color: var(--muted);
-  font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   box-shadow: none;
 }
 
@@ -1088,11 +1074,10 @@
   min-height: 36px;
   border-radius: 8px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .bqa-owner-board-actions--quiet .ui-button {
-  min-height: 34px;
   background: color-mix(in srgb, var(--surface) 80%, white);
 }
 
@@ -1176,7 +1161,7 @@
   background: color-mix(in srgb, var(--surface) 88%, var(--paper));
   color: var(--muted);
   cursor: default;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .bqa-owner-passive-action svg {
@@ -1191,11 +1176,10 @@
   place-items: center;
   color: var(--muted);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .bqa-owner-restore-button {
-  min-height: 32px;
   border-color: var(--line-strong);
   background: color-mix(in srgb, var(--surface) 90%, var(--surface-warm));
   color: var(--ink);
@@ -1221,7 +1205,7 @@
   margin: 18px var(--owner-gutter-mobile) 0;
   color: var(--muted);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .bqa-owner-footer-status span,
@@ -1235,7 +1219,7 @@
 
 @media (max-width: 760px) {
   .bqa-owner-board-brand {
-    gap: 10px;
+    gap: 9px;
   }
 
   .bqa-owner-board-brand strong {
@@ -1264,9 +1248,9 @@
 }
 
 @media (max-width: 559px) {
-  .bqa-owner-board-brand img {
-    width: 48px;
-    height: 48px;
+  .bqa-owner-board-brand-mark {
+    width: 44px;
+    height: 44px;
   }
 
   .bqa-owner-board-topbar {
@@ -1296,12 +1280,6 @@
     font-size: 13px;
   }
 
-  .bqa-owner-break-action {
-    min-height: 42px;
-    padding-inline: 12px;
-    font-size: 14px;
-  }
-
   .bqa-owner-status-actions {
     width: 100%;
     display: grid;
@@ -1324,7 +1302,7 @@
 
   .bqa-owner-wait-action {
     width: 100%;
-    min-height: 38px;
+    min-height: 36px;
   }
 
   .bqa-owner-status-actions form,
@@ -1404,12 +1382,6 @@
     font-size: 13px;
   }
 
-  .bqa-owner-add-walkin {
-    min-height: 36px;
-    padding-inline: 12px;
-    font-size: 13px;
-  }
-
   .bqa-owner-queue-row {
     min-height: 0;
     grid-template-columns: 54px minmax(0, 1fr);
@@ -1453,19 +1425,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .bqa-owner-board-actions .ui-button,
-  .bqa-owner-passive-action {
-    min-height: 40px;
-    font-size: 13px;
-  }
-
   .bqa-owner-passive-action {
     display: none;
-  }
-
-  .bqa-owner-reorder-button {
-    min-height: 36px;
-    font-size: 12px;
   }
 
 }
@@ -1502,7 +1463,7 @@
     padding: 8px 14px;
     color: var(--muted);
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
   }
 
   .bqa-owner-queue-head span {
@@ -1550,17 +1511,6 @@
   }
 
   .bqa-owner-queue-status .ui-badge {
-    font-size: 12px;
-  }
-
-  .bqa-owner-board-actions .ui-button,
-  .bqa-owner-passive-action {
-    min-height: 36px;
-    font-size: 13px;
-  }
-
-  .bqa-owner-reorder-button {
-    min-height: 30px;
     font-size: 12px;
   }
 

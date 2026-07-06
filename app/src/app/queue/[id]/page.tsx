@@ -61,28 +61,33 @@ const QueueTrackingPage = async ({ params }: QueueTrackingPageProps) => {
   const trackingMessage = getTrackingMessage(queueItem.status);
 
   return (
-    <ScreenShell>
-      <AppCard labelledBy="tracking-title" className="bqa-app-card--stacked">
+    <ScreenShell className="bqa-book-shell">
+      <AppCard labelledBy="tracking-title" className="bqa-book-card bqa-tracking-card">
         <PageHeader
           id="tracking-title"
-          title="สถานะคิว"
-          subtitle="คิวของคุณ"
-          imageSrc="/assets/generated-v1/queue-ticket-cutout.png"
+          title="คิวของคุณ"
+          subtitle="สถานะคิว"
           badge={<StatusBadge tone={statusTone(queueItem.status)}>{queueItem.statusLabel}</StatusBadge>}
         />
 
-        <TicketPanel label="รหัสคิว" value={queueItem.code} caption={queueItem.customerName} />
+        <div className="bqa-tracking-layout">
+          <div className="bqa-tracking-main">
+            <TicketPanel className="bqa-tracking-ticket" label="รหัสคิว" value={queueItem.code} caption={queueItem.customerName} />
 
-        <StatGrid className="bqa-stat-grid--flush" aria-label="queue detail">
-          <StatTile icon={<Icon icon="lucide:scissors" aria-hidden="true" />} label="บริการ" value={<span className="bqa-stat-text">{queueItem.serviceName}</span>} />
-          <StatTile icon={<Icon icon="lucide:clock" aria-hidden="true" />} label="เวลา" value={<span className="bqa-stat-text">{queueItem.timeLabel}</span>} />
-        </StatGrid>
+            <Panel className="bqa-panel--flush bqa-tracking-message">
+              <SectionHeader title={trackingMessage.title} note={trackingMessage.note} />
+            </Panel>
+          </div>
 
-        <Panel className="bqa-panel--flush">
-          <SectionHeader title={trackingMessage.title} note={trackingMessage.note} />
-        </Panel>
+          <aside className="bqa-tracking-side" aria-label="รายละเอียดคิว">
+            <StatGrid className="bqa-stat-grid--flush bqa-tracking-stat-grid" aria-label="queue detail">
+              <StatTile icon={<Icon icon="lucide:scissors" aria-hidden="true" />} label="บริการ" value={<span className="bqa-stat-text">{queueItem.serviceName}</span>} />
+              <StatTile icon={<Icon icon="lucide:clock" aria-hidden="true" />} label="เวลา" value={<span className="bqa-stat-text">{queueItem.timeLabel}</span>} />
+            </StatGrid>
+          </aside>
+        </div>
 
-        <div className="bqa-button-pair">
+        <div className="bqa-button-pair bqa-tracking-actions">
           <Button asChild>
             <Link href="/">
               <Icon icon="lucide:chevron-left" aria-hidden="true" />กลับหน้าแรก

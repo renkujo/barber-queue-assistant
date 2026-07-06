@@ -130,6 +130,7 @@ describe("queue notifications", () => {
     expect(notification.status).toBe(NotificationStatus.SKIPPED);
     expect(notification.recipient).toBeNull();
     expect(notification.messagePreview).toContain("รับคิวแล้ว");
+    expect(notification.messagePreview).toContain("ตอนนี้คิวของคุณ");
   });
 
   it("sends through the provided LINE client and logs SENT when LINE identity exists", async () => {

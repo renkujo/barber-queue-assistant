@@ -82,7 +82,7 @@ const OwnerServiceSettingsPage = async ({ searchParams }: OwnerServiceSettingsPa
                   <CardHeader className="flex flex-row items-start justify-between gap-3 px-3.5 py-3">
                     <div>
                       <CardTitle className="!mb-1 !text-base !leading-tight">{service.name}</CardTitle>
-                      <CardDescription className="!text-xs !font-semibold">
+                      <CardDescription className="!text-xs !font-medium">
                         {service.durationMinutes} นาที · {service.priceLabel} · ลำดับ {service.sortOrder}
                       </CardDescription>
                     </div>

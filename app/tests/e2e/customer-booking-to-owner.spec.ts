@@ -25,7 +25,7 @@ test.describe("customer booking flow", () => {
     await page.getByRole("button", { name: "ยืนยันคิว" }).click();
 
     await expect(page).toHaveURL(/\/queue\/[a-z0-9]+$/);
-    await expect(page.getByRole("heading", { name: "สถานะคิว" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "คิวของคุณ" })).toBeVisible();
     await expect(page.getByText(customerName)).toBeVisible();
     await expect(page.getByText("ยืนยันแล้ว")).toBeVisible();
   });

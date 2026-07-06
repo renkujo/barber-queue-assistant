@@ -235,12 +235,14 @@ export const TicketPanel = ({
   label,
   value,
   caption,
+  className,
 }: {
   label: string;
   value: ReactNode;
   caption?: ReactNode;
+  className?: string;
 }) => (
-  <section className="bqa-ticket-panel">
+  <section className={cn("bqa-ticket-panel", className)}>
     <p>{label}</p>
     <strong>{value}</strong>
     {caption ? <span>{caption}</span> : null}

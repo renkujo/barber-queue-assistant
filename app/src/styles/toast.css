@@ -1,61 +1,40 @@
 .bqa-toast {
-  position: relative !important;
-  overflow: hidden !important;
   border: 1px solid var(--line-strong) !important;
-  border-radius: 18px !important;
+  border-radius: 14px !important;
   background: color-mix(in srgb, var(--surface) 92%, var(--paper)) !important;
   color: var(--ink) !important;
-  padding-left: 18px !important;
-  box-shadow: 0 18px 44px -26px rgba(58, 45, 37, 0.62) !important;
+  padding: 12px 14px !important;
+  box-shadow: 0 10px 30px -22px rgba(58, 45, 37, 0.5) !important;
   font-family: "LINE Seed Sans TH", "Noto Sans Thai", system-ui, sans-serif !important;
 }
 
-.bqa-toast::before {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 4px;
-  background: var(--primary);
-  content: "";
-}
-
 .bqa-toast[data-type="success"] {
-  border-color: color-mix(in srgb, var(--sage) 72%, var(--line-strong)) !important;
-  background: color-mix(in srgb, var(--mint) 72%, var(--surface)) !important;
-}
-
-.bqa-toast[data-type="success"]::before {
-  background: var(--sage);
+  border-color: color-mix(in srgb, var(--sage) 64%, var(--line-strong)) !important;
+  background: color-mix(in srgb, var(--mint) 50%, var(--surface)) !important;
+  color: var(--ink) !important;
 }
 
 .bqa-toast[data-type="error"] {
-  border-color: color-mix(in srgb, var(--rose) 76%, var(--line-strong)) !important;
-  background: color-mix(in srgb, var(--rose-soft) 72%, var(--surface)) !important;
-}
-
-.bqa-toast[data-type="error"]::before {
-  background: var(--rose);
+  border-color: color-mix(in srgb, var(--rose) 68%, var(--line-strong)) !important;
+  background: color-mix(in srgb, var(--rose-soft) 52%, var(--surface)) !important;
+  color: var(--ink) !important;
 }
 
 .bqa-toast[data-type="warning"] {
-  border-color: color-mix(in srgb, var(--primary) 62%, var(--line-strong)) !important;
-  background: color-mix(in srgb, var(--surface-warm) 86%, var(--surface)) !important;
-}
-
-.bqa-toast[data-type="warning"]::before {
-  background: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 58%, var(--line-strong)) !important;
+  background: color-mix(in srgb, var(--surface-warm) 72%, var(--surface)) !important;
+  color: var(--ink) !important;
 }
 
 .bqa-toast-title {
   color: var(--ink) !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   line-height: 1.25 !important;
 }
 
 .bqa-toast-description {
   color: var(--muted) !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
   line-height: 1.4 !important;
 }
 

@@ -16,6 +16,7 @@ import {
 import { updateQueueStatusAction } from "./actions";
 
 type ButtonVariant = NonNullable<IButtonProps["variant"]>;
+type ButtonSize = NonNullable<IButtonProps["size"]>;
 type ConfirmTone = "complete" | "danger" | "warning";
 
 type ConfirmStatusActionButtonProps = {
@@ -27,6 +28,7 @@ type ConfirmStatusActionButtonProps = {
   description: string;
   confirmLabel: string;
   variant?: ButtonVariant;
+  size?: ButtonSize;
   tone?: ConfirmTone;
   className?: string;
   disabled?: boolean;
@@ -57,6 +59,7 @@ export const ConfirmStatusActionButton = ({
   description,
   confirmLabel,
   variant = "outline",
+  size = "default",
   tone = "danger",
   className,
   disabled = false,
@@ -65,7 +68,7 @@ export const ConfirmStatusActionButton = ({
 
   if (!itemId || disabled) {
     return (
-      <Button variant={variant} type="button" disabled fullWidth className={className}>
+      <Button variant={variant} type="button" size={size} disabled fullWidth className={className}>
         {icon}{label}
       </Button>
     );
@@ -74,7 +77,7 @@ export const ConfirmStatusActionButton = ({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={variant} type="button" fullWidth className={className}>
+        <Button variant={variant} type="button" size={size} fullWidth className={className}>
           {icon}{label}
         </Button>
       </AlertDialogTrigger>

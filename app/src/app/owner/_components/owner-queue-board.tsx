@@ -34,6 +34,7 @@ type StatusActionButtonProps = {
   status: QueueItemStatus;
   children: ReactNode;
   variant?: NonNullable<IButtonProps["variant"]>;
+  size?: NonNullable<IButtonProps["size"]>;
   disabled?: boolean;
   className?: string;
 };
@@ -45,12 +46,13 @@ const StatusActionButton = ({
   status,
   children,
   variant = "outline",
+  size = "default",
   disabled = false,
   className,
 }: StatusActionButtonProps) => {
   if (!itemId || disabled) {
     return (
-      <Button variant={variant} type="button" disabled fullWidth className={className}>
+      <Button variant={variant} type="button" size={size} disabled fullWidth className={className}>
         {children}
       </Button>
     );
@@ -60,7 +62,7 @@ const StatusActionButton = ({
     <form action={updateQueueStatusAction}>
       <input name="queueItemId" type="hidden" value={itemId} />
       <input name="status" type="hidden" value={status} />
-      <Button variant={variant} type="submit" fullWidth className={className}>
+      <Button variant={variant} type="submit" size={size} fullWidth className={className}>
         {children}
       </Button>
     </form>
@@ -79,6 +81,7 @@ const DoneConfirmButton = ({ item, disabled }: { item?: QueueListItem; disabled:
     description="คิวนี้จะถูกปิดงานและไม่แสดงในรายการ active ของวันนี้"
     confirmLabel="ยืนยันเสร็จ"
     variant="default"
+    size="sm"
     tone="complete"
     className="bqa-owner-action-button bqa-owner-action-button--done"
     disabled={disabled || !item}
@@ -95,6 +98,7 @@ const CancelConfirmButton = ({ item, disabled }: { item: QueueListItem; disabled
     description="คิวนี้จะถูกนำออกจากรายการวันนี้ ถ้ากดยกเลิกผิดต้องสร้างหรือแก้คิวใหม่"
     confirmLabel="ยืนยันยกเลิก"
     variant="outline"
+    size="sm"
     tone="danger"
     className="bqa-owner-action-button bqa-owner-action-button--cancel"
     disabled={disabled}
@@ -111,6 +115,7 @@ const NoShowConfirmButton = ({ item, disabled }: { item: QueueListItem; disabled
     description="ระบบจะบันทึกคิวนี้เป็น no-show และปล่อยพื้นที่ให้คิวถัดไป"
     confirmLabel="ยืนยันไม่มา"
     variant="destructive"
+    size="sm"
     tone="warning"
     className="bqa-owner-action-button bqa-owner-action-button--no-show"
     disabled={disabled}
@@ -257,7 +262,7 @@ const QueueRowActions = ({
   if (item.tone === "warning") {
     return (
       <div className="bqa-owner-board-actions bqa-owner-board-actions--quiet">
-        <StatusActionButton itemId={item.id} status={QueueItemStatus.WAITING} disabled={disabled} className="bqa-owner-action-button bqa-owner-action-button--wait">
+        <StatusActionButton itemId={item.id} status={QueueItemStatus.WAITING} size="sm" disabled={disabled} className="bqa-owner-action-button bqa-owner-action-button--wait">
           รอเพิ่ม
         </StatusActionButton>
         <NoShowConfirmButton item={item} disabled={disabled} />
@@ -275,11 +280,11 @@ const QueueRowActions = ({
 
   return (
     <div className="bqa-owner-board-actions bqa-owner-board-actions--primary">
-      <StatusActionButton itemId={item.id} status={QueueItemStatus.IN_PROGRESS} variant="default" disabled={disabled} className="bqa-owner-action-button bqa-owner-action-button--start">
+      <StatusActionButton itemId={item.id} status={QueueItemStatus.IN_PROGRESS} variant="default" size="sm" disabled={disabled} className="bqa-owner-action-button bqa-owner-action-button--start">
         <Icon icon="lucide:circle-play" aria-hidden="true" />เริ่มตัด
       </StatusActionButton>
       <div className="bqa-owner-board-actions bqa-owner-board-actions--quiet">
-        <StatusActionButton itemId={item.id} status={QueueItemStatus.LATE} variant="outline" disabled={disabled} className="bqa-owner-action-button bqa-owner-action-button--late">
+        <StatusActionButton itemId={item.id} status={QueueItemStatus.LATE} variant="outline" size="sm" disabled={disabled} className="bqa-owner-action-button bqa-owner-action-button--late">
           <Icon icon="lucide:triangle-alert" aria-hidden="true" />สาย
         </StatusActionButton>
         <CancelConfirmButton item={item} disabled={disabled} />
@@ -329,7 +334,7 @@ export const OwnerQueueBoard = ({
         <CardDescription>{queue.length} คิวในระบบวันนี้</CardDescription>
       </div>
       <CardAction>
-        <Button asChild size="lg" className="bqa-owner-add-walkin">
+        <Button asChild size="md" className="bqa-owner-add-walkin">
           <Link href="/owner/walk-in">
             <Icon icon="lucide:plus" aria-hidden="true" />เพิ่ม walk-in
           </Link>

@@ -17,6 +17,19 @@ const formatDateLabel = (date: Date) =>
     timeZone: "Asia/Bangkok",
   }).format(date);
 
+const customerStatusCopy: Record<string, string> = {
+  "ยืนยันแล้ว": "จองสำเร็จแล้ว",
+  "มาถึงแล้ว": "ร้านบันทึกว่าคุณมาถึงแล้ว",
+  "รออยู่": "รอเรียกคิว",
+  "มาสาย": "เลยเวลาคิวแล้ว",
+  "กำลังตัด": "ถึงคิวแล้ว / กำลังให้บริการ",
+  "เสร็จแล้ว": "ใช้บริการเสร็จแล้ว",
+  "ยกเลิก": "คิวถูกยกเลิกแล้ว",
+  "ไม่มา": "คิวนี้ถูกปิดแล้ว",
+};
+
+const getCustomerStatusCopy = (statusLabel: string) => customerStatusCopy[statusLabel] ?? statusLabel;
+
 export const buildQueueNotificationMessage = (type: NotificationType, context: QueueNotificationContext) => {
   const appointmentLabel = `${formatDateLabel(context.date)} ${context.timeLabel}`;
 
@@ -25,7 +38,7 @@ export const buildQueueNotificationMessage = (type: NotificationType, context: Q
   }
 
   if (type === NotificationType.QUEUE_CREATED) {
-    return `รับคิวแล้ว ${context.queueCode}\n${context.customerName} · ${context.serviceName}\nสถานะล่าสุด: ${context.statusLabel}`;
+    return `รับคิวแล้ว ${context.queueCode}\n${context.customerName} · ${context.serviceName}\nตอนนี้คิวของคุณ: ${getCustomerStatusCopy(context.statusLabel)}`;
   }
 
   if (type === NotificationType.QUEUE_NEAR) {
@@ -44,7 +57,7 @@ export const buildQueueNotificationMessage = (type: NotificationType, context: Q
     return `คิว ${context.queueCode} ถูกปิดเป็นไม่มา\nหากต้องการรับบริการ กรุณารับคิวใหม่หรือติดต่อร้าน`;
   }
 
-  return `อัปเดตคิว ${context.queueCode}\n${context.customerName} · ${context.serviceName}\nสถานะล่าสุด: ${context.statusLabel}`;
+  return `อัปเดตคิว ${context.queueCode}\n${context.customerName} · ${context.serviceName}\nตอนนี้คิวของคุณ: ${getCustomerStatusCopy(context.statusLabel)}`;
 };
 
 export const getQueueTimeLabel = (startAt: Date | null, estimatedAt: Date | null, date: Date) => {

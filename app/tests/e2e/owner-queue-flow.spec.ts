@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { cleanupE2eQueueItems, e2eCustomerPrefix, loginOwner, skipWhenE2eEnvMissing } from "./helpers";
+import { cleanupE2eQueueItems, e2eCustomerPrefix, loginOwner, promoteQueueRowToPrimary, skipWhenE2eEnvMissing } from "./helpers";
 
 test.describe("owner queue flow", () => {
   test.beforeEach(async () => {
@@ -25,6 +25,7 @@ test.describe("owner queue flow", () => {
 
     const queueRow = page.locator(".bqa-owner-queue-row").filter({ hasText: customerName });
     await expect(queueRow).toBeVisible();
+    await promoteQueueRowToPrimary(page, queueRow);
 
     await queueRow.getByRole("button", { name: "เริ่มตัด" }).click();
     await expect(page).toHaveURL(/\/owner(?:\?.*)?$/);

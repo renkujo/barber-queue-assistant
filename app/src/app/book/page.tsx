@@ -52,13 +52,12 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
   const defaultTimeValue = timeSlots.find((slot) => slot.available)?.value ?? timeSlots[0]?.value;
 
   return (
-    <ScreenShell>
-      <AppCard labelledBy="book-title" className="bqa-app-card--wide">
+    <ScreenShell className="bqa-book-shell">
+      <AppCard labelledBy="book-title" className="bqa-book-card">
         <PageHeader
           id="book-title"
-          title="เลือกเวลาตัดผม"
-          subtitle="จองเวลา"
-          imageSrc="/assets/generated-v1/queue-ticket-cutout.png"
+          title="จองเวลาตัดผม"
+          subtitle="จองคิวล่วงหน้า"
           action={
             <Button asChild variant="ghost" size="sm">
               <Link href="/">
@@ -73,59 +72,85 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
         {!hasServices ? <Notice>ยังไม่มีบริการที่เปิดใช้ ตอนนี้ยังจองเวลาไม่ได้</Notice> : null}
         <RouteToast message={errorMessage} type="error" toastKey={`book:${params.error ?? ""}`} />
 
-        <form action={createBookingAction}>
+        <div className="bqa-book-layout">
+          <aside className="bqa-book-guide" aria-label="สรุปการจอง">
+            <div>
+              <span>ใช้เวลาประมาณ</span>
+              <strong>1 นาที</strong>
+            </div>
+            <p>เลือกบริการและเวลาที่ว่าง ระบบจะสร้างคิวให้เจ้าของร้านเห็นทันที</p>
+          </aside>
+
+        <form action={createBookingAction} className="bqa-book-form">
           {lineUserId ? <input type="hidden" name="lineUserId" value={lineUserId} /> : null}
-          <FormStack>
-          <FormField id="serviceId" label="บริการ">
-            <Select name="serviceId" defaultValue={defaultServiceId} required>
-              <SelectTrigger id="serviceId"><SelectValue placeholder="เลือกบริการ" /></SelectTrigger>
-              <SelectContent>
-                {services.map((service) => (
-                  <SelectItem value={service.id} key={service.id}>{service.name} · {service.durationMinutes} นาที · {service.priceLabel}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormField>
+          <FormStack className="bqa-book-form-stack">
+            <section className="bqa-book-section" aria-labelledby="book-service-title">
+              <div className="bqa-book-section-heading">
+                <h2 id="book-service-title">เวลาที่ต้องการ</h2>
+                <p>เลือกบริการ วัน และช่วงเวลาที่สะดวก</p>
+              </div>
 
-          <FormGrid>
-            <FormField id="dateValue" label="วัน">
-              <Select name="dateValue" defaultValue={todayValue} required>
-                <SelectTrigger id="dateValue"><SelectValue placeholder="เลือกวัน" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={todayValue}>วันนี้</SelectItem>
-                  <SelectItem value={tomorrowValue}>พรุ่งนี้</SelectItem>
-                </SelectContent>
-              </Select>
-            </FormField>
-            <FormField id="timeValue" label="เวลา">
-              <Select name="timeValue" defaultValue={defaultTimeValue} required>
-                <SelectTrigger id="timeValue"><SelectValue placeholder="เลือกเวลา" /></SelectTrigger>
-                <SelectContent>
-                  {timeSlots.map((slot) => (
-                    <SelectItem value={slot.value} key={slot.value} disabled={!slot.available}>
-                      {slot.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormField>
-          </FormGrid>
+              <FormField id="serviceId" label="บริการ">
+                <Select name="serviceId" defaultValue={defaultServiceId} required>
+                  <SelectTrigger id="serviceId"><SelectValue placeholder="เลือกบริการ" /></SelectTrigger>
+                  <SelectContent>
+                    {services.map((service) => (
+                      <SelectItem value={service.id} key={service.id}>{service.name} · {service.durationMinutes} นาที · {service.priceLabel}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
 
-          <FormField id="customerName" label="ชื่อ">
-            <Input id="customerName" name="customerName" required placeholder="ชื่อของคุณ" />
-          </FormField>
-          <FormField id="phone" label="เบอร์โทร">
-            <Input id="phone" name="phone" inputMode="tel" placeholder="เบอร์สำหรับติดต่อ" />
-          </FormField>
-          <FormField id="note" label="หมายเหตุ">
-            <Textarea id="note" name="note" placeholder="เช่น ขอทรงเปิดข้าง" />
-          </FormField>
+              <FormGrid>
+                <FormField id="dateValue" label="วัน">
+                  <Select name="dateValue" defaultValue={todayValue} required>
+                    <SelectTrigger id="dateValue"><SelectValue placeholder="เลือกวัน" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={todayValue}>วันนี้</SelectItem>
+                      <SelectItem value={tomorrowValue}>พรุ่งนี้</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormField>
+                <FormField id="timeValue" label="เวลา">
+                  <Select name="timeValue" defaultValue={defaultTimeValue} required>
+                    <SelectTrigger id="timeValue"><SelectValue placeholder="เลือกเวลา" /></SelectTrigger>
+                    <SelectContent>
+                      {timeSlots.map((slot) => (
+                        <SelectItem value={slot.value} key={slot.value} disabled={!slot.available}>
+                          {slot.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormField>
+              </FormGrid>
+            </section>
+
+            <section className="bqa-book-section" aria-labelledby="book-contact-title">
+              <div className="bqa-book-section-heading">
+                <h2 id="book-contact-title">ข้อมูลติดต่อ</h2>
+                <p>ใช้สำหรับยืนยันคิวหรือแจ้งเมื่อมีการเปลี่ยนแปลง</p>
+              </div>
+
+              <FormGrid>
+                <FormField id="customerName" label="ชื่อ">
+                  <Input id="customerName" name="customerName" required placeholder="ชื่อของคุณ" />
+                </FormField>
+                <FormField id="phone" label="เบอร์โทร">
+                  <Input id="phone" name="phone" inputMode="tel" placeholder="เบอร์สำหรับติดต่อ" />
+                </FormField>
+              </FormGrid>
+              <FormField id="note" label="หมายเหตุ">
+                <Textarea id="note" name="note" placeholder="เช่น ขอทรงเปิดข้าง" />
+              </FormField>
+            </section>
 
           <Button type="submit" size="lg" fullWidth disabled={bookingClosed || !hasServices}>
             <Icon icon="lucide:clock" aria-hidden="true" />ยืนยันคิว
           </Button>
           </FormStack>
         </form>
+        </div>
       </AppCard>
     </ScreenShell>
   );

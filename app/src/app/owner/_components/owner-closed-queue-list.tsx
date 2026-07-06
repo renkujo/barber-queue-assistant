@@ -35,7 +35,7 @@ export const OwnerClosedQueueList = ({ queue }: { queue: QueueListItem[] }) => {
     >
       <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-[var(--line)] px-3.5 py-2.5">
         <CardTitle id="owner-closed-title" className="!mb-0 !text-[15px] !leading-tight">ปิดแล้ววันนี้</CardTitle>
-        <CardDescription className="!text-xs !font-semibold !text-[var(--muted)]">{queue.length} คิว</CardDescription>
+        <CardDescription className="!text-xs !font-medium !text-[var(--muted)]">{queue.length} คิว</CardDescription>
       </CardHeader>
 
       <CardContent className="p-0">
@@ -43,11 +43,11 @@ export const OwnerClosedQueueList = ({ queue }: { queue: QueueListItem[] }) => {
           {queue.map((item) => (
             <li className="grid gap-3 px-3.5 py-3" key={item.id}>
               <div className="grid grid-cols-[52px_minmax(0,1fr)] gap-3">
-                <time className="pt-0.5 text-sm font-bold tabular-nums text-[color-mix(in_srgb,var(--ink)_74%,var(--muted))]">
+                <time className="pt-0.5 text-sm font-medium tabular-nums text-[color-mix(in_srgb,var(--ink)_74%,var(--muted))]">
                   {item.timeLabel}
                 </time>
                 <div className="min-w-0">
-                  <strong className="block min-w-0 text-sm font-bold leading-snug text-[var(--ink)]">
+                  <strong className="block min-w-0 text-sm font-medium leading-snug text-[var(--ink)]">
                     {item.code} {item.customerName}
                   </strong>
                   <p className="mt-1 line-clamp-2 text-xs font-medium leading-snug text-[var(--muted)]">
@@ -77,9 +77,9 @@ export const OwnerClosedQueueList = ({ queue }: { queue: QueueListItem[] }) => {
             <TableBody>
               {queue.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="w-[72px] font-bold tabular-nums text-[color-mix(in_srgb,var(--ink)_74%,var(--muted))]">{item.timeLabel}</TableCell>
+                  <TableCell className="w-[72px] font-medium tabular-nums text-[color-mix(in_srgb,var(--ink)_74%,var(--muted))]">{item.timeLabel}</TableCell>
                   <TableCell>
-                    <strong className="min-w-0 text-sm font-bold leading-tight text-[var(--ink)]">
+                    <strong className="min-w-0 text-sm font-medium leading-tight text-[var(--ink)]">
                       {item.code} {item.customerName}
                     </strong>
                   </TableCell>
