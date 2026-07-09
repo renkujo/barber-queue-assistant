@@ -11,6 +11,8 @@ import { OwnerSideRail } from "./_components/owner-side-rail";
 import { OwnerTopbar } from "./_components/owner-topbar";
 import { ShopStatusStrip } from "./_components/shop-status-strip";
 
+export const dynamic = "force-dynamic";
+
 type OwnerPageProps = {
   searchParams: Promise<{ error?: string; status?: string }>;
 };

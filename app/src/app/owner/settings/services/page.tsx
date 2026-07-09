@@ -22,6 +22,8 @@ import { getOwnerServiceSettingsSafe } from "@/lib/queue/repository";
 import { createOwnerServiceAction, toggleOwnerServiceAction, updateOwnerServiceAction } from "../../actions";
 import { OwnerTopbar } from "../../_components/owner-topbar";
 
+export const dynamic = "force-dynamic";
+
 type OwnerServiceSettingsPageProps = {
   searchParams: Promise<{ error?: string; status?: string }>;
 };

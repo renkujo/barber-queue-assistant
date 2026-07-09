@@ -18,6 +18,8 @@ import { getServicesSafe } from "@/lib/queue/repository";
 import { createOwnerWalkInAction } from "../actions";
 import { OwnerTopbar } from "../_components/owner-topbar";
 
+export const dynamic = "force-dynamic";
+
 type OwnerWalkInPageProps = {
   searchParams: Promise<{ error?: string }>;
 };

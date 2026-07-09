@@ -17,6 +17,8 @@ import { getOwnerShopSettingsSafe } from "@/lib/queue/repository";
 import { updateOwnerSettingsAction } from "../actions";
 import { OwnerTopbar } from "../_components/owner-topbar";
 
+export const dynamic = "force-dynamic";
+
 type OwnerSettingsPageProps = {
   searchParams: Promise<{ error?: string; status?: string }>;
 };

@@ -20,6 +20,8 @@ import { getTodayValue, getTomorrowValue } from "@/lib/queue/date";
 import { updateQueueItemAction } from "../../../actions";
 import { OwnerTopbar } from "../../../_components/owner-topbar";
 
+export const dynamic = "force-dynamic";
+
 type OwnerQueueEditPageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ error?: string }>;
