@@ -86,7 +86,7 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
           </div>
         </Panel>
 
-        <Panel aria-labelledby="tracking-title">
+        <Panel id="queue-status" aria-labelledby="tracking-title">
           <SectionHeader id="tracking-title" title="เช็คคิวของฉัน" note="กรอกรหัสคิวเพื่อดูว่าถึงคิวหรือยัง" />
           {trackingError ? <Notice>{trackingError}</Notice> : null}
           <RouteToast message={trackingError} type="error" toastKey={`home:${params.error ?? ""}`} />
