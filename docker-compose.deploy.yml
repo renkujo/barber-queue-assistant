@@ -1,0 +1,40 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: ${DATABASE_URL}
+      BARBER_ADMIN_PASSCODE: ${BARBER_ADMIN_PASSCODE}
+      BARBER_ADMIN_SESSION_SECRET: ${BARBER_ADMIN_SESSION_SECRET}
+      LINE_CHANNEL_SECRET: ${LINE_CHANNEL_SECRET:-}
+      LINE_CHANNEL_ACCESS_TOKEN: ${LINE_CHANNEL_ACCESS_TOKEN:-}
+      NEXT_PUBLIC_LINE_LIFF_ID: ${NEXT_PUBLIC_LINE_LIFF_ID:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-barber_queue_assistant}
+      POSTGRES_USER: ${POSTGRES_USER:-barber_queue}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - barber_queue_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  barber_queue_postgres_data:
