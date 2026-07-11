@@ -146,16 +146,12 @@ export type BookingSlot = {
   available: boolean;
 };
 
-const defaultBookingTimes = ["09:30", "10:30", "13:00", "14:30", "16:00", "17:00"];
-
 const defaultShopSettingsInput = {
   id: "default-shop",
   shopName: "ร้านช่างหนึ่ง",
   openDays: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
   businessHours: { open: "09:00", close: "19:00" },
 } as const;
-
-export const getDefaultBookingTimes = () => defaultBookingTimes;
 
 const statusLabels: Record<string, string> = {
   [QueueItemStatus.CONFIRMED]: "ยืนยันแล้ว",
@@ -281,6 +277,38 @@ const toTimeValue = (date: Date) => {
 
   return `${hour}:${minute}`;
 };
+
+const parseTimeMinutes = (timeValue: string) => {
+  const [hour = "0", minute = "0"] = timeValue.split(":");
+
+  return Number(hour) * 60 + Number(minute);
+};
+
+const minutesToTimeValue = (minutes: number) => {
+  const hour = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+
+  return `${`${hour}`.padStart(2, "0")}:${`${minute}`.padStart(2, "0")}`;
+};
+
+const getBookingTimesForBusinessHours = (businessHours: { open: string; close: string }, durationMinutes: number) => {
+  const openMinutes = parseTimeMinutes(businessHours.open);
+  const closeMinutes = parseTimeMinutes(businessHours.close);
+
+  if (!Number.isFinite(openMinutes) || !Number.isFinite(closeMinutes) || durationMinutes <= 0 || closeMinutes <= openMinutes) {
+    return [];
+  }
+
+  const times: string[] = [];
+
+  for (let cursor = openMinutes; cursor + durationMinutes <= closeMinutes; cursor += durationMinutes) {
+    times.push(minutesToTimeValue(cursor));
+  }
+
+  return times;
+};
+
+export const getDefaultBookingTimes = () => getBookingTimesForBusinessHours(defaultShopSettingsInput.businessHours, fallbackServices[0]?.durationMinutes ?? 30);
 
 const overlaps = (leftStart: Date, leftEnd: Date, rightStart: Date, rightEnd: Date) => leftStart < rightEnd && leftEnd > rightStart;
 
@@ -1050,6 +1078,9 @@ export const createBreakTimeBlock = async (durationMinutes = 30) => {
 export const getAvailableBookingSlots = async (dateValue: string, serviceId?: string): Promise<BookingSlot[]> => {
   const service = serviceId ? await findService(serviceId) : null;
   const durationMinutes = service?.durationMinutes ?? fallbackServices[0]?.durationMinutes ?? 30;
+  const settings = await getOrCreateShopSettings();
+  const businessHours = getBusinessHours(settings.businessHours);
+  const bookingTimes = getBookingTimesForBusinessHours(businessHours, durationMinutes);
   const { start, end } = getDayBounds(dateValue);
   const [queueItems, timeBlocks] = await Promise.all([
     prisma.queueItem.findMany({
@@ -1082,7 +1113,7 @@ export const getAvailableBookingSlots = async (dateValue: string, serviceId?: st
     }),
   ]);
 
-  return defaultBookingTimes.map((time) => {
+  return bookingTimes.map((time) => {
     const slotStart = createDateTime(dateValue, time);
     const slotEnd = addMinutes(slotStart, durationMinutes);
     const isPast = slotStart < new Date();
@@ -1107,7 +1138,7 @@ export const getAvailableBookingSlotsSafe = async (dateValue: string, serviceId?
   try {
     return await getAvailableBookingSlots(dateValue, serviceId);
   } catch {
-    return defaultBookingTimes.map((time) => ({ value: time, label: time, available: true }));
+    return getDefaultBookingTimes().map((time) => ({ value: time, label: time, available: true }));
   }
 };
 

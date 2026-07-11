@@ -3,11 +3,13 @@ import { QueueCreatedBy, QueueItemStatus, QueueItemType } from "@/generated/pris
 import { prisma } from "@/lib/prisma";
 import { createDateTime, getDayBounds, getTodayValue, getTomorrowValue } from "@/lib/queue/date";
 import {
+  createBooking,
   createWalkIn,
   createOwnerService,
   getOwnerQueueStatusSnapshot,
   getOwnerServiceSettings,
   getQueueStatusSnapshot,
+  getAvailableBookingSlots,
   getServices,
   reorderQueueItem,
   restoreClosedQueueItem,
@@ -158,6 +160,44 @@ describe("queue repository status workflow", () => {
 
     expect(storedQueueItem.lineUserIdSnapshot).toBe(lineUserId);
     expect(storedQueueItem.customer?.lineUserId).toBe(lineUserId);
+  });
+
+  it("builds booking slots from shop hours and service duration", async () => {
+    const dateValue = getTomorrowValue();
+
+    await updateOwnerShopSettings({
+      shopName: `${testPrefix} Hours Shop`,
+      openTime: "12:00",
+      closeTime: "14:00",
+      queueIntakeEnabled: true,
+      bookingEnabled: true,
+      walkInEnabled: true,
+      manualWaitMinutes: null,
+    });
+
+    const slots = await getAvailableBookingSlots(dateValue, serviceId);
+
+    expect(slots.map((slot) => slot.value)).toEqual(["12:00", "12:30", "13:00", "13:30"]);
+    expect(slots.every((slot) => slot.available)).toBe(true);
+
+    await expect(createBooking({
+      customerName: `${testPrefix} outside hours`,
+      phone: "0855555555",
+      serviceId,
+      dateValue,
+      timeValue: "09:30",
+    })).rejects.toThrow("Booking slot is not available.");
+
+    const booking = await createBooking({
+      customerName: `${testPrefix} inside hours`,
+      phone: "0866666666",
+      serviceId,
+      dateValue,
+      timeValue: "13:30",
+    });
+
+    expect(booking.startAt?.getHours()).toBe(13);
+    expect(booking.startAt?.getMinutes()).toBe(30);
   });
 
   it("estimates new walk-ins after an upcoming booking when the service would overlap", async () => {
