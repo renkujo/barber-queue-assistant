@@ -39,7 +39,16 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
   ]);
   const shopStatus = snapshot.shop;
   const trackingError = params.error ? trackingErrorMessages[params.error] : null;
+  const shopOpenNow = intakeSettings.isOpenNow;
   const intakeOpen = intakeSettings.queueIntakeEnabled;
+  const walkInOpen = intakeSettings.walkInAvailable;
+  const statusLabel = !shopOpenNow ? "ร้านปิดอยู่" : intakeOpen ? "เปิดรับคิว" : "ปิดรับคิว";
+  const statusTitle = !shopOpenNow ? "ตอนนี้ร้านปิดอยู่" : intakeOpen ? "คิวตอนนี้ยังรับได้" : "ตอนนี้ร้านปิดรับคิว";
+  const statusDescription = !shopOpenNow
+    ? `${shopStatus.openLabel} ยังจองเวลาล่วงหน้าได้ แต่รับ walk-in เฉพาะช่วงร้านเปิด`
+    : intakeOpen
+      ? `${shopStatus.openLabel} ลูกค้าดูสถานะคิวเองได้จากหน้านี้`
+      : "เจ้าของร้านปิดรับคิวจากลูกค้าชั่วคราว กลับมาเช็คใหม่อีกครั้งภายหลัง";
 
   return (
     <ScreenShell>
@@ -49,17 +58,18 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
           title="จองคิวตัดผม"
           subtitle={shopStatus.shopName}
           imageSrc={brandMarkPath}
-          badge={<StatusBadge tone={intakeOpen ? "positive" : "warning"}>{intakeOpen ? "เปิดรับคิว" : "ปิดรับคิว"}</StatusBadge>}
+          badge={<StatusBadge tone={walkInOpen ? "positive" : "warning"}>{statusLabel}</StatusBadge>}
           largeImage
         />
 
         <StatusPanel
-          title={intakeOpen ? "คิวตอนนี้ยังรับได้" : "ตอนนี้ร้านปิดรับคิว"}
-          description={intakeOpen ? `${shopStatus.openLabel} ลูกค้าดูสถานะคิวเองได้จากหน้านี้` : "เจ้าของร้านปิดรับคิวจากลูกค้าชั่วคราว กลับมาเช็คใหม่อีกครั้งภายหลัง"}
+          title={statusTitle}
+          description={statusDescription}
           imageSrc={statusMascotPath}
         />
 
-        {!intakeOpen ? <Notice tone="warm">ยังดูสถานะคิวเดิมได้ แต่ตอนนี้ไม่สามารถจองหรือรับคิวใหม่จากหน้านี้ได้</Notice> : null}
+        {!shopOpenNow ? <Notice tone="warm">ตอนนี้อยู่นอกเวลาเปิดร้าน รับคิวหน้าร้านได้เฉพาะช่วงร้านเปิด แต่ยังจองเวลาล่วงหน้าได้</Notice> : null}
+        {shopOpenNow && !intakeOpen ? <Notice tone="warm">ยังดูสถานะคิวเดิมได้ แต่ตอนนี้ไม่สามารถจองหรือรับคิวใหม่จากหน้านี้ได้</Notice> : null}
 
         <StatGrid aria-label="สถานะคิว">
           <StatTile icon={<Icon icon="lucide:users" aria-hidden="true" />} label="คิวตอนนี้" value={shopStatus.currentQueueCount} unit="คน" />
@@ -68,7 +78,17 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
 
         <section className="bqa-action-list" aria-label="customer actions">
           <ActionCard href="/book" icon={<Icon icon="lucide:calendar" aria-hidden="true" />} title="จองเวลา" description="เลือกเวลาล่วงหน้า" />
-          <ActionCard href="/walk-in" icon={<Icon icon="lucide:users" aria-hidden="true" />} title="รับคิววันนี้" description="รับคิวและรอที่ร้าน" tone="warm" />
+          {walkInOpen ? (
+            <ActionCard href="/walk-in" icon={<Icon icon="lucide:users" aria-hidden="true" />} title="รับคิววันนี้" description="รับคิวและรอที่ร้าน" tone="warm" />
+          ) : (
+            <Button type="button" disabled className="bqa-action-card bqa-tone-warm">
+              <span className="bqa-action-icon"><Icon icon="lucide:users" aria-hidden="true" /></span>
+              <span className="bqa-action-copy">
+                <strong>รับคิววันนี้</strong>
+                <span>{shopOpenNow ? "ปิดรับคิวจากลูกค้า" : "รับเฉพาะช่วงร้านเปิด"}</span>
+              </span>
+            </Button>
+          )}
         </section>
 
         <Panel aria-labelledby="service-title">

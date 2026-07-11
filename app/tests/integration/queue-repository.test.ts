@@ -9,6 +9,7 @@ import {
   getOwnerQueueStatusSnapshot,
   getOwnerServiceSettings,
   getQueueStatusSnapshot,
+  getShopIntakeSettings,
   getAvailableBookingSlots,
   getServices,
   reorderQueueItem,
@@ -93,6 +94,51 @@ const ensureService = async () => {
   });
 };
 
+
+const getBangkokNowMinutes = () => {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    hourCycle: "h23",
+    timeZone: "Asia/Bangkok",
+  }).formatToParts(new Date());
+  const hour = Number(parts.find((part) => part.type === "hour")?.value ?? 0);
+  const minute = Number(parts.find((part) => part.type === "minute")?.value ?? 0);
+
+  return (hour % 24) * 60 + minute;
+};
+
+const getOpenHoursAroundNow = () => {
+  const nowMinutes = getBangkokNowMinutes();
+
+  if (nowMinutes < 12 * 60) {
+    return { openTime: "00:00", closeTime: "12:00" };
+  }
+
+  return { openTime: "12:00", closeTime: "24:00" };
+};
+
+const getClosedHoursAroundNow = () => {
+  const nowMinutes = getBangkokNowMinutes();
+
+  if (nowMinutes < 12 * 60) {
+    return { openTime: "12:00", closeTime: "24:00" };
+  }
+
+  return { openTime: "00:00", closeTime: "12:00" };
+};
+
+const setShopHours = async ({ openTime, closeTime }: { openTime: string; closeTime: string }) => updateOwnerShopSettings({
+  shopName: `${testPrefix} Hours Shop`,
+  openTime,
+  closeTime,
+  queueIntakeEnabled: true,
+  bookingEnabled: true,
+  walkInEnabled: true,
+  manualWaitMinutes: null,
+});
+
 const createCustomer = async (name: string) => prisma.customer.create({ data: { name, phone: "0800000000" } });
 
 const createQueueItem = async ({
@@ -145,6 +191,8 @@ afterAll(async () => {
 
 describe("queue repository status workflow", () => {
   it("binds lineUserId to customer and queue snapshots when creating walk-ins", async () => {
+    await setShopHours(getOpenHoursAroundNow());
+
     const lineUserId = `U${Date.now()}repo`;
     const queueItem = await createWalkIn({
       customerName: `${testPrefix} Line Binding`,
@@ -160,6 +208,25 @@ describe("queue repository status workflow", () => {
 
     expect(storedQueueItem.lineUserIdSnapshot).toBe(lineUserId);
     expect(storedQueueItem.customer?.lineUserId).toBe(lineUserId);
+  });
+
+  it("marks public walk-in unavailable outside business hours", async () => {
+    await setShopHours(getClosedHoursAroundNow());
+
+    const settings = await getShopIntakeSettings();
+    const snapshot = await getQueueStatusSnapshot(getTodayValue());
+
+    expect(settings.queueIntakeEnabled).toBe(true);
+    expect(settings.walkInEnabled).toBe(true);
+    expect(settings.isOpenNow).toBe(false);
+    expect(settings.walkInAvailable).toBe(false);
+    expect(snapshot.shop.isOpenNow).toBe(false);
+
+    await expect(createWalkIn({
+      customerName: `${testPrefix} closed walk-in`,
+      phone: "0877777777",
+      serviceId,
+    })).rejects.toThrow("Walk-in is closed.");
   });
 
   it("builds booking slots from shop hours and service duration", async () => {
@@ -201,6 +268,8 @@ describe("queue repository status workflow", () => {
   });
 
   it("estimates new walk-ins after an upcoming booking when the service would overlap", async () => {
+    await setShopHours(getOpenHoursAroundNow());
+
     const bookingStart = new Date(Date.now() + 20 * 60 * 1000);
     const bookingEnd = new Date(bookingStart.getTime() + 30 * 60 * 1000);
     const dateValue = getTodayValue();

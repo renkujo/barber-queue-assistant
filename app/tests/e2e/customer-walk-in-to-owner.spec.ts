@@ -1,10 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { cleanupE2eQueueItems, e2eCustomerPrefix, loginOwner, promoteQueueRowToPrimary, skipWhenE2eEnvMissing } from "./helpers";
+import { cleanupE2eQueueItems, e2eCustomerPrefix, loginOwner, promoteQueueRowToPrimary, setE2eShopHoursOpenNow, skipWhenE2eEnvMissing } from "./helpers";
 
 test.describe("customer walk-in to owner queue", () => {
   test.beforeEach(async () => {
     skipWhenE2eEnvMissing();
     await cleanupE2eQueueItems();
+    await setE2eShopHoursOpenNow();
   });
 
   test.afterEach(async () => {

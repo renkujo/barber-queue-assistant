@@ -13,6 +13,52 @@ export const skipWhenE2eEnvMissing = () => {
   test.skip(!getOwnerPasscode(), "BARBER_ADMIN_PASSCODE is required for e2e tests.");
 };
 
+
+const getBangkokNowMinutes = () => {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    hourCycle: "h23",
+    timeZone: "Asia/Bangkok",
+  }).formatToParts(new Date());
+  const hour = Number(parts.find((part) => part.type === "hour")?.value ?? 0);
+  const minute = Number(parts.find((part) => part.type === "minute")?.value ?? 0);
+
+  return (hour % 24) * 60 + minute;
+};
+
+export const getE2eOpenHoursAroundNow = () => {
+  const nowMinutes = getBangkokNowMinutes();
+
+  if (nowMinutes < 12 * 60) {
+    return { open: "00:00", close: "12:00" };
+  }
+
+  return { open: "12:00", close: "24:00" };
+};
+
+export const setE2eShopHoursOpenNow = async () => {
+  const connectionString = getDatabaseUrl();
+
+  if (!connectionString) {
+    return;
+  }
+
+  const client = new Client({ connectionString });
+  await client.connect();
+
+  try {
+    const businessHours = getE2eOpenHoursAroundNow();
+    await client.query(
+      `update "ShopSettings" set "businessHours" = $1::jsonb, "queueIntakeEnabled" = true, "walkInEnabled" = true, "bookingEnabled" = true`,
+      [JSON.stringify(businessHours)],
+    );
+  } finally {
+    await client.end();
+  }
+};
+
 export const cleanupE2eQueueItems = async () => {
   const connectionString = getDatabaseUrl();
 

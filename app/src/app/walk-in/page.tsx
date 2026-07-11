@@ -22,7 +22,7 @@ type WalkInPageProps = {
 
 const errorMessages: Record<string, string> = {
   invalid: "กรอกข้อมูลไม่ครบ ลองตรวจชื่อและบริการอีกครั้ง",
-  closed: "ตอนนี้ร้านปิดรับคิวจากลูกค้าแล้ว ลองเช็คอีกครั้งภายหลัง",
+  closed: "ตอนนี้ยังรับ walk-in ไม่ได้ ลองเช็คเวลาเปิดร้านหรือกลับมาใหม่ภายหลัง",
   database: "ยังรับคิวไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
 };
 
@@ -38,6 +38,9 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
   const defaultServiceId = services[0]?.id;
   const hasServices = services.length > 0;
   const walkInClosed = !intakeSettings.walkInAvailable;
+  const walkInClosedMessage = !intakeSettings.isOpenNow
+    ? `ตอนนี้อยู่นอกเวลาเปิดร้าน (${intakeSettings.openLabel}) รับ walk-in ได้เฉพาะช่วงร้านเปิด`
+    : "ตอนนี้ร้านปิดรับคิวจากลูกค้าแล้ว เจ้าของร้านจะเปิดรับอีกครั้งเมื่อพร้อม";
 
   return (
     <ScreenShell className="bqa-book-shell">
@@ -56,7 +59,7 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
         />
 
         {errorMessage ? <Notice>{errorMessage}</Notice> : null}
-        {walkInClosed ? <Notice tone="warm">ตอนนี้ร้านปิดรับคิวจากลูกค้าแล้ว เจ้าของร้านจะเปิดรับอีกครั้งเมื่อพร้อม</Notice> : null}
+        {walkInClosed ? <Notice tone="warm">{walkInClosedMessage}</Notice> : null}
         {!hasServices ? <Notice>ยังไม่มีบริการที่เปิดใช้ ตอนนี้ยังรับคิวจากลูกค้าไม่ได้</Notice> : null}
         <RouteToast message={errorMessage} type="error" toastKey={`walk-in:${params.error ?? ""}`} />
 
@@ -64,7 +67,7 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
           <aside className="bqa-book-guide bqa-walk-in-guide" aria-label="สถานะคิวตอนนี้">
             <div>
               <span>สถานะหน้าร้าน</span>
-              <strong>{walkInClosed ? "ปิดรับคิว" : "รับคิวอยู่"}</strong>
+              <strong>{walkInClosed ? (intakeSettings.isOpenNow ? "ปิดรับคิว" : "ร้านปิดอยู่") : "รับคิวอยู่"}</strong>
             </div>
             <StatGrid className="bqa-stat-grid--flush bqa-walk-in-status-grid">
               <StatTile icon={<Icon icon="lucide:users" aria-hidden="true" />} label="คิวตอนนี้" value={snapshot.shop.currentQueueCount} unit="คน" />

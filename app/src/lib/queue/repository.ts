@@ -55,6 +55,7 @@ export type QueueStatusSnapshot = {
   shop: typeof shopStatus & {
     manualWaitMinutes: number | null;
     waitEstimateSource: "computed" | "manual";
+    isOpenNow: boolean;
   };
   queue: QueueListItem[];
   source: "database" | "fallback";
@@ -67,6 +68,8 @@ export type ShopIntakeSettings = {
   walkInEnabled: boolean;
   bookingAvailable: boolean;
   walkInAvailable: boolean;
+  isOpenNow: boolean;
+  openLabel: string;
 };
 
 export type OwnerShopSettings = {
@@ -309,6 +312,34 @@ const getBookingTimesForBusinessHours = (businessHours: { open: string; close: s
 };
 
 export const getDefaultBookingTimes = () => getBookingTimesForBusinessHours(defaultShopSettingsInput.businessHours, fallbackServices[0]?.durationMinutes ?? 30);
+
+const getBangkokTimeMinutes = (date = new Date()) => {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    hourCycle: "h23",
+    timeZone: "Asia/Bangkok",
+  }).formatToParts(date);
+  const hour = Number(parts.find((part) => part.type === "hour")?.value ?? 0);
+  const minute = Number(parts.find((part) => part.type === "minute")?.value ?? 0);
+
+  return (hour % 24) * 60 + minute;
+};
+
+const getIsOpenNow = (businessHours: { open: string; close: string }, now = new Date()) => {
+  const openMinutes = parseTimeMinutes(businessHours.open);
+  const closeMinutes = parseTimeMinutes(businessHours.close);
+  const nowMinutes = getBangkokTimeMinutes(now);
+
+  if (!Number.isFinite(openMinutes) || !Number.isFinite(closeMinutes) || closeMinutes <= openMinutes) {
+    return false;
+  }
+
+  return nowMinutes >= openMinutes && nowMinutes < closeMinutes;
+};
+
+const getOpenLabel = (businessHours: { open: string; close: string }) => `เปิด ${businessHours.open} - ${businessHours.close} น.`;
 
 const overlaps = (leftStart: Date, leftEnd: Date, rightStart: Date, rightEnd: Date) => leftStart < rightEnd && leftEnd > rightStart;
 
@@ -558,17 +589,25 @@ const getWalkInScheduleWarning = (
 
 const mapShopIntakeSettings = (settings: {
   shopName: string;
+  businessHours: unknown;
   queueIntakeEnabled: boolean;
   bookingEnabled: boolean;
   walkInEnabled: boolean;
-}): ShopIntakeSettings => ({
-  shopName: settings.shopName,
-  queueIntakeEnabled: settings.queueIntakeEnabled,
-  bookingEnabled: settings.bookingEnabled,
-  walkInEnabled: settings.walkInEnabled,
-  bookingAvailable: settings.queueIntakeEnabled && settings.bookingEnabled,
-  walkInAvailable: settings.queueIntakeEnabled && settings.walkInEnabled,
-});
+}): ShopIntakeSettings => {
+  const businessHours = getBusinessHours(settings.businessHours);
+  const isOpenNow = getIsOpenNow(businessHours);
+
+  return {
+    shopName: settings.shopName,
+    queueIntakeEnabled: settings.queueIntakeEnabled,
+    bookingEnabled: settings.bookingEnabled,
+    walkInEnabled: settings.walkInEnabled,
+    bookingAvailable: settings.queueIntakeEnabled && settings.bookingEnabled,
+    walkInAvailable: settings.queueIntakeEnabled && settings.walkInEnabled && isOpenNow,
+    isOpenNow,
+    openLabel: getOpenLabel(businessHours),
+  };
+};
 
 const getBusinessHours = (businessHours: unknown) => {
   if (businessHours && typeof businessHours === "object" && "open" in businessHours && "close" in businessHours) {
@@ -625,7 +664,7 @@ const assertPublicQueueIntakeOpen = async (mode: "booking" | "walk-in") => {
     throw new Error("Booking is closed.");
   }
 
-  if (mode === "walk-in" && !settings.walkInEnabled) {
+  if (mode === "walk-in" && !settings.walkInAvailable) {
     throw new Error("Walk-in is closed.");
   }
 };
@@ -647,6 +686,8 @@ export const getShopIntakeSettingsSafe = async (): Promise<ShopIntakeSettings> =
       walkInEnabled: true,
       bookingAvailable: true,
       walkInAvailable: true,
+      isOpenNow: true,
+      openLabel: shopStatus.openLabel,
     };
   }
 };
@@ -717,7 +758,7 @@ export const updateOwnerShopSettings = async (input: UpdateOwnerShopSettingsInpu
 };
 
 export const getFallbackStatusSnapshot = (): QueueStatusSnapshot => ({
-  shop: { ...shopStatus, manualWaitMinutes: null, waitEstimateSource: "computed" },
+  shop: { ...shopStatus, manualWaitMinutes: null, waitEstimateSource: "computed", isOpenNow: true },
   queue: todayQueue.map((item, index) => ({ id: `fallback-${index}`, status: item.statusLabel, ...item })),
   source: "fallback",
 });
@@ -839,7 +880,8 @@ export const getQueueStatusSnapshot = async (dateValue = getTodayValue()): Promi
     shop: {
       ...shopStatus,
       shopName: settings.shopName,
-      openLabel: `เปิด ${businessHours.open} - ${businessHours.close} น.`,
+      openLabel: getOpenLabel(businessHours),
+      isOpenNow: getIsOpenNow(businessHours),
       currentQueueCount: queueItems.length,
       estimatedWaitMinutes: manualWaitMinutes ?? computedWaitMinutes,
       manualWaitMinutes,
