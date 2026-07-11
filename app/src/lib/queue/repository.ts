@@ -283,6 +283,107 @@ const toTimeValue = (date: Date) => {
 
 const overlaps = (leftStart: Date, leftEnd: Date, rightStart: Date, rightEnd: Date) => leftStart < rightEnd && leftEnd > rightStart;
 
+type QueueTimelineItem = {
+  startAt: Date | null;
+  estimatedAt: Date | null;
+  startedAt?: Date | null;
+  serviceDurationMinutes: number;
+  status: QueueItemStatus;
+};
+
+type FixedTimelineBlock = {
+  startAt: Date;
+  endAt: Date;
+};
+
+const getQueueTimelineSource = (item: QueueTimelineItem) => {
+  if (item.status === QueueItemStatus.IN_PROGRESS) {
+    return item.startedAt ?? item.startAt ?? item.estimatedAt;
+  }
+
+  return item.startAt;
+};
+
+const findEarliestOpenSlot = (cursor: Date, durationMinutes: number, fixedBlocks: FixedTimelineBlock[]) => {
+  let candidateStart = cursor;
+
+  for (const block of fixedBlocks) {
+    const candidateEnd = addMinutes(candidateStart, durationMinutes);
+
+    if (candidateEnd <= block.startAt) {
+      break;
+    }
+
+    if (overlaps(candidateStart, candidateEnd, block.startAt, block.endAt) || candidateStart < block.endAt) {
+      candidateStart = block.endAt;
+    }
+  }
+
+  return candidateStart;
+};
+
+const getEstimatedWalkInStart = async (dateValue: string, durationMinutes: number, now = new Date()) => {
+  const { start, end } = getDayBounds(dateValue);
+  const [queueItems, timeBlocks] = await Promise.all([
+    prisma.queueItem.findMany({
+      where: {
+        date: {
+          gte: start,
+          lt: end,
+        },
+        status: {
+          notIn: activeQueueStatusExclusions,
+        },
+      },
+      orderBy: [{ sortOrder: "asc" }, { startAt: "asc" }, { estimatedAt: "asc" }, { createdAt: "asc" }],
+      select: {
+        startAt: true,
+        estimatedAt: true,
+        startedAt: true,
+        serviceDurationMinutes: true,
+        status: true,
+      },
+    }),
+    prisma.timeBlock.findMany({
+      where: {
+        date: {
+          gte: start,
+          lt: end,
+        },
+      },
+      select: {
+        startAt: true,
+        endAt: true,
+      },
+    }),
+  ]);
+
+  const fixedBlocks = [
+    ...queueItems.flatMap((item) => {
+      const fixedStart = getQueueTimelineSource(item);
+
+      if (!fixedStart) {
+        return [];
+      }
+
+      return [{ startAt: fixedStart, endAt: addMinutes(fixedStart, item.serviceDurationMinutes) }];
+    }),
+    ...timeBlocks,
+  ]
+    .filter((block) => block.endAt > now)
+    .sort((left, right) => left.startAt.getTime() - right.startAt.getTime());
+
+  const flexibleItems = queueItems.filter((item) => !getQueueTimelineSource(item));
+  let cursor = now;
+
+  for (const item of flexibleItems) {
+    const slotStart = findEarliestOpenSlot(cursor, item.serviceDurationMinutes, fixedBlocks);
+    cursor = addMinutes(slotStart, item.serviceDurationMinutes);
+  }
+
+  return findEarliestOpenSlot(cursor, durationMinutes, fixedBlocks);
+};
+
 const getQueueCode = (id: string, index: number) => {
   const suffix = id.slice(-2).toUpperCase();
   return `A${`${index + 1}`.padStart(2, "0")}${suffix}`;
@@ -1093,6 +1194,7 @@ export const createWalkIn = async (input: CreateWalkInInput) => {
   const service = await findService(input.serviceId);
   const todayValue = getTodayValue();
   const { start } = getDayBounds(todayValue);
+  const estimatedAt = await getEstimatedWalkInStart(todayValue, service.durationMinutes);
 
   return prisma.queueItem.create({
     data: {
@@ -1106,7 +1208,7 @@ export const createWalkIn = async (input: CreateWalkInInput) => {
       serviceNameSnapshot: service.name,
       serviceDurationMinutes: service.durationMinutes,
       date: start,
-      estimatedAt: new Date(),
+      estimatedAt,
       note: input.note,
       createdBy: QueueCreatedBy.CUSTOMER,
     },
@@ -1119,6 +1221,7 @@ export const createOwnerWalkIn = async (input: CreateOwnerWalkInInput) => {
   const service = await findService(input.serviceId);
   const todayValue = getTodayValue();
   const { start } = getDayBounds(todayValue);
+  const estimatedAt = await getEstimatedWalkInStart(todayValue, service.durationMinutes);
 
   return prisma.queueItem.create({
     data: {
@@ -1132,7 +1235,7 @@ export const createOwnerWalkIn = async (input: CreateOwnerWalkInInput) => {
       serviceNameSnapshot: service.name,
       serviceDurationMinutes: service.durationMinutes,
       date: start,
-      estimatedAt: new Date(),
+      estimatedAt,
       note: input.note,
       createdBy: QueueCreatedBy.OWNER,
     },

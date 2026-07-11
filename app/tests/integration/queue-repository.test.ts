@@ -159,6 +159,41 @@ describe("queue repository status workflow", () => {
     expect(storedQueueItem.customer?.lineUserId).toBe(lineUserId);
   });
 
+  it("estimates new walk-ins after an upcoming booking when the service would overlap", async () => {
+    const bookingStart = new Date(Date.now() + 20 * 60 * 1000);
+    const bookingEnd = new Date(bookingStart.getTime() + 30 * 60 * 1000);
+    const dateValue = getTodayValue();
+    const { start } = getDayBounds(dateValue);
+    const customer = await createCustomer(`${testPrefix} booked customer`);
+
+    await prisma.queueItem.create({
+      data: {
+        type: QueueItemType.BOOKING,
+        status: QueueItemStatus.CONFIRMED,
+        customerId: customer.id,
+        customerNameSnapshot: customer.name,
+        phoneSnapshot: customer.phone,
+        serviceId,
+        serviceNameSnapshot: "Vitest Service",
+        serviceDurationMinutes: 30,
+        date: start,
+        startAt: bookingStart,
+        createdBy: QueueCreatedBy.CUSTOMER,
+        note: "upcoming booking collision test",
+      },
+    });
+
+    const walkIn = await createWalkIn({
+      customerName: `${testPrefix} collision walk-in`,
+      phone: "0844444444",
+      serviceId,
+      note: "should wait until after booking",
+    });
+
+    expect(walkIn.estimatedAt).toBeInstanceOf(Date);
+    expect(walkIn.estimatedAt?.getTime()).toBeGreaterThanOrEqual(bookingEnd.getTime());
+  });
+
   it("moves an existing in-progress item back to waiting when another item starts", async () => {
     const first = await createQueueItem({ name: `${testPrefix} current`, status: QueueItemStatus.IN_PROGRESS, sortOrder: 1 });
     const second = await createQueueItem({ name: `${testPrefix} next`, status: QueueItemStatus.WAITING, sortOrder: 2 });
