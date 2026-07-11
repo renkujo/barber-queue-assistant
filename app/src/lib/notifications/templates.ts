@@ -1,4 +1,4 @@
-import { NotificationType } from "@/generated/prisma/enums";
+import { NotificationType, QueueItemStatus } from "@/generated/prisma/enums";
 import { formatThaiTime, toDateValue } from "@/lib/queue/date";
 
 export type QueueNotificationContext = {
@@ -18,6 +18,14 @@ const formatDateLabel = (date: Date) =>
   }).format(date);
 
 const customerStatusCopy: Record<string, string> = {
+  [QueueItemStatus.CONFIRMED]: "จองสำเร็จแล้ว",
+  [QueueItemStatus.ARRIVED]: "ร้านบันทึกว่าคุณมาถึงแล้ว",
+  [QueueItemStatus.WAITING]: "รอเรียกคิว",
+  [QueueItemStatus.LATE]: "เลยเวลาคิวแล้ว",
+  [QueueItemStatus.IN_PROGRESS]: "ถึงคิวแล้ว / กำลังให้บริการ",
+  [QueueItemStatus.DONE]: "ใช้บริการเสร็จแล้ว",
+  [QueueItemStatus.CANCELLED]: "คิวถูกยกเลิกแล้ว",
+  [QueueItemStatus.NO_SHOW]: "คิวนี้ถูกปิดแล้ว",
   "ยืนยันแล้ว": "จองสำเร็จแล้ว",
   "มาถึงแล้ว": "ร้านบันทึกว่าคุณมาถึงแล้ว",
   "รออยู่": "รอเรียกคิว",

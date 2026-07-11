@@ -131,6 +131,8 @@ describe("queue notifications", () => {
     expect(notification.recipient).toBeNull();
     expect(notification.messagePreview).toContain("รับคิวแล้ว");
     expect(notification.messagePreview).toContain("ตอนนี้คิวของคุณ");
+    expect(notification.messagePreview).toContain("รอเรียกคิว");
+    expect(notification.messagePreview).not.toContain(QueueItemStatus.WAITING);
   });
 
   it("sends through the provided LINE client and logs SENT when LINE identity exists", async () => {
@@ -150,6 +152,8 @@ describe("queue notifications", () => {
     expect(pushes).toHaveLength(1);
     expect(pushes[0]?.to).toBe(queueItem.lineUserIdSnapshot);
     expect(pushes[0]?.text).toContain("Vitest Notification Service");
+    expect(pushes[0]?.text).toContain("รอเรียกคิว");
+    expect(pushes[0]?.text).not.toContain(QueueItemStatus.WAITING);
   });
 
   it("logs FAILED when LINE push fails", async () => {
