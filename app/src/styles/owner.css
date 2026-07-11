@@ -970,9 +970,26 @@
   gap: 5px;
 }
 
-.bqa-owner-board-note-stack span:last-child {
+.bqa-owner-private-note {
   color: var(--ink);
   font-weight: 500;
+}
+
+.bqa-owner-schedule-warning {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 5px;
+  color: color-mix(in srgb, var(--primary-strong) 78%, var(--ink));
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.bqa-owner-schedule-warning svg {
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+  flex: 0 0 auto;
 }
 
 .bqa-owner-queue-status {

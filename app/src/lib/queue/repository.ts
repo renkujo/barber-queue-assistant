@@ -44,6 +44,7 @@ export type QueueListItem = {
   statusLabel: string;
   note: string;
   tone?: "current" | "next" | "warning";
+  scheduleWarning?: string;
 };
 
 export type OwnerQueueListItem = QueueListItem & {
@@ -435,9 +436,11 @@ const mapQueueItem = (
 const mapOwnerQueueItem = (
   item: Parameters<typeof mapQueueItem>[0] & { ownerNote: string | null },
   index: number,
+  scheduleWarning?: string,
 ): OwnerQueueListItem => ({
   ...mapQueueItem(item, index),
   ownerNote: item.ownerNote ?? "",
+  scheduleWarning,
 });
 
 const getNotificationTone = (status: NotificationStatus): OwnerNotificationLogItem["tone"] => {
@@ -473,6 +476,57 @@ const mapOwnerNotificationLog = (log: {
   error: log.error ?? "",
   tone: getNotificationTone(log.status),
 });
+
+const getWalkInScheduleWarning = (
+  item: {
+    id: string;
+    type: QueueItemType;
+    estimatedAt: Date | null;
+    createdAt: Date;
+  },
+  queueItems: Array<{
+    id: string;
+    type: QueueItemType;
+    startAt: Date | null;
+    serviceDurationMinutes: number;
+  }>,
+  timeBlocks: Array<{
+    startAt: Date;
+    endAt: Date;
+    reason: string | null;
+  }>,
+) => {
+  if (item.type !== QueueItemType.WALK_IN || !item.estimatedAt) {
+    return undefined;
+  }
+
+  const estimatedAt = item.estimatedAt;
+
+  const fixedSources = [
+    ...queueItems.flatMap((queueItem) => {
+      if (queueItem.id === item.id || queueItem.type !== QueueItemType.BOOKING || !queueItem.startAt) {
+        return [];
+      }
+
+      return [{ type: "booking" as const, startAt: queueItem.startAt, endAt: addMinutes(queueItem.startAt, queueItem.serviceDurationMinutes) }];
+    }),
+    ...timeBlocks.map((block) => ({ type: "block" as const, startAt: block.startAt, endAt: block.endAt, reason: block.reason })),
+  ]
+    .filter((source) => source.endAt > item.createdAt && source.startAt < estimatedAt && source.endAt <= estimatedAt)
+    .sort((left, right) => right.endAt.getTime() - left.endAt.getTime());
+
+  const source = fixedSources[0];
+
+  if (!source) {
+    return undefined;
+  }
+
+  if (source.type === "booking") {
+    return `มีคิวจองคั่นอยู่ ระบบวางคิวนี้หลังคิวจอง ${formatThaiTime(source.startAt)}`;
+  }
+
+  return `มีช่วงพัก/บล็อกคิวคั่นอยู่ ระบบวางคิวนี้หลัง ${formatThaiTime(source.endAt)}`;
+};
 
 const mapShopIntakeSettings = (settings: {
   shopName: string;
@@ -784,22 +838,37 @@ export const getOwnerQueueStatusSnapshot = async (dateValue = getTodayValue()) =
   }
 
   const { start, end } = getDayBounds(dateValue);
-  const queueItems = await prisma.queueItem.findMany({
-    where: {
-      date: {
-        gte: start,
-        lt: end,
+  const [queueItems, timeBlocks] = await Promise.all([
+    prisma.queueItem.findMany({
+      where: {
+        date: {
+          gte: start,
+          lt: end,
+        },
+        status: {
+          notIn: activeQueueStatusExclusions,
+        },
       },
-      status: {
-        notIn: activeQueueStatusExclusions,
+      orderBy: [{ sortOrder: "asc" }, { startAt: "asc" }, { estimatedAt: "asc" }, { createdAt: "asc" }],
+    }),
+    prisma.timeBlock.findMany({
+      where: {
+        date: {
+          gte: start,
+          lt: end,
+        },
       },
-    },
-    orderBy: [{ sortOrder: "asc" }, { startAt: "asc" }, { estimatedAt: "asc" }, { createdAt: "asc" }],
-  });
+      select: {
+        startAt: true,
+        endAt: true,
+        reason: true,
+      },
+    }),
+  ]);
 
   return {
     ...snapshot,
-    queue: queueItems.map(mapOwnerQueueItem),
+    queue: queueItems.map((item, index) => mapOwnerQueueItem(item, index, getWalkInScheduleWarning(item, queueItems, timeBlocks))),
   };
 };
 

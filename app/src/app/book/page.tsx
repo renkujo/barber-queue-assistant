@@ -6,16 +6,12 @@ import {
   Icon,
   Input,
   RouteToast,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Textarea,
 } from "@/components/ui";
 import { getTomorrowValue, getTodayValue } from "@/lib/queue/date";
 import { getAvailableBookingSlotsSafe, getServicesSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
 import { createBookingAction } from "./actions";
+import { BookingDateTimeFields } from "./booking-date-time-fields";
 
 type BookPageProps = {
   searchParams: Promise<{ error?: string; lineUserId?: string }>;
@@ -37,19 +33,17 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
   const defaultServiceId = services[0]?.id;
   const hasServices = services.length > 0;
   const bookingClosed = !intakeSettings.bookingAvailable;
-  const [todaySlots, tomorrowSlots] = await Promise.all([
-    getAvailableBookingSlotsSafe(todayValue, defaultServiceId),
-    getAvailableBookingSlotsSafe(tomorrowValue, defaultServiceId),
-  ]);
-  const timeSlots = todaySlots.map((slot) => {
-    const tomorrowSlot = tomorrowSlots.find((item) => item.value === slot.value);
+  const slotEntries = await Promise.all(
+    services.map(async (service) => {
+      const [todaySlots, tomorrowSlots] = await Promise.all([
+        getAvailableBookingSlotsSafe(todayValue, service.id),
+        getAvailableBookingSlotsSafe(tomorrowValue, service.id),
+      ]);
 
-    return {
-      ...slot,
-      available: slot.available || Boolean(tomorrowSlot?.available),
-    };
-  });
-  const defaultTimeValue = timeSlots.find((slot) => slot.available)?.value ?? timeSlots[0]?.value;
+      return [service.id, { today: todaySlots, tomorrow: tomorrowSlots }] as const;
+    }),
+  );
+  const slotsByServiceId = Object.fromEntries(slotEntries);
 
   return (
     <ScreenShell className="bqa-book-shell">
@@ -90,40 +84,15 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
                 <p>เลือกบริการ วัน และช่วงเวลาที่สะดวก</p>
               </div>
 
-              <FormField id="serviceId" label="บริการ">
-                <Select name="serviceId" defaultValue={defaultServiceId} required>
-                  <SelectTrigger id="serviceId"><SelectValue placeholder="เลือกบริการ" /></SelectTrigger>
-                  <SelectContent>
-                    {services.map((service) => (
-                      <SelectItem value={service.id} key={service.id}>{service.name} · {service.durationMinutes} นาที · {service.priceLabel}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormField>
-
-              <FormGrid>
-                <FormField id="dateValue" label="วัน">
-                  <Select name="dateValue" defaultValue={todayValue} required>
-                    <SelectTrigger id="dateValue"><SelectValue placeholder="เลือกวัน" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={todayValue}>วันนี้</SelectItem>
-                      <SelectItem value={tomorrowValue}>พรุ่งนี้</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormField>
-                <FormField id="timeValue" label="เวลา">
-                  <Select name="timeValue" defaultValue={defaultTimeValue} required>
-                    <SelectTrigger id="timeValue"><SelectValue placeholder="เลือกเวลา" /></SelectTrigger>
-                    <SelectContent>
-                      {timeSlots.map((slot) => (
-                        <SelectItem value={slot.value} key={slot.value} disabled={!slot.available}>
-                          {slot.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormField>
-              </FormGrid>
+              {hasServices ? (
+                <BookingDateTimeFields
+                  services={services}
+                  todayValue={todayValue}
+                  tomorrowValue={tomorrowValue}
+                  defaultServiceId={defaultServiceId}
+                  slotsByServiceId={slotsByServiceId}
+                />
+              ) : null}
             </section>
 
             <section className="bqa-book-section" aria-labelledby="book-contact-title">

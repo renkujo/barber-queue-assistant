@@ -5,6 +5,7 @@ import { createDateTime, getDayBounds, getTodayValue, getTomorrowValue } from "@
 import {
   createWalkIn,
   createOwnerService,
+  getOwnerQueueStatusSnapshot,
   getOwnerServiceSettings,
   getQueueStatusSnapshot,
   getServices,
@@ -192,6 +193,11 @@ describe("queue repository status workflow", () => {
 
     expect(walkIn.estimatedAt).toBeInstanceOf(Date);
     expect(walkIn.estimatedAt?.getTime()).toBeGreaterThanOrEqual(bookingEnd.getTime());
+
+    const ownerSnapshot = await getOwnerQueueStatusSnapshot(dateValue);
+    const ownerWalkIn = ownerSnapshot.queue.find((item) => item.id === walkIn.id);
+    expect(ownerWalkIn?.scheduleWarning).toContain("มีคิวจองคั่นอยู่");
+    expect(ownerWalkIn?.scheduleWarning).toContain("ระบบวางคิวนี้หลังคิวจอง");
   });
 
   it("moves an existing in-progress item back to waiting when another item starts", async () => {

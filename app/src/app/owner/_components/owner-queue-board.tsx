@@ -122,19 +122,30 @@ const NoShowConfirmButton = ({ item, disabled }: { item: QueueListItem; disabled
   />
 );
 
-const QueueRowNote = ({ item }: { item: OwnerQueueRowItem }) => {
-  const ownerNote = item.ownerNote;
-
-  if (!ownerNote) {
-    return <>{item.note}</>;
+const QueueRowScheduleWarning = ({ item }: { item: OwnerQueueRowItem }) => {
+  if (!item.scheduleWarning) {
+    return null;
   }
 
   return (
-    <span className="bqa-owner-board-note-stack">
-      <span>{item.note}</span>
-      <span>โน้ต: {ownerNote}</span>
+    <span className="bqa-owner-schedule-warning">
+      <Icon icon="lucide:calendar-clock" aria-hidden="true" />
+      {item.scheduleWarning}
     </span>
   );
+};
+
+const QueueRowNote = ({ item }: { item: OwnerQueueRowItem }) => {
+  const ownerNote = item.ownerNote;
+  const note = (
+    <span className="bqa-owner-board-note-stack">
+      <span>{item.note}</span>
+      {ownerNote ? <span className="bqa-owner-private-note">โน้ต: {ownerNote}</span> : null}
+      <QueueRowScheduleWarning item={item} />
+    </span>
+  );
+
+  return note;
 };
 
 const QueueRowEditLink = ({ item }: { item: QueueListItem }) => (
