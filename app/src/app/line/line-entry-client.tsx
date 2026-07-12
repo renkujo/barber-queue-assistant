@@ -23,7 +23,7 @@ const getTargetLabel = (targetPath: LineEntryClientProps["targetPath"]) => {
     return "เชื่อม LINE เจ้าของร้าน";
   }
 
-  return "รับคิววันนี้";
+  return "รับบัตรคิวออนไลน์";
 };
 
 const buildTargetUrl = (targetPath: LineEntryClientProps["targetPath"], lineUserId: string) => {

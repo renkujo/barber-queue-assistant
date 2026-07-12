@@ -43,7 +43,7 @@
 - Cancel queue.
 - Pause/block time.
 - Temporarily close queue intake.
-- Set per-date customer availability: booking + walk-in, walk-in only, or closed.
+- Set per-date customer availability: online intake, in-store walk-in only, or shop closed.
 - See late/no-show risk warnings.
 
 ### LINE OA integration

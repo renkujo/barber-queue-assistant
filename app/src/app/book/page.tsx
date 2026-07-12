@@ -9,7 +9,12 @@ import {
   Textarea,
 } from "@/components/ui";
 import { getTomorrowValue, getTodayValue } from "@/lib/queue/date";
-import { getAvailableBookingSlotsSafe, getServicesSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
+import {
+  getAvailableBookingSlotsSafe,
+  getCustomerDateAvailabilitySafe,
+  getServicesSafe,
+  getShopIntakeSettingsSafe,
+} from "@/lib/queue/repository";
 import { createBookingAction } from "./actions";
 import { BookingDateTimeFields } from "./booking-date-time-fields";
 
@@ -33,6 +38,10 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
   const defaultServiceId = services[0]?.id;
   const hasServices = services.length > 0;
   const bookingClosed = !intakeSettings.bookingAvailable;
+  const [todayAvailability, tomorrowAvailability] = await Promise.all([
+    getCustomerDateAvailabilitySafe(todayValue),
+    getCustomerDateAvailabilitySafe(tomorrowValue),
+  ]);
   const slotEntries = await Promise.all(
     services.map(async (service) => {
       const [todaySlots, tomorrowSlots] = await Promise.all([
@@ -91,6 +100,10 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
                   tomorrowValue={tomorrowValue}
                   defaultServiceId={defaultServiceId}
                   slotsByServiceId={slotsByServiceId}
+                  availabilityByDateValue={{
+                    [todayValue]: todayAvailability,
+                    [tomorrowValue]: tomorrowAvailability,
+                  }}
                 />
               ) : null}
             </section>

@@ -112,7 +112,7 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
                 </FormGrid>
 
                 <FormGrid>
-                  <FormField id="queueIntakeEnabled" label="รับคิวจากลูกค้า">
+                  <FormField id="queueIntakeEnabled" label="ระบบรับคิวออนไลน์">
                     <Select name="queueIntakeEnabled" defaultValue={String(settings.queueIntakeEnabled)} required>
                       <SelectTrigger id="queueIntakeEnabled">
                         <SelectValue placeholder="เลือกสถานะ" />
@@ -124,7 +124,7 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
                       </SelectContent>
                     </Select>
                   </FormField>
-                  <FormField id="bookingEnabled" label="จองเวลา">
+                  <FormField id="bookingEnabled" label="จองล่วงหน้าออนไลน์">
                     <Select name="bookingEnabled" defaultValue={String(settings.bookingEnabled)} required>
                       <SelectTrigger id="bookingEnabled">
                         <SelectValue placeholder="เลือกสถานะ" />
@@ -139,7 +139,7 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
                 </FormGrid>
 
                 <FormGrid>
-                  <FormField id="walkInEnabled" label="รับคิววันนี้">
+                  <FormField id="walkInEnabled" label="บัตรคิวออนไลน์วันนี้">
                     <Select name="walkInEnabled" defaultValue={String(settings.walkInEnabled)} required>
                       <SelectTrigger id="walkInEnabled">
                         <SelectValue placeholder="เลือกสถานะ" />
@@ -179,8 +179,8 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
                 <div className="bqa-owner-step-row">
                   <span>1</span>
                   <p>
-                    <strong>รับคิวจากลูกค้า</strong>
-                    <small>ปิดแล้วลูกค้าจองหรือรับคิวเองไม่ได้ แต่ owner ยังเพิ่มคิวได้</small>
+                    <strong>ระบบรับคิวออนไลน์</strong>
+                    <small>ปิดแล้วลูกค้าใช้เว็บจองหรือรับบัตรคิวไม่ได้ แต่ร้านยังเปิดและ owner เพิ่มคิวเองได้</small>
                   </p>
                 </div>
                 <div className="bqa-owner-step-row">
@@ -212,7 +212,7 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
             </Panel>
 
             <Panel className="bqa-owner-support-panel">
-              <SectionHeader title="วันรับจอง / walk-in" note="กำหนดรายวันว่าวันไหนเปิดจองหรือรับ walk-in เท่านั้น" action={<Icon icon="lucide:calendar-days" className="bqa-muted-icon" aria-hidden="true" />} />
+              <SectionHeader title="วันรับจอง / หน้าร้าน" note="กำหนดวันใช้ระบบออนไลน์หรือรับเฉพาะลูกค้าที่ร้าน" action={<Icon icon="lucide:calendar-days" className="bqa-muted-icon" aria-hidden="true" />} />
               <Button asChild variant="outline" fullWidth className="bqa-owner-support-action">
                 <Link href="/owner/settings/availability">
                   <Icon icon="lucide:calendar-days" aria-hidden="true" />ตั้งค่าวันรับคิว

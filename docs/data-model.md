@@ -147,15 +147,16 @@ Fields:
 - `date` unique day value
 - `bookingEnabled`
 - `walkInEnabled`
+- `inStoreOnly`
 - `reason` optional owner note
 - `createdAt`
 - `updatedAt`
 
 Rules:
 
-- `bookingEnabled=true` and `walkInEnabled=true`: customer booking and walk-in are both allowed for that date.
-- `bookingEnabled=false` and `walkInEnabled=true`: walk-in only; booking slots for that date are unavailable.
-- `bookingEnabled=false` and `walkInEnabled=false`: date is closed for public customer intake.
+- `bookingEnabled=true`, `walkInEnabled=true`, `inStoreOnly=false`: online booking and online queue tickets are available.
+- `bookingEnabled=false`, `walkInEnabled=false`, `inStoreOnly=true`: the shop is open for physical walk-ins, but customer booking and queue tickets are disabled online.
+- `bookingEnabled=false`, `walkInEnabled=false`, `inStoreOnly=false`: the shop is closed for both online and in-store intake.
 
 ## Future-safe field: staffId
 

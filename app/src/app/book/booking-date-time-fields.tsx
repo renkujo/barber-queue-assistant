@@ -4,6 +4,12 @@ import { useMemo, useState } from "react";
 import { FormGrid, Notice } from "@/components/barber/app-ui";
 import { FormField, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui";
 
+type CustomerDateAvailability = {
+  bookingEnabled: boolean;
+  onlineWalkInEnabled: boolean;
+  inStoreOnly: boolean;
+};
+
 type BookingServiceOption = {
   id: string;
   name: string;
@@ -28,6 +34,7 @@ type BookingDateTimeFieldsProps = {
   tomorrowValue: string;
   defaultServiceId?: string;
   slotsByServiceId: Record<string, BookingSlotGroup>;
+  availabilityByDateValue: Record<string, CustomerDateAvailability>;
 };
 
 const getFirstAvailableSlot = (slots: BookingSlotOption[]) => slots.find((slot) => slot.available) ?? slots[0];
@@ -58,6 +65,7 @@ export const BookingDateTimeFields = ({
   tomorrowValue,
   defaultServiceId,
   slotsByServiceId,
+  availabilityByDateValue,
 }: BookingDateTimeFieldsProps) => {
   const initialServiceId = defaultServiceId ?? services[0]?.id ?? "";
   const [serviceId, setServiceId] = useState(initialServiceId);
@@ -70,6 +78,13 @@ export const BookingDateTimeFields = ({
   );
   const [timeValue, setTimeValue] = useState(() => getFirstAvailableSlot(getSlotsForDate({ slots: selectedSlotGroup, dateValue: initialDateValue, tomorrowValue }))?.value ?? "");
   const hasAvailableSlot = visibleSlots.some((slot) => slot.available);
+  const selectedDateAvailability = availabilityByDateValue[dateValue];
+  const selectedDateLabel = dateValue === todayValue ? "วันนี้" : "พรุ่งนี้";
+  const unavailableMessage = selectedDateAvailability?.inStoreOnly
+    ? `${selectedDateLabel}รับเฉพาะลูกค้าที่หน้าร้าน ไม่เปิดจองล่วงหน้าผ่านเว็บ`
+    : selectedDateAvailability && !selectedDateAvailability.bookingEnabled
+      ? `${selectedDateLabel}ร้านไม่เปิดรับคิวใหม่`
+      : `${selectedDateLabel}ไม่มีเวลาว่างสำหรับบริการนี้ ลองเลือกวันหรือบริการอื่น`;
 
   const updateDateAndTime = (nextServiceId: string, nextDateValue: string) => {
     const nextSlots = getSlotsForDate({ slots: slotsByServiceId[nextServiceId], dateValue: nextDateValue, tomorrowValue });
@@ -106,8 +121,8 @@ export const BookingDateTimeFields = ({
           <Select name="dateValue" value={dateValue} onValueChange={handleDateChange} required>
             <SelectTrigger id="dateValue"><SelectValue placeholder="เลือกวัน" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value={todayValue}>วันนี้</SelectItem>
-              <SelectItem value={tomorrowValue}>พรุ่งนี้</SelectItem>
+              <SelectItem value={todayValue}>วันนี้{availabilityByDateValue[todayValue]?.inStoreOnly ? " · หน้าร้านเท่านั้น" : ""}</SelectItem>
+              <SelectItem value={tomorrowValue}>พรุ่งนี้{availabilityByDateValue[tomorrowValue]?.inStoreOnly ? " · หน้าร้านเท่านั้น" : ""}</SelectItem>
             </SelectContent>
           </Select>
         </FormField>
@@ -125,7 +140,7 @@ export const BookingDateTimeFields = ({
         </FormField>
       </FormGrid>
 
-      {!hasAvailableSlot ? <Notice tone="warm">วันนี้ไม่มีเวลาที่เปิดให้จองสำหรับบริการนี้ ลองเลือกวันหรือบริการอื่น</Notice> : null}
+      {!hasAvailableSlot ? <Notice tone="warm">{unavailableMessage}</Notice> : null}
     </>
   );
 };

@@ -68,6 +68,7 @@ export type ShopIntakeSettings = {
   walkInEnabled: boolean;
   bookingAvailable: boolean;
   walkInAvailable: boolean;
+  inStoreOnly: boolean;
   isOpenNow: boolean;
   openLabel: string;
 };
@@ -83,13 +84,14 @@ export type OwnerShopSettings = {
   ownerLineUserId: string | null;
 };
 
-export type DateAvailabilityMode = "default" | "booking-and-walk-in" | "walk-in-only" | "closed";
+export type DateAvailabilityMode = "default" | "booking-and-walk-in" | "in-store-only" | "closed";
 
 export type OwnerDateAvailabilityItem = {
   dateValue: string;
   label: string;
   bookingEnabled: boolean;
   walkInEnabled: boolean;
+  inStoreOnly: boolean;
   mode: DateAvailabilityMode;
   reason: string;
   hasOverride: boolean;
@@ -99,6 +101,12 @@ export type UpdateOwnerDateAvailabilityInput = {
   dateValue: string;
   mode: DateAvailabilityMode;
   reason?: string;
+};
+
+export type CustomerDateAvailability = {
+  bookingEnabled: boolean;
+  onlineWalkInEnabled: boolean;
+  inStoreOnly: boolean;
 };
 
 export type UpdateOwnerShopSettingsInput = Omit<OwnerShopSettings, "ownerLineUserId">;
@@ -386,23 +394,23 @@ const formatOwnerDateAvailabilityLabel = (dateValue: string, index: number) => {
 
 const getDateAvailabilityBooleans = (mode: Exclude<DateAvailabilityMode, "default">) => {
   if (mode === "closed") {
-    return { bookingEnabled: false, walkInEnabled: false };
+    return { bookingEnabled: false, walkInEnabled: false, inStoreOnly: false };
   }
 
-  if (mode === "walk-in-only") {
-    return { bookingEnabled: false, walkInEnabled: true };
+  if (mode === "in-store-only") {
+    return { bookingEnabled: false, walkInEnabled: false, inStoreOnly: true };
   }
 
-  return { bookingEnabled: true, walkInEnabled: true };
+  return { bookingEnabled: true, walkInEnabled: true, inStoreOnly: false };
 };
 
-const getDateAvailabilityMode = (availability?: { bookingEnabled: boolean; walkInEnabled: boolean } | null): Exclude<DateAvailabilityMode, "default"> => {
-  if (!availability?.bookingEnabled && !availability?.walkInEnabled) {
-    return "closed";
+const getDateAvailabilityMode = (availability?: { bookingEnabled: boolean; walkInEnabled: boolean; inStoreOnly: boolean } | null): Exclude<DateAvailabilityMode, "default"> => {
+  if (availability?.inStoreOnly) {
+    return "in-store-only";
   }
 
-  if (!availability.bookingEnabled && availability.walkInEnabled) {
-    return "walk-in-only";
+  if (!availability?.bookingEnabled && !availability?.walkInEnabled) {
+    return "closed";
   }
 
   return "booking-and-walk-in";
@@ -415,6 +423,7 @@ const getResolvedDateAvailability = async (dateValue: string) => {
   return {
     bookingEnabled: rule?.bookingEnabled ?? true,
     walkInEnabled: rule?.walkInEnabled ?? true,
+    inStoreOnly: rule?.inStoreOnly ?? false,
     reason: rule?.reason ?? "",
     hasOverride: Boolean(rule),
   };
@@ -685,7 +694,7 @@ const mapShopIntakeSettings = (settings: {
   queueIntakeEnabled: boolean;
   bookingEnabled: boolean;
   walkInEnabled: boolean;
-}, dateAvailability: { bookingEnabled: boolean; walkInEnabled: boolean } = { bookingEnabled: true, walkInEnabled: true }): ShopIntakeSettings => {
+}, dateAvailability: { bookingEnabled: boolean; walkInEnabled: boolean; inStoreOnly: boolean } = { bookingEnabled: true, walkInEnabled: true, inStoreOnly: false }): ShopIntakeSettings => {
   const businessHours = getBusinessHours(settings.businessHours);
   const isOpenNow = getIsOpenNow(businessHours);
 
@@ -696,6 +705,7 @@ const mapShopIntakeSettings = (settings: {
     walkInEnabled: settings.walkInEnabled,
     bookingAvailable: settings.queueIntakeEnabled && settings.bookingEnabled,
     walkInAvailable: settings.queueIntakeEnabled && settings.walkInEnabled && dateAvailability.walkInEnabled && isOpenNow,
+    inStoreOnly: dateAvailability.inStoreOnly,
     isOpenNow,
     openLabel: getOpenLabel(businessHours),
   };
@@ -772,6 +782,31 @@ export const getShopIntakeSettings = async (dateValue = getTodayValue()): Promis
   return mapShopIntakeSettings(settings, dateAvailability);
 };
 
+export const getCustomerDateAvailability = async (dateValue: string): Promise<CustomerDateAvailability> => {
+  const [settings, dateAvailability] = await Promise.all([
+    getOrCreateShopSettings(),
+    getResolvedDateAvailability(dateValue),
+  ]);
+
+  return {
+    bookingEnabled: settings.queueIntakeEnabled && settings.bookingEnabled && dateAvailability.bookingEnabled,
+    onlineWalkInEnabled: settings.queueIntakeEnabled && settings.walkInEnabled && dateAvailability.walkInEnabled,
+    inStoreOnly: dateAvailability.inStoreOnly,
+  };
+};
+
+export const getCustomerDateAvailabilitySafe = async (dateValue: string): Promise<CustomerDateAvailability> => {
+  try {
+    return await getCustomerDateAvailability(dateValue);
+  } catch {
+    return {
+      bookingEnabled: true,
+      onlineWalkInEnabled: true,
+      inStoreOnly: false,
+    };
+  }
+};
+
 export const getShopIntakeSettingsSafe = async (): Promise<ShopIntakeSettings> => {
   try {
     return await getShopIntakeSettings();
@@ -783,6 +818,7 @@ export const getShopIntakeSettingsSafe = async (): Promise<ShopIntakeSettings> =
       walkInEnabled: true,
       bookingAvailable: true,
       walkInAvailable: true,
+      inStoreOnly: false,
       isOpenNow: true,
       openLabel: shopStatus.openLabel,
     };
@@ -870,13 +906,16 @@ export const getOwnerDateAvailabilityItems = async (days = 14): Promise<OwnerDat
 
   return dateValues.map((dateValue, index) => {
     const rule = ruleByDateValue.get(dateValue);
-    const availability = rule ? { bookingEnabled: rule.bookingEnabled, walkInEnabled: rule.walkInEnabled } : { bookingEnabled: true, walkInEnabled: true };
+    const availability = rule
+      ? { bookingEnabled: rule.bookingEnabled, walkInEnabled: rule.walkInEnabled, inStoreOnly: rule.inStoreOnly }
+      : { bookingEnabled: true, walkInEnabled: true, inStoreOnly: false };
 
     return {
       dateValue,
       label: formatOwnerDateAvailabilityLabel(dateValue, index),
       bookingEnabled: availability.bookingEnabled,
       walkInEnabled: availability.walkInEnabled,
+      inStoreOnly: availability.inStoreOnly,
       mode: rule ? getDateAvailabilityMode(availability) : "default",
       reason: rule?.reason ?? "",
       hasOverride: Boolean(rule),
@@ -895,6 +934,7 @@ export const getOwnerDateAvailabilityItemsSafe = async () => {
       label: formatOwnerDateAvailabilityLabel(addDaysToDateValue(startDateValue, index), index),
       bookingEnabled: true,
       walkInEnabled: true,
+      inStoreOnly: false,
       mode: "default" as DateAvailabilityMode,
       reason: "",
       hasOverride: false,

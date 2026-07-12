@@ -22,7 +22,7 @@ type WalkInPageProps = {
 
 const errorMessages: Record<string, string> = {
   invalid: "กรอกข้อมูลไม่ครบ ลองตรวจชื่อและบริการอีกครั้ง",
-  closed: "ตอนนี้ยังรับ walk-in ไม่ได้ ลองเช็คเวลาเปิดร้านหรือกลับมาใหม่ภายหลัง",
+  closed: "ตอนนี้ยังรับบัตรคิวออนไลน์ไม่ได้ กรุณาตรวจสถานะร้านก่อนลองใหม่",
   database: "ยังรับคิวไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
 };
 
@@ -38,17 +38,20 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
   const defaultServiceId = services[0]?.id;
   const hasServices = services.length > 0;
   const walkInClosed = !intakeSettings.walkInAvailable;
-  const walkInClosedMessage = !intakeSettings.isOpenNow
-    ? `ตอนนี้อยู่นอกเวลาเปิดร้าน (${intakeSettings.openLabel}) รับ walk-in ได้เฉพาะช่วงร้านเปิด`
-    : "ตอนนี้ร้านปิดรับคิวจากลูกค้าแล้ว เจ้าของร้านจะเปิดรับอีกครั้งเมื่อพร้อม";
+  const inStoreOnly = intakeSettings.inStoreOnly;
+  const walkInClosedMessage = inStoreOnly
+    ? "วันนี้รับเฉพาะลูกค้าที่เดินเข้าร้าน ไม่เปิดรับบัตรคิวผ่านเว็บ กรุณาเข้ามาสอบถามคิวที่ร้านได้เลย"
+    : !intakeSettings.isOpenNow
+      ? `ตอนนี้อยู่นอกเวลาเปิดร้าน (${intakeSettings.openLabel}) รับบัตรคิวออนไลน์ได้เฉพาะช่วงร้านเปิด`
+      : "วันนี้ปิดรับบัตรคิวออนไลน์ กรุณากลับมาเช็คใหม่ภายหลัง";
 
   return (
     <ScreenShell className="bqa-book-shell">
       <AppCard labelledBy="walk-in-title" className="bqa-book-card bqa-walk-in-card">
         <PageHeader
           id="walk-in-title"
-          title="เข้าคิวหน้าร้าน"
-          subtitle="รับคิววันนี้"
+          title="รับบัตรคิวออนไลน์"
+          subtitle={inStoreOnly ? "วันนี้รับเฉพาะหน้าร้าน" : "คิวสำหรับวันนี้"}
           action={
             <Button asChild variant="ghost" size="sm">
               <Link href="/">
@@ -67,7 +70,7 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
           <aside className="bqa-book-guide bqa-walk-in-guide" aria-label="สถานะคิวตอนนี้">
             <div>
               <span>สถานะหน้าร้าน</span>
-              <strong>{walkInClosed ? (intakeSettings.isOpenNow ? "ปิดรับคิว" : "ร้านปิดอยู่") : "รับคิวอยู่"}</strong>
+              <strong>{inStoreOnly ? "รับเฉพาะหน้าร้าน" : walkInClosed ? (intakeSettings.isOpenNow ? "ปิดรับออนไลน์" : "ร้านปิดอยู่") : "รับคิวออนไลน์อยู่"}</strong>
             </div>
             <StatGrid className="bqa-stat-grid--flush bqa-walk-in-status-grid">
               <StatTile icon={<Icon icon="lucide:users" aria-hidden="true" />} label="คิวตอนนี้" value={snapshot.shop.currentQueueCount} unit="คน" />
@@ -75,6 +78,19 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
             </StatGrid>
           </aside>
 
+        {inStoreOnly ? (
+          <section className="bqa-book-form bqa-book-section" aria-labelledby="in-store-only-title">
+            <div className="bqa-book-section-heading">
+              <h2 id="in-store-only-title">เข้ามาที่ร้านได้เลย</h2>
+              <p>วันนี้ร้านไม่ใช้ระบบจองหรือบัตรคิวออนไลน์ ลูกค้าสามารถเข้ามาสอบถามลำดับคิวกับทางร้านได้โดยตรง</p>
+            </div>
+            <Button asChild variant="outline" size="lg" fullWidth>
+              <Link href="/">
+                <Icon icon="lucide:chevron-left" aria-hidden="true" />กลับหน้าแรก
+              </Link>
+            </Button>
+          </section>
+        ) : (
         <form action={createWalkInAction} className="bqa-book-form">
           {lineUserId ? <input type="hidden" name="lineUserId" value={lineUserId} /> : null}
           <FormStack className="bqa-book-form-stack">
@@ -116,10 +132,11 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
             </section>
 
           <Button type="submit" size="lg" fullWidth disabled={walkInClosed || !hasServices}>
-            <Icon icon="lucide:users" aria-hidden="true" />รับคิววันนี้
+            <Icon icon="lucide:users" aria-hidden="true" />รับบัตรคิวออนไลน์
           </Button>
           </FormStack>
         </form>
+        )}
         </div>
       </AppCard>
     </ScreenShell>

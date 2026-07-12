@@ -42,13 +42,24 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
   const shopOpenNow = intakeSettings.isOpenNow;
   const intakeOpen = intakeSettings.queueIntakeEnabled;
   const walkInOpen = intakeSettings.walkInAvailable;
-  const statusLabel = !shopOpenNow ? "ร้านปิดอยู่" : walkInOpen ? "เปิดรับคิว" : "ปิดรับคิว";
-  const statusTitle = !shopOpenNow ? "ตอนนี้ร้านปิดอยู่" : walkInOpen ? "คิวตอนนี้ยังรับได้" : "วันนี้ไม่รับ walk-in จากลูกค้า";
+  const inStoreOnly = intakeSettings.inStoreOnly;
+  const statusLabel = !shopOpenNow ? "ร้านปิดอยู่" : inStoreOnly ? "รับเฉพาะหน้าร้าน" : walkInOpen ? "เปิดรับคิวออนไลน์" : "ปิดรับคิวออนไลน์";
+  const statusTitle = !shopOpenNow
+    ? "ตอนนี้ร้านปิดอยู่"
+    : inStoreOnly
+      ? "วันนี้รับเฉพาะลูกค้าที่หน้าร้าน"
+      : walkInOpen
+        ? "รับบัตรคิวออนไลน์ได้"
+        : "วันนี้ปิดรับคิวออนไลน์";
   const statusDescription = !shopOpenNow
-    ? `${shopStatus.openLabel} ยังจองเวลาล่วงหน้าได้ แต่รับ walk-in เฉพาะช่วงร้านเปิด`
+    ? inStoreOnly
+      ? `${shopStatus.openLabel} วันนี้ไม่เปิดจองหรือรับบัตรคิวผ่านเว็บ กรุณามาที่ร้านในเวลาเปิด`
+      : `${shopStatus.openLabel} ยังเลือกดูเวลาจองล่วงหน้าได้ แต่รับบัตรคิวออนไลน์เฉพาะช่วงร้านเปิด`
+    : inStoreOnly
+      ? "ไม่เปิดจองหรือรับบัตรคิวผ่านเว็บ กรุณาเข้ามาสอบถามคิวที่ร้านได้เลย"
     : walkInOpen
       ? `${shopStatus.openLabel} ลูกค้าดูสถานะคิวเองได้จากหน้านี้`
-      : "วันนี้เจ้าของร้านอาจตั้งเป็น walk-in เฉพาะบางช่องทางหรือปิดรับหน้าร้าน แต่ยังเช็คคิวเดิมได้";
+      : "วันนี้ไม่รับคิวใหม่ผ่านเว็บ แต่ยังเช็คสถานะคิวเดิมได้";
 
   return (
     <ScreenShell>
@@ -68,9 +79,10 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
           imageSrc={statusMascotPath}
         />
 
-        {!shopOpenNow ? <Notice tone="warm">ตอนนี้อยู่นอกเวลาเปิดร้าน รับคิวหน้าร้านได้เฉพาะช่วงร้านเปิด แต่ยังจองเวลาล่วงหน้าได้</Notice> : null}
+        {!shopOpenNow ? <Notice tone="warm">ตอนนี้อยู่นอกเวลาเปิดร้าน กรุณากลับมาในเวลา {shopStatus.openLabel.replace("เปิด ", "")}</Notice> : null}
         {shopOpenNow && !intakeOpen ? <Notice tone="warm">ยังดูสถานะคิวเดิมได้ แต่ตอนนี้ไม่สามารถจองหรือรับคิวใหม่จากหน้านี้ได้</Notice> : null}
-        {shopOpenNow && intakeOpen && !walkInOpen ? <Notice tone="warm">วันนี้เจ้าของร้านปิดรับ walk-in จากหน้าลูกค้า แต่ยังดูสถานะคิวเดิมได้</Notice> : null}
+        {shopOpenNow && inStoreOnly ? <Notice tone="warm">วันนี้รับเฉพาะลูกค้าที่เดินเข้าร้าน ไม่ต้องรับบัตรคิวผ่านเว็บ</Notice> : null}
+        {shopOpenNow && intakeOpen && !inStoreOnly && !walkInOpen ? <Notice tone="warm">วันนี้ปิดรับบัตรคิวออนไลน์ แต่ยังดูสถานะคิวเดิมได้</Notice> : null}
 
         <StatGrid aria-label="สถานะคิว">
           <StatTile icon={<Icon icon="lucide:users" aria-hidden="true" />} label="คิวตอนนี้" value={shopStatus.currentQueueCount} unit="คน" />
@@ -78,15 +90,15 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
         </StatGrid>
 
         <section className="bqa-action-list" aria-label="customer actions">
-          <ActionCard href="/book" icon={<Icon icon="lucide:calendar" aria-hidden="true" />} title="จองเวลา" description="เลือกเวลาล่วงหน้า" />
+          <ActionCard href="/book" icon={<Icon icon="lucide:calendar" aria-hidden="true" />} title="จองล่วงหน้า" description="เลือกวันที่และเวลาที่เปิดจอง" />
           {walkInOpen ? (
-            <ActionCard href="/walk-in" icon={<Icon icon="lucide:users" aria-hidden="true" />} title="รับคิววันนี้" description="รับคิวและรอที่ร้าน" tone="warm" />
+            <ActionCard href="/walk-in" icon={<Icon icon="lucide:users" aria-hidden="true" />} title="รับบัตรคิวออนไลน์" description="รับบัตรคิวก่อนมาที่ร้าน" tone="warm" />
           ) : (
             <Button type="button" disabled className="bqa-action-card bqa-tone-warm">
               <span className="bqa-action-icon"><Icon icon="lucide:users" aria-hidden="true" /></span>
               <span className="bqa-action-copy">
-                <strong>รับคิววันนี้</strong>
-                <span>{shopOpenNow ? "ปิดรับคิวจากลูกค้า" : "รับเฉพาะช่วงร้านเปิด"}</span>
+                <strong>รับบัตรคิวออนไลน์</strong>
+                <span>{inStoreOnly ? "วันนี้รับเฉพาะลูกค้าที่หน้าร้าน" : shopOpenNow ? "วันนี้ปิดรับผ่านเว็บ" : "เปิดรับเฉพาะช่วงร้านเปิด"}</span>
               </span>
             </Button>
           )}

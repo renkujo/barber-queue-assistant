@@ -652,6 +652,17 @@
     var(--surface-warm);
 }
 
+.bqa-action-card:disabled {
+  border-color: var(--line);
+  background: var(--surface-warm);
+  color: var(--ink);
+  opacity: 1;
+}
+
+.bqa-action-card:disabled .bqa-action-copy span {
+  color: var(--muted);
+}
+
 .bqa-action-card-link {
   display: grid;
   grid-template-columns: auto 1fr;

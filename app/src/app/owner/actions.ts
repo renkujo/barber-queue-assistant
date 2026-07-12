@@ -26,7 +26,7 @@ import {
 const allowedStatus = new Set<string>(Object.values(QueueItemStatus));
 const allowedReorderIntent = new Set<QueueReorderIntent>(["up", "down", "bottom"]);
 const allowedWaitAction = new Set(["add-10", "add-20", "reset"]);
-const allowedAvailabilityMode = new Set(["default", "booking-and-walk-in", "walk-in-only", "closed"]);
+const allowedAvailabilityMode = new Set(["default", "booking-and-walk-in", "in-store-only", "closed"]);
 
 const notificationTypeByStatus: Partial<Record<QueueItemStatus, NotificationType>> = {
   [QueueItemStatus.IN_PROGRESS]: NotificationType.QUEUE_NEAR,
@@ -367,7 +367,7 @@ export const updateOwnerDateAvailabilityAction = async (formData: FormData) => {
   try {
     await updateOwnerDateAvailability({
       dateValue: parsed.data.dateValue,
-      mode: parsed.data.mode as "default" | "booking-and-walk-in" | "walk-in-only" | "closed",
+      mode: parsed.data.mode as "default" | "booking-and-walk-in" | "in-store-only" | "closed",
       reason: parsed.data.reason,
     });
   } catch {

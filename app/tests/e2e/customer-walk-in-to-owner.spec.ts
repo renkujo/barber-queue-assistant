@@ -19,7 +19,7 @@ test.describe("customer walk-in to owner queue", () => {
     await page.getByLabel("ชื่อ", { exact: true }).fill(customerName);
     await page.getByLabel("เบอร์โทร").fill("0811111111");
     await page.getByLabel("หมายเหตุ").fill("customer created by Playwright");
-    await page.getByRole("button", { name: "รับคิววันนี้" }).click();
+    await page.getByRole("button", { name: "รับบัตรคิวออนไลน์" }).click();
 
     await expect(page).toHaveURL(/\/queue\/[a-z0-9]+$/);
     await expect(page.getByRole("heading", { name: "คิวของคุณ" })).toBeVisible();

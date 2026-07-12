@@ -42,6 +42,6 @@ test.describe("LINE entry route", () => {
     await page.goto("/line");
 
     await expect(page.getByRole("heading", { name: "เชื่อม LINE เพื่อรับแจ้งเตือน" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "ไปต่อ: รับคิววันนี้" })).toHaveAttribute("href", "/walk-in");
+    await expect(page.getByRole("link", { name: "ไปต่อ: รับบัตรคิวออนไลน์" })).toHaveAttribute("href", "/walk-in");
   });
 });

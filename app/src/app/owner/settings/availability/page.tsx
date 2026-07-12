@@ -34,9 +34,9 @@ const statusMessages: Record<string, string> = {
 
 const modeOptions: Array<{ value: DateAvailabilityMode; label: string; description: string }> = [
   { value: "default", label: "ใช้ค่าปกติของร้าน", description: "ไม่มี override รายวัน" },
-  { value: "booking-and-walk-in", label: "เปิดจอง + walk-in", description: "ลูกค้าจองล่วงหน้าและเข้าคิววันนี้ได้" },
-  { value: "walk-in-only", label: "walk-in เท่านั้น", description: "ไม่เปิด slot จองล่วงหน้าวันนี้" },
-  { value: "closed", label: "ปิดรับทั้งหมด", description: "ไม่รับทั้งจองและ walk-in" },
+  { value: "booking-and-walk-in", label: "เปิดระบบออนไลน์", description: "ลูกค้าจองล่วงหน้าและรับบัตรคิวออนไลน์ได้" },
+  { value: "in-store-only", label: "รับเฉพาะหน้าร้าน", description: "ร้านเปิด แต่ไม่รับจองหรือบัตรคิวผ่านเว็บ" },
+  { value: "closed", label: "ร้านปิด", description: "ไม่รับลูกค้าทั้งออนไลน์และหน้าร้าน" },
 ];
 
 const getModeSummary = (mode: DateAvailabilityMode) => modeOptions.find((option) => option.value === mode)?.label ?? "ใช้ค่าปกติของร้าน";
@@ -55,7 +55,7 @@ const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProp
       <div className="bqa-owner-board-content bqa-owner-form-content bqa-owner-form-content--compact">
         <OwnerHeader
           title="วันรับจอง / walk-in"
-          description="กำหนดรายวันว่าวันไหนเปิดจอง วันไหนรับ walk-in เท่านั้น หรือปิดรับทั้งหมด"
+          description="กำหนดรายวันว่าวันไหนใช้ระบบออนไลน์ วันไหนรับลูกค้าที่หน้าร้านเท่านั้น หรือร้านปิด"
           action={
             <Button asChild variant="outline" size="sm">
               <Link href="/owner/settings">
@@ -104,7 +104,7 @@ const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProp
                       </Select>
                     </FormField>
                     <FormField id={`reason-${item.dateValue}`} label="หมายเหตุ" description="ไม่บังคับ">
-                      <Input id={`reason-${item.dateValue}`} name="reason" defaultValue={item.reason} placeholder="เช่น ช่างไม่อยู่ / รับ walk-in อย่างเดียว" />
+                      <Input id={`reason-${item.dateValue}`} name="reason" defaultValue={item.reason} placeholder="เช่น วันหยุด / ลูกค้าหน้าร้านเยอะ" />
                     </FormField>
                   </FormGrid>
 

@@ -233,14 +233,14 @@ describe("queue repository status workflow", () => {
     })).rejects.toThrow("Walk-in is closed.");
   });
 
-  it("uses daily availability rules for booking slots and walk-ins", async () => {
+  it("blocks online booking and walk-in while keeping an in-store-only day distinct", async () => {
     const tomorrowValue = getTomorrowValue();
 
     await setShopHours(getOpenHoursAroundNow());
     await updateOwnerDateAvailability({
       dateValue: tomorrowValue,
-      mode: "walk-in-only",
-      reason: "integration test walk-in only",
+      mode: "in-store-only",
+      reason: "integration test in-store only",
     });
 
     const tomorrowSlots = await getAvailableBookingSlots(tomorrowValue, serviceId);
@@ -249,7 +249,7 @@ describe("queue repository status workflow", () => {
     expect(tomorrowSlots.every((slot) => !slot.available)).toBe(true);
 
     await expect(createBooking({
-      customerName: `${testPrefix} blocked by walk-in only`,
+      customerName: `${testPrefix} blocked by in-store only`,
       phone: "0899911111",
       serviceId,
       dateValue: tomorrowValue,
@@ -258,17 +258,35 @@ describe("queue repository status workflow", () => {
 
     await updateOwnerDateAvailability({
       dateValue: getTodayValue(),
-      mode: "walk-in-only",
-      reason: "today walk-in only",
+      mode: "in-store-only",
+      reason: "today in-store only",
     });
 
-    const walkIn = await createWalkIn({
-      customerName: `${testPrefix} walk-in only allowed`,
+    const settings = await getShopIntakeSettings();
+
+    expect(settings.inStoreOnly).toBe(true);
+    expect(settings.walkInAvailable).toBe(false);
+    await expect(createWalkIn({
+      customerName: `${testPrefix} online walk-in blocked`,
       phone: "0899922222",
       serviceId,
+    })).rejects.toThrow("Walk-in is closed.");
+
+    const openHours = getOpenHoursAroundNow();
+    await updateOwnerShopSettings({
+      shopName: `${testPrefix} Online Intake Off`,
+      openTime: openHours.openTime,
+      closeTime: openHours.closeTime,
+      queueIntakeEnabled: false,
+      bookingEnabled: true,
+      walkInEnabled: true,
+      manualWaitMinutes: null,
     });
 
-    expect(walkIn.id).toBeTruthy();
+    const settingsWithOnlineIntakeOff = await getShopIntakeSettings();
+    expect(settingsWithOnlineIntakeOff.inStoreOnly).toBe(true);
+    expect(settingsWithOnlineIntakeOff.bookingAvailable).toBe(false);
+    expect(settingsWithOnlineIntakeOff.walkInAvailable).toBe(false);
   });
 
   it("closes public walk-ins for a closed daily availability rule", async () => {
@@ -282,6 +300,7 @@ describe("queue repository status workflow", () => {
     const settings = await getShopIntakeSettings();
 
     expect(settings.walkInAvailable).toBe(false);
+    expect(settings.inStoreOnly).toBe(false);
     await expect(createWalkIn({
       customerName: `${testPrefix} closed by daily rule`,
       phone: "0899933333",

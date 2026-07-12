@@ -180,6 +180,7 @@ model ShopDateAvailability {
   date           DateTime @unique
   bookingEnabled Boolean  @default(true)
   walkInEnabled  Boolean  @default(true)
+  inStoreOnly    Boolean  @default(false)
   reason         String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
