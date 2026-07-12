@@ -6,19 +6,15 @@ import {
   FormField,
   Icon,
   Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   RouteToast,
   Textarea,
 } from "@/components/ui";
 import { requireOwnerSession } from "@/lib/admin-auth";
-import { getDefaultBookingTimes, getQueueItemEditDetails, getServicesSafe } from "@/lib/queue/repository";
+import { getAvailableBookingSlotsSafe, getQueueItemEditDetails, getServicesSafe } from "@/lib/queue/repository";
 import { getTodayValue, getTomorrowValue } from "@/lib/queue/date";
 import { updateQueueItemAction } from "../../../actions";
 import { OwnerTopbar } from "../../../_components/owner-topbar";
+import { OwnerQueueEditScheduleFields } from "./owner-queue-edit-schedule-fields";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +26,7 @@ type OwnerQueueEditPageProps = {
 const errorMessages: Record<string, string> = {
   invalid: "ข้อมูลไม่ครบหรือเวลาไม่ถูกต้อง ลองตรวจข้อมูลแล้วบันทึกใหม่",
   "time-conflict": "เวลานี้ชนกับคิวอื่นหรือช่วงพักร้าน เลือกเวลาใหม่ก่อนบันทึก",
+  "time-outside-hours": "เวลานี้อยู่นอกเวลาเปิดร้าน เลือกเวลาในช่วงเปิดร้านหรือไม่ล็อกเวลา",
   database: "ยังบันทึกการแก้ไขไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
 };
 
@@ -48,16 +45,6 @@ const getDateOptions = (selectedDateValue: string) => {
   return options;
 };
 
-const getTimeOptions = (selectedTimeValue: string) => {
-  const bookingTimes = getDefaultBookingTimes();
-
-  if (selectedTimeValue && !bookingTimes.includes(selectedTimeValue)) {
-    return [selectedTimeValue, ...bookingTimes];
-  }
-
-  return bookingTimes;
-};
-
 const OwnerQueueEditPage = async ({ params, searchParams }: OwnerQueueEditPageProps) => {
   await requireOwnerSession();
 
@@ -69,7 +56,20 @@ const OwnerQueueEditPage = async ({ params, searchParams }: OwnerQueueEditPagePr
   }
 
   const selectedServiceId = queueItem.serviceId || services[0]?.id;
-  const selectedTimeValue = queueItem.timeValue || "__none__";
+  const dateOptions = getDateOptions(queueItem.dateValue);
+  const slotEntries = await Promise.all(
+    services.flatMap((service) => dateOptions.map(async (dateOption) => {
+      const slots = await getAvailableBookingSlotsSafe(dateOption.value, service.id);
+
+      return [service.id, dateOption.value, slots] as const;
+    })),
+  );
+  const slotsByServiceDate = slotEntries.reduce<Record<string, Record<string, Array<{ value: string; label: string; available: boolean }>>>>((result, [serviceId, dateValue, slots]) => {
+    result[serviceId] = result[serviceId] ?? {};
+    result[serviceId][dateValue] = slots;
+
+    return result;
+  }, {});
   const errorMessage = query.error ? errorMessages[query.error] : null;
 
   return (
@@ -111,52 +111,14 @@ const OwnerQueueEditPage = async ({ params, searchParams }: OwnerQueueEditPagePr
                   </FormField>
                 </FormGrid>
 
-                <FormField id="serviceId" label="บริการ">
-                  <Select name="serviceId" defaultValue={selectedServiceId} required>
-                    <SelectTrigger id="serviceId">
-                      <SelectValue placeholder="เลือกบริการ" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {services.map((service) => (
-                        <SelectItem value={service.id} key={service.id}>
-                          {service.name} · {service.durationMinutes} นาที · {service.priceLabel}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormField>
-
-                <FormGrid>
-                  <FormField id="dateValue" label="วัน">
-                    <Select name="dateValue" defaultValue={queueItem.dateValue} required>
-                      <SelectTrigger id="dateValue">
-                        <SelectValue placeholder="เลือกวัน" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getDateOptions(queueItem.dateValue).map((option) => (
-                          <SelectItem value={option.value} key={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormField>
-                  <FormField id="timeValue" label="เวลา" description="เลือกไม่ล็อกเวลาได้สำหรับ walk-in">
-                    <Select name="timeValue" defaultValue={selectedTimeValue}>
-                      <SelectTrigger id="timeValue">
-                        <SelectValue placeholder="เลือกเวลา" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">ไม่ล็อกเวลา / walk-in</SelectItem>
-                        {getTimeOptions(queueItem.timeValue).map((time) => (
-                          <SelectItem value={time} key={time}>
-                            {time}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormField>
-                </FormGrid>
+                <OwnerQueueEditScheduleFields
+                  dateOptions={dateOptions}
+                  defaultDateValue={queueItem.dateValue}
+                  defaultServiceId={selectedServiceId}
+                  defaultTimeValue={queueItem.timeValue}
+                  services={services}
+                  slotsByServiceDate={slotsByServiceDate}
+                />
 
                 <FormField id="note" label="หมายเหตุลูกค้า">
                   <Textarea id="note" name="note" defaultValue={queueItem.note} placeholder="เช่น ขอทรงเปิดข้าง / โทรมา" />

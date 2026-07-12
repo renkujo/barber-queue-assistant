@@ -222,6 +222,10 @@ export const updateQueueItemAction = async (formData: FormData) => {
       redirect(`${editPath}?error=time-conflict`);
     }
 
+    if (error instanceof Error && error.message === "Queue item time is outside business hours.") {
+      redirect(`${editPath}?error=time-outside-hours`);
+    }
+
     redirect(`${editPath}?error=database`);
   }
 

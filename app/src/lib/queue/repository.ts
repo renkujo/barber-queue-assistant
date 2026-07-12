@@ -341,6 +341,19 @@ const getIsOpenNow = (businessHours: { open: string; close: string }, now = new 
 
 const getOpenLabel = (businessHours: { open: string; close: string }) => `เปิด ${businessHours.open} - ${businessHours.close} น.`;
 
+const getIsTimeWindowInsideBusinessHours = (timeValue: string, durationMinutes: number, businessHours: { open: string; close: string }) => {
+  const openMinutes = parseTimeMinutes(businessHours.open);
+  const closeMinutes = parseTimeMinutes(businessHours.close);
+  const startMinutes = parseTimeMinutes(timeValue);
+  const endMinutes = startMinutes + durationMinutes;
+
+  if (!Number.isFinite(openMinutes) || !Number.isFinite(closeMinutes) || !Number.isFinite(startMinutes) || closeMinutes <= openMinutes) {
+    return false;
+  }
+
+  return startMinutes >= openMinutes && endMinutes <= closeMinutes;
+};
+
 const overlaps = (leftStart: Date, leftEnd: Date, rightStart: Date, rightEnd: Date) => leftStart < rightEnd && leftEnd > rightStart;
 
 type QueueTimelineItem = {
@@ -1533,8 +1546,18 @@ export const updateQueueItem = async (input: UpdateQueueItemInput) => {
   const { start } = getDayBounds(input.dateValue);
   const startAt = input.timeValue ? createDateTime(input.dateValue, input.timeValue) : null;
   const slotEnd = startAt ? addMinutes(startAt, service.durationMinutes) : null;
+  const existingDateValue = toDateValue(existingItem.date);
+  const existingTimeValue = existingItem.startAt ? toTimeValue(existingItem.startAt) : null;
+  const isKeepingExistingLockedTime = Boolean(input.timeValue && existingTimeValue && input.dateValue === existingDateValue && input.timeValue === existingTimeValue);
 
   if (startAt && slotEnd) {
+    const settings = await getOrCreateShopSettings();
+    const businessHours = getBusinessHours(settings.businessHours);
+
+    if (!isKeepingExistingLockedTime && !getIsTimeWindowInsideBusinessHours(input.timeValue ?? "", service.durationMinutes, businessHours)) {
+      throw new Error("Queue item time is outside business hours.");
+    }
+
     const { start: dayStart, end: dayEnd } = getDayBounds(input.dateValue);
     const [queueItems, timeBlocks] = await Promise.all([
       prisma.queueItem.findMany({

@@ -18,6 +18,7 @@ import {
   setOwnerServiceActive,
   updateOwnerService,
   updateOwnerShopSettings,
+  updateQueueItem,
   updateQueueItemStatus,
 } from "@/lib/queue/repository";
 
@@ -265,6 +266,48 @@ describe("queue repository status workflow", () => {
 
     expect(booking.startAt?.getHours()).toBe(13);
     expect(booking.startAt?.getMinutes()).toBe(30);
+  });
+
+  it("rejects changed owner locked times outside business hours", async () => {
+    const dateValue = getTomorrowValue();
+    const { start } = getDayBounds(dateValue);
+
+    await setShopHours({ openTime: "12:00", closeTime: "14:00" });
+    const queueItem = await prisma.queueItem.create({
+      data: {
+        type: QueueItemType.BOOKING,
+        status: QueueItemStatus.CONFIRMED,
+        customerNameSnapshot: `${testPrefix} owner edit hours`,
+        phoneSnapshot: "0888888888",
+        serviceId,
+        serviceNameSnapshot: "Vitest Service",
+        serviceDurationMinutes: 30,
+        date: start,
+        startAt: createDateTime(dateValue, "12:00"),
+        createdBy: QueueCreatedBy.OWNER,
+      },
+    });
+
+    await expect(updateQueueItem({
+      id: queueItem.id,
+      customerName: `${testPrefix} owner edit hours`,
+      phone: "0888888888",
+      serviceId,
+      dateValue,
+      timeValue: "09:30",
+    })).rejects.toThrow("Queue item time is outside business hours.");
+
+    const updatedQueueItem = await updateQueueItem({
+      id: queueItem.id,
+      customerName: `${testPrefix} owner edit hours`,
+      phone: "0888888888",
+      serviceId,
+      dateValue,
+      timeValue: "13:30",
+    });
+
+    expect(updatedQueueItem.startAt?.getHours()).toBe(13);
+    expect(updatedQueueItem.startAt?.getMinutes()).toBe(30);
   });
 
   it("estimates new walk-ins after an upcoming booking when the service would overlap", async () => {
