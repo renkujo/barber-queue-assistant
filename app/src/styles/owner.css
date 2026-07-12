@@ -503,6 +503,20 @@
   padding: 10px 12px;
 }
 
+
+.bqa-owner-support-action {
+  min-width: 0;
+  min-height: 42px;
+  padding-inline: 12px;
+  white-space: normal;
+  line-height: 1.28;
+  text-align: center;
+}
+
+.bqa-owner-support-action svg {
+  flex: 0 0 auto;
+}
+
 @media (max-width: 760px) {
   .bqa-owner-form-content--compact .bqa-owner-header {
     align-items: flex-start;
@@ -581,6 +595,18 @@
 
   .bqa-owner-form-content--compact .bqa-owner-support-stack--visible-mobile {
     display: grid;
+  }
+
+  .bqa-owner-form-content--compact .bqa-owner-step-row > span {
+    width: 34px;
+    min-width: 34px;
+    font-size: 11px;
+  }
+
+  .bqa-owner-form-content--compact .bqa-owner-support-action {
+    min-height: 40px;
+    padding-inline: 10px;
+    font-size: 13px;
   }
 }
 
@@ -1658,5 +1684,15 @@
 
   .bqa-owner-availability-row .ui-button {
     min-width: 8rem;
+  }
+}
+
+.bqa-owner-form-content--compact .bqa-owner-support-panel > .bqa-owner-support-action {
+  width: calc(100% - 28px);
+}
+
+@media (max-width: 760px) {
+  .bqa-owner-form-content--compact .bqa-owner-support-panel > .bqa-owner-support-action {
+    width: calc(100% - 24px);
   }
 }
