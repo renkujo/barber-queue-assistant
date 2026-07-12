@@ -68,6 +68,16 @@ export const buildQueueNotificationMessage = (type: NotificationType, context: Q
   return `อัปเดตคิว ${context.queueCode}\n${context.customerName} · ${context.serviceName}\nตอนนี้คิวของคุณ: ${getCustomerStatusCopy(context.statusLabel)}`;
 };
 
+
+export const buildOwnerQueueNotificationMessage = (type: NotificationType, context: QueueNotificationContext) => {
+  const appointmentLabel = `${formatDateLabel(context.date)} ${context.timeLabel}`;
+  const title = type === NotificationType.BOOKING_CONFIRMED ? "มีคิวจองใหม่" : "มี walk-in ใหม่";
+
+  return `${title} ${context.queueCode}
+${context.customerName} · ${context.serviceName}
+เวลา ${appointmentLabel}`;
+};
+
 export const getQueueTimeLabel = (startAt: Date | null, estimatedAt: Date | null, date: Date) => {
   const timeSource = startAt ?? estimatedAt;
 

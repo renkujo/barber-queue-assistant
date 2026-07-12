@@ -30,6 +30,7 @@
   - [ ] `BARBER_ADMIN_SESSION_SECRET`
   - [ ] `LINE_CHANNEL_SECRET` if LINE is enabled
   - [ ] `LINE_CHANNEL_ACCESS_TOKEN` if LINE is enabled
+  - [ ] `OWNER_LINE_USER_ID` if owner LINE alerts are enabled
   - [ ] `NEXT_PUBLIC_LINE_LIFF_ID` if LIFF is enabled
 - [ ] Deploy and confirm containers are healthy.
 - [ ] Run `pnpm db:seed` once inside the web container.

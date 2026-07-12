@@ -2,7 +2,7 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { NotificationChannel, NotificationStatus, NotificationType, QueueCreatedBy, QueueItemStatus, QueueItemType } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { bindLineUserId } from "@/lib/notifications/line-binding";
-import { notifyQueueEvent } from "@/lib/notifications/queue-notifications";
+import { notifyOwnerQueueEvent, notifyQueueEvent } from "@/lib/notifications/queue-notifications";
 import { createDateTime, getDayBounds, getTodayValue } from "@/lib/queue/date";
 import type { ILinePushClient } from "@/lib/notifications/line-client";
 
@@ -69,7 +69,7 @@ const ensureService = async () => {
   });
 };
 
-const createQueueItem = async ({ lineUserId, name }: { lineUserId?: string; name: string }) => {
+const createQueueItem = async ({ createdBy = QueueCreatedBy.CUSTOMER, lineUserId, name }: { createdBy?: QueueCreatedBy; lineUserId?: string; name: string }) => {
   const customer = await prisma.customer.create({
     data: {
       name,
@@ -92,7 +92,7 @@ const createQueueItem = async ({ lineUserId, name }: { lineUserId?: string; name
       date: getDayBounds(getTodayValue()).start,
       estimatedAt: createDateTime(getTodayValue(), "15:30"),
       sortOrder: 1,
-      createdBy: QueueCreatedBy.CUSTOMER,
+      createdBy,
     },
   });
 };
@@ -154,6 +154,62 @@ describe("queue notifications", () => {
     expect(pushes[0]?.text).toContain("Vitest Notification Service");
     expect(pushes[0]?.text).toContain("รอเรียกคิว");
     expect(pushes[0]?.text).not.toContain(QueueItemStatus.WAITING);
+  });
+
+
+  it("sends owner LINE notification for customer-created queue events", async () => {
+    const queueItem = await createQueueItem({ name: `${testPrefix} Owner Notify` });
+    const pushes: Array<{ to: string; text: string }> = [];
+    const lineClient: ILinePushClient = {
+      pushTextMessage: async (to, text) => {
+        pushes.push({ to, text });
+      },
+    };
+
+    const notification = await notifyOwnerQueueEvent(queueItem.id, NotificationType.QUEUE_CREATED, {
+      lineClient,
+      ownerLineUserId: "U-owner-line-id",
+    });
+
+    expect(notification?.channel).toBe(NotificationChannel.LINE);
+    expect(notification?.status).toBe(NotificationStatus.SENT);
+    expect(notification?.customerId).toBeNull();
+    expect(notification?.recipient).toBe("U-owner-line-id");
+    expect(notification?.messagePreview).toContain("มี walk-in ใหม่");
+    expect(notification?.messagePreview).toContain("Vitest Notification Service");
+    expect(pushes).toHaveLength(1);
+    expect(pushes[0]?.to).toBe("U-owner-line-id");
+    expect(pushes[0]?.text).toContain("มี walk-in ใหม่");
+  });
+
+  it("logs owner LINE notification as skipped when owner recipient is missing", async () => {
+    const queueItem = await createQueueItem({ name: `${testPrefix} Owner Missing` });
+
+    const notification = await notifyOwnerQueueEvent(queueItem.id, NotificationType.QUEUE_CREATED, {
+      lineClient: null,
+      ownerLineUserId: null,
+    });
+
+    expect(notification?.channel).toBe(NotificationChannel.LINE);
+    expect(notification?.status).toBe(NotificationStatus.SKIPPED);
+    expect(notification?.recipient).toBeNull();
+    expect(notification?.error).toContain("OWNER_LINE_USER_ID");
+  });
+
+  it("does not notify owner for owner-created queue events", async () => {
+    const queueItem = await createQueueItem({ createdBy: QueueCreatedBy.OWNER, name: `${testPrefix} Owner Created` });
+    const lineClient: ILinePushClient = {
+      pushTextMessage: async () => {
+        throw new Error("owner-created event should not push");
+      },
+    };
+
+    const notification = await notifyOwnerQueueEvent(queueItem.id, NotificationType.QUEUE_CREATED, {
+      lineClient,
+      ownerLineUserId: "U-owner-line-id",
+    });
+
+    expect(notification).toBeNull();
   });
 
   it("logs FAILED when LINE push fails", async () => {

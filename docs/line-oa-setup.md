@@ -57,9 +57,22 @@ Add them to `app/.env`:
 ```env
 LINE_CHANNEL_SECRET=replace-with-channel-secret
 LINE_CHANNEL_ACCESS_TOKEN=replace-with-channel-access-token
+OWNER_LINE_USER_ID=replace-with-owner-line-user-id
 ```
 
 Do not commit real values.
+
+
+### Owner LINE alerts
+
+Set `OWNER_LINE_USER_ID` when the owner should receive LINE notifications even if the owner PWA is closed or the phone is locked.
+
+Current owner-alert events:
+
+- customer booking confirmed (`BOOKING_CONFIRMED`)
+- customer walk-in created (`QUEUE_CREATED`)
+
+Owner-created walk-ins are intentionally not pushed back to the owner to avoid self-notification spam. If `OWNER_LINE_USER_ID` is empty, the app records a skipped `NotificationLog` row and queue creation still succeeds.
 
 ## LIFF setup
 

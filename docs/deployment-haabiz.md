@@ -28,6 +28,7 @@ BARBER_ADMIN_SESSION_SECRET="replace-with-long-random-secret"
 
 LINE_CHANNEL_SECRET=""
 LINE_CHANNEL_ACCESS_TOKEN=""
+OWNER_LINE_USER_ID=""
 NEXT_PUBLIC_LINE_LIFF_ID=""
 ```
 
@@ -36,6 +37,7 @@ Rules:
 - Do not commit real `.env` values.
 - `BARBER_ADMIN_SESSION_SECRET` must be a long random secret and should not equal the owner passcode.
 - Leave LINE values empty only if LINE notifications/LIFF are not being tested yet.
+- Set `OWNER_LINE_USER_ID` when the owner should receive LINE alerts for customer-created bookings/walk-ins.
 
 ## Build/start behavior
 
