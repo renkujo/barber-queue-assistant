@@ -30,7 +30,7 @@
   - [ ] `BARBER_ADMIN_SESSION_SECRET`
   - [ ] `LINE_CHANNEL_SECRET` if LINE is enabled
   - [ ] `LINE_CHANNEL_ACCESS_TOKEN` if LINE is enabled
-  - [ ] `OWNER_LINE_USER_ID` if owner LINE alerts are enabled
+  - [ ] `OWNER_LINE_USER_ID` only if using manual owner LINE alert fallback
   - [ ] `NEXT_PUBLIC_LINE_LIFF_ID` if LIFF is enabled
 - [ ] Deploy and confirm containers are healthy.
 - [ ] Run `pnpm db:seed` once inside the web container.
@@ -59,6 +59,7 @@
 - [ ] Open LIFF from LINE and create a queue item.
 - [ ] Owner starts service.
 - [ ] LINE push notification is received.
+- [ ] Owner connects LINE from `/owner/settings` if owner lock-screen alerts are needed.
 - [ ] `NotificationLog` records `LINE/SENT` for the test notification.
 
 ## Rollback notes

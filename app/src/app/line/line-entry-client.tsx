@@ -7,7 +7,7 @@ import { Button, Icon } from "@/components/ui";
 
 type LineEntryClientProps = {
   liffId?: string;
-  targetPath: "/book" | "/walk-in" | "/#queue-status";
+  targetPath: string;
 };
 
 const getTargetLabel = (targetPath: LineEntryClientProps["targetPath"]) => {
@@ -19,12 +19,23 @@ const getTargetLabel = (targetPath: LineEntryClientProps["targetPath"]) => {
     return "เช็คคิว";
   }
 
+  if (targetPath.startsWith("/line/owner")) {
+    return "เชื่อม LINE เจ้าของร้าน";
+  }
+
   return "รับคิววันนี้";
 };
 
 const buildTargetUrl = (targetPath: LineEntryClientProps["targetPath"], lineUserId: string) => {
   if (targetPath === "/#queue-status") {
     return targetPath;
+  }
+
+  if (targetPath.startsWith("/line/owner")) {
+    const url = new URL(targetPath, window.location.origin);
+    url.searchParams.set("lineUserId", lineUserId);
+
+    return `${url.pathname}${url.search}${url.hash}`;
   }
 
   const params = new URLSearchParams({ lineUserId });

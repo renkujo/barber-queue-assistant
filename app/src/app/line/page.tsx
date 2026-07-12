@@ -1,7 +1,7 @@
 import { AppCard, PageHeader, ScreenShell } from "@/components/barber/app-ui";
 import { LineEntryClient } from "./line-entry-client";
 
-type LineEntryTarget = "book" | "walk-in" | "queue-status";
+type LineEntryTarget = "book" | "walk-in" | "queue-status" | "owner";
 
 type LineEntryPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -22,27 +22,30 @@ const normalizeTarget = (target?: string | null): LineEntryTarget | null => {
     return "queue-status";
   }
 
+  if (target === "owner" || target === "owner-line") {
+    return "owner";
+  }
+
   return null;
 };
 
-const getTargetFromLiffState = (state?: string) => {
+const getStateSearchParams = (state?: string) => {
   if (!state) {
-    return null;
+    return new URLSearchParams();
   }
 
   const decodedState = decodeURIComponent(state);
 
   if (decodedState.includes("#queue-status")) {
-    return "queue-status" satisfies LineEntryTarget;
+    return new URLSearchParams("target=queue-status");
   }
 
   const queryString = decodedState.includes("?") ? decodedState.slice(decodedState.indexOf("?") + 1) : decodedState;
-  const params = new URLSearchParams(queryString);
 
-  return normalizeTarget(params.get("target"));
+  return new URLSearchParams(queryString);
 };
 
-const getTargetPath = (target: LineEntryTarget) => {
+const getTargetPath = (target: LineEntryTarget, token?: string) => {
   if (target === "book") {
     return "/book" as const;
   }
@@ -51,15 +54,31 @@ const getTargetPath = (target: LineEntryTarget) => {
     return "/#queue-status" as const;
   }
 
+  if (target === "owner") {
+    const query = new URLSearchParams();
+
+    if (token) {
+      query.set("token", token);
+    }
+
+    return `/line/owner?${query.toString()}` as const;
+  }
+
   return "/walk-in" as const;
 };
 
-const getLineEntryTarget = (params: Awaited<LineEntryPageProps["searchParams"]>) =>
-  normalizeTarget(getSearchParamValue(params.target)) ?? getTargetFromLiffState(getSearchParamValue(params["liff.state"])) ?? "walk-in";
+const getLineEntryTarget = (params: Awaited<LineEntryPageProps["searchParams"]>) => {
+  const liffStateParams = getStateSearchParams(getSearchParamValue(params["liff.state"]));
+  const target = normalizeTarget(getSearchParamValue(params.target)) ?? normalizeTarget(liffStateParams.get("target")) ?? "walk-in";
+  const token = getSearchParamValue(params.token) ?? liffStateParams.get("token") ?? undefined;
+
+  return { target, token };
+};
 
 const LineEntryPage = async ({ searchParams }: LineEntryPageProps) => {
   const params = await searchParams;
-  const targetPath = getTargetPath(getLineEntryTarget(params));
+  const { target, token } = getLineEntryTarget(params);
+  const targetPath = getTargetPath(target, token);
 
   return (
     <ScreenShell className="bqa-book-shell bqa-line-shell">

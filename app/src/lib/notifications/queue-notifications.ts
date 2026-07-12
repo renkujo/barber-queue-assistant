@@ -15,7 +15,11 @@ const ownerNotificationTypes = new Set<NotificationType>([
 
 const getQueueCode = (id: string) => `A${id.slice(-4).toUpperCase()}`;
 
-const getOwnerLineUserId = () => process.env.OWNER_LINE_USER_ID?.trim() || null;
+const getOwnerLineUserId = async () => {
+  const settings = await prisma.shopSettings.findFirst({ orderBy: { createdAt: "asc" } });
+
+  return settings?.ownerLineUserId?.trim() || process.env.OWNER_LINE_USER_ID?.trim() || null;
+};
 
 export const notifyQueueEvent = async (
   queueItemId: string,
@@ -130,7 +134,7 @@ export const notifyOwnerQueueEvent = async (
     date: queueItem.date,
     timeLabel: getQueueTimeLabel(queueItem.startAt, queueItem.estimatedAt, queueItem.date),
   });
-  const recipient = options.ownerLineUserId === undefined ? getOwnerLineUserId() : options.ownerLineUserId?.trim() || null;
+  const recipient = options.ownerLineUserId === undefined ? await getOwnerLineUserId() : options.ownerLineUserId?.trim() || null;
 
   if (!recipient) {
     return prisma.notificationLog.create({
@@ -142,7 +146,7 @@ export const notifyOwnerQueueEvent = async (
         status: NotificationStatus.SKIPPED,
         recipient: null,
         messagePreview,
-        error: "OWNER_LINE_USER_ID is not configured.",
+        error: "Owner LINE user id is not configured.",
       },
     });
   }

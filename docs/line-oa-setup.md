@@ -65,14 +65,16 @@ Do not commit real values.
 
 ### Owner LINE alerts
 
-Set `OWNER_LINE_USER_ID` when the owner should receive LINE notifications even if the owner PWA is closed or the phone is locked.
+The owner should connect LINE from `/owner/settings` by pressing `เชื่อม LINE เจ้าของร้าน`. The app opens LIFF, reads the owner LINE user id, and stores it in `ShopSettings.ownerLineUserId`.
+
+`OWNER_LINE_USER_ID` remains available as an environment fallback for emergency/manual setup, but it should not be the normal owner setup path.
 
 Current owner-alert events:
 
 - customer booking confirmed (`BOOKING_CONFIRMED`)
 - customer walk-in created (`QUEUE_CREATED`)
 
-Owner-created walk-ins are intentionally not pushed back to the owner to avoid self-notification spam. If `OWNER_LINE_USER_ID` is empty, the app records a skipped `NotificationLog` row and queue creation still succeeds.
+Owner-created walk-ins are intentionally not pushed back to the owner to avoid self-notification spam. If no owner LINE id is connected/configured, the app records a skipped `NotificationLog` row and queue creation still succeeds.
 
 ## LIFF setup
 

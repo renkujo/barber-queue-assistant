@@ -46,6 +46,12 @@ const cleanup = async () => {
       queueItems: { none: {} },
     },
   });
+
+  await prisma.shopSettings.updateMany({
+    data: {
+      ownerLineUserId: null,
+    },
+  });
 };
 
 const ensureService = async () => {
@@ -193,7 +199,38 @@ describe("queue notifications", () => {
     expect(notification?.channel).toBe(NotificationChannel.LINE);
     expect(notification?.status).toBe(NotificationStatus.SKIPPED);
     expect(notification?.recipient).toBeNull();
-    expect(notification?.error).toContain("OWNER_LINE_USER_ID");
+    expect(notification?.error).toContain("Owner LINE user id");
+  });
+
+
+  it("uses owner LINE user id from shop settings before env fallback", async () => {
+    const queueItem = await createQueueItem({ name: `${testPrefix} Owner DB` });
+    const pushes: Array<{ to: string; text: string }> = [];
+    const lineClient: ILinePushClient = {
+      pushTextMessage: async (to, text) => {
+        pushes.push({ to, text });
+      },
+    };
+
+    await prisma.shopSettings.upsert({
+      where: { id: "default-shop" },
+      update: {
+        ownerLineUserId: "U-owner-from-db",
+      },
+      create: {
+        id: "default-shop",
+        shopName: `${testPrefix} Shop`,
+        openDays: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        businessHours: { open: "09:00", close: "19:00" },
+        ownerLineUserId: "U-owner-from-db",
+      },
+    });
+
+    const notification = await notifyOwnerQueueEvent(queueItem.id, NotificationType.QUEUE_CREATED, { lineClient });
+
+    expect(notification?.status).toBe(NotificationStatus.SENT);
+    expect(notification?.recipient).toBe("U-owner-from-db");
+    expect(pushes[0]?.to).toBe("U-owner-from-db");
   });
 
   it("does not notify owner for owner-created queue events", async () => {

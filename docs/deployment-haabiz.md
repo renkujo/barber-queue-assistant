@@ -37,7 +37,7 @@ Rules:
 - Do not commit real `.env` values.
 - `BARBER_ADMIN_SESSION_SECRET` must be a long random secret and should not equal the owner passcode.
 - Leave LINE values empty only if LINE notifications/LIFF are not being tested yet.
-- Set `OWNER_LINE_USER_ID` when the owner should receive LINE alerts for customer-created bookings/walk-ins.
+- Owner LINE alerts should normally be connected from `/owner/settings`; `OWNER_LINE_USER_ID` is only a fallback/manual override.
 
 ## Build/start behavior
 

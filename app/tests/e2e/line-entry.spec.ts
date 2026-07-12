@@ -23,6 +23,21 @@ test.describe("LINE entry route", () => {
     await expect(page.getByRole("link", { name: "ไปต่อ: เช็คคิว" })).toHaveAttribute("href", "/#queue-status");
   });
 
+
+  test("supports owner LIFF target fallback", async ({ page }) => {
+    await page.goto("/line?target=owner&token=test-token");
+
+    await expect(page.getByRole("heading", { name: "เชื่อม LINE เพื่อรับแจ้งเตือน" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "ไปต่อ: เชื่อม LINE เจ้าของร้าน" })).toHaveAttribute("href", "/line/owner?token=test-token");
+  });
+
+  test("uses owner LIFF state target fallback", async ({ page }) => {
+    await page.goto("/line?liff.state=%3Ftarget%3Downer%26token%3Dstate-token");
+
+    await expect(page.getByRole("heading", { name: "เชื่อม LINE เพื่อรับแจ้งเตือน" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "ไปต่อ: เชื่อม LINE เจ้าของร้าน" })).toHaveAttribute("href", "/line/owner?token=state-token");
+  });
+
   test("shows walk-in fallback entry by default", async ({ page }) => {
     await page.goto("/line");
 

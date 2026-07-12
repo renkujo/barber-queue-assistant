@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui";
 import { requireOwnerSession } from "@/lib/admin-auth";
+import { createOwnerLineConnectToken } from "@/lib/notifications/owner-line-binding";
 import { getOwnerShopSettingsSafe } from "@/lib/queue/repository";
 import { updateOwnerSettingsAction } from "../actions";
 import { OwnerTopbar } from "../_components/owner-topbar";
@@ -31,6 +32,28 @@ const errorMessages: Record<string, string> = {
 
 const statusMessages: Record<string, string> = {
   "settings-updated": "บันทึกตั้งค่าร้านแล้ว",
+  "line-owner-connected": "เชื่อม LINE เจ้าของร้านแล้ว",
+};
+
+
+const maskLineUserId = (lineUserId: string | null) => {
+  if (!lineUserId) {
+    return "ยังไม่เชื่อม";
+  }
+
+  return `${lineUserId.slice(0, 4)}••••${lineUserId.slice(-4)}`;
+};
+
+const getOwnerLineConnectHref = () => {
+  const token = createOwnerLineConnectToken();
+  const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID?.trim();
+  const params = new URLSearchParams({ target: "owner", token });
+
+  if (liffId) {
+    return `https://liff.line.me/${liffId}?${params.toString()}`;
+  }
+
+  return `/line/owner?${new URLSearchParams({ token }).toString()}`;
 };
 
 const booleanOptions = [
@@ -42,6 +65,7 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
   await requireOwnerSession();
 
   const [params, settings] = await Promise.all([searchParams, getOwnerShopSettingsSafe()]);
+  const ownerLineConnectHref = getOwnerLineConnectHref();
   const errorMessage = params.error ? errorMessages[params.error] : null;
   const statusMessage = params.status ? statusMessages[params.status] : null;
 
@@ -166,6 +190,24 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
                   </p>
                 </div>
               </div>
+            </Panel>
+
+            <Panel className="bqa-owner-support-panel">
+              <SectionHeader title="LINE เจ้าของร้าน" note={`สถานะ: ${maskLineUserId(settings.ownerLineUserId)}`} action={<Icon icon="lucide:message-circle" className="bqa-muted-icon" aria-hidden="true" />} />
+              <div className="bqa-owner-step-list">
+                <div className="bqa-owner-step-row">
+                  <span>LINE</span>
+                  <p>
+                    <strong>{settings.ownerLineUserId ? "เชื่อมแล้ว" : "ยังไม่เชื่อม"}</strong>
+                    <small>รับแจ้งเตือนคิวใหม่ผ่าน LINE แม้ไม่ได้เปิดหน้า owner อยู่</small>
+                  </p>
+                </div>
+              </div>
+              <Button asChild variant={settings.ownerLineUserId ? "outline" : "default"} fullWidth>
+                <a href={ownerLineConnectHref} target="_blank" rel="noreferrer">
+                  <Icon icon="lucide:message-circle" aria-hidden="true" />{settings.ownerLineUserId ? "เชื่อม LINE ใหม่" : "เชื่อม LINE เจ้าของร้าน"}
+                </a>
+              </Button>
             </Panel>
 
             <Panel className="bqa-owner-support-panel">

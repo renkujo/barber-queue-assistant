@@ -80,9 +80,10 @@ export type OwnerShopSettings = {
   bookingEnabled: boolean;
   walkInEnabled: boolean;
   manualWaitMinutes: number | null;
+  ownerLineUserId: string | null;
 };
 
-export type UpdateOwnerShopSettingsInput = OwnerShopSettings;
+export type UpdateOwnerShopSettingsInput = Omit<OwnerShopSettings, "ownerLineUserId">;
 
 export type CreateBookingInput = {
   customerName: string;
@@ -640,6 +641,7 @@ const mapOwnerShopSettings = (settings: {
   bookingEnabled: boolean;
   walkInEnabled: boolean;
   manualWaitMinutes: number | null;
+  ownerLineUserId: string | null;
 }): OwnerShopSettings => {
   const businessHours = getBusinessHours(settings.businessHours);
 
@@ -651,6 +653,7 @@ const mapOwnerShopSettings = (settings: {
     bookingEnabled: settings.bookingEnabled,
     walkInEnabled: settings.walkInEnabled,
     manualWaitMinutes: settings.manualWaitMinutes,
+    ownerLineUserId: settings.ownerLineUserId,
   };
 };
 
@@ -746,6 +749,7 @@ export const getOwnerShopSettingsSafe = async (): Promise<OwnerShopSettings> => 
       bookingEnabled: true,
       walkInEnabled: true,
       manualWaitMinutes: null,
+      ownerLineUserId: null,
     };
   }
 };
