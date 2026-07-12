@@ -7,13 +7,26 @@ import { Button, Icon } from "@/components/ui";
 
 type LineEntryClientProps = {
   liffId?: string;
-  targetPath: "/book" | "/walk-in";
+  targetPath: "/book" | "/walk-in" | "/#queue-status";
 };
 
-const getTargetLabel = (targetPath: LineEntryClientProps["targetPath"]) =>
-  targetPath === "/book" ? "จองเวลา" : "รับคิววันนี้";
+const getTargetLabel = (targetPath: LineEntryClientProps["targetPath"]) => {
+  if (targetPath === "/book") {
+    return "จองเวลา";
+  }
+
+  if (targetPath === "/#queue-status") {
+    return "เช็คคิว";
+  }
+
+  return "รับคิววันนี้";
+};
 
 const buildTargetUrl = (targetPath: LineEntryClientProps["targetPath"], lineUserId: string) => {
+  if (targetPath === "/#queue-status") {
+    return targetPath;
+  }
+
   const params = new URLSearchParams({ lineUserId });
 
   return `${targetPath}?${params.toString()}`;
