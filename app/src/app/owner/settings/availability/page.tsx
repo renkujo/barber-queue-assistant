@@ -13,8 +13,16 @@ import {
   SelectValue,
 } from "@/components/ui";
 import { requireOwnerSession } from "@/lib/admin-auth";
-import { getOwnerDateAvailabilityItemsSafe, type DateAvailabilityMode } from "@/lib/queue/repository";
-import { updateOwnerDateAvailabilityAction } from "../../actions";
+import {
+  getOwnerDateAvailabilityItemsSafe,
+  getOwnerWeeklyAvailabilityItemsSafe,
+  type DateAvailabilityMode,
+} from "@/lib/queue/repository";
+import {
+  applyOwnerWeeklyAvailabilityPresetAction,
+  updateOwnerDateAvailabilityAction,
+  updateOwnerWeeklyAvailabilityAction,
+} from "../../actions";
 import { OwnerTopbar } from "../../_components/owner-topbar";
 
 export const dynamic = "force-dynamic";
@@ -24,27 +32,43 @@ type OwnerAvailabilityPageProps = {
 };
 
 const errorMessages: Record<string, string> = {
-  database: "ยังบันทึกวันรับคิวไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
-  invalid: "ข้อมูลวันที่หรือสถานะไม่ถูกต้อง ลองเลือกใหม่อีกครั้ง",
+  database: "ยังบันทึกตารางรับลูกค้าไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
+  invalid: "ข้อมูลวันหรือสถานะไม่ถูกต้อง ลองเลือกใหม่อีกครั้ง",
 };
 
 const statusMessages: Record<string, string> = {
-  "availability-updated": "บันทึกวันรับคิวแล้ว",
+  "availability-updated": "บันทึกวันพิเศษแล้ว",
+  "weekly-availability-updated": "บันทึกตารางประจำสัปดาห์แล้ว",
+  "weekly-preset-applied": "ตั้งค่าจันทร์–ศุกร์ออนไลน์ และเสาร์–อาทิตย์หน้าร้านแล้ว",
 };
 
-const modeOptions: Array<{ value: DateAvailabilityMode; label: string; description: string }> = [
-  { value: "default", label: "ใช้ค่าปกติของร้าน", description: "ไม่มี override รายวัน" },
-  { value: "booking-and-walk-in", label: "เปิดระบบออนไลน์", description: "ลูกค้าจองล่วงหน้าและรับบัตรคิวออนไลน์ได้" },
+const availabilityModes: Array<{ value: Exclude<DateAvailabilityMode, "default">; label: string; description: string }> = [
+  { value: "booking-and-walk-in", label: "เปิดระบบออนไลน์", description: "จองล่วงหน้าและรับบัตรคิวออนไลน์ได้" },
   { value: "in-store-only", label: "รับเฉพาะหน้าร้าน", description: "ร้านเปิด แต่ไม่รับจองหรือบัตรคิวผ่านเว็บ" },
   { value: "closed", label: "ร้านปิด", description: "ไม่รับลูกค้าทั้งออนไลน์และหน้าร้าน" },
 ];
 
-const getModeSummary = (mode: DateAvailabilityMode) => modeOptions.find((option) => option.value === mode)?.label ?? "ใช้ค่าปกติของร้าน";
+const weeklyModeOptions: Array<{ value: DateAvailabilityMode; label: string }> = [
+  { value: "default", label: "ใช้ค่าหลักของร้าน" },
+  ...availabilityModes.map(({ value, label }) => ({ value, label })),
+];
+
+const dateModeOptions: Array<{ value: DateAvailabilityMode; label: string }> = [
+  { value: "default", label: "ใช้ตารางประจำสัปดาห์" },
+  ...availabilityModes.map(({ value, label }) => ({ value, label })),
+];
+
+const getModeLabel = (mode: DateAvailabilityMode, fallbackLabel: string) =>
+  availabilityModes.find((option) => option.value === mode)?.label ?? fallbackLabel;
 
 const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProps) => {
   await requireOwnerSession();
 
-  const [params, items] = await Promise.all([searchParams, getOwnerDateAvailabilityItemsSafe()]);
+  const [params, weeklyItems, dateItems] = await Promise.all([
+    searchParams,
+    getOwnerWeeklyAvailabilityItemsSafe(),
+    getOwnerDateAvailabilityItemsSafe(),
+  ]);
   const errorMessage = params.error ? errorMessages[params.error] : null;
   const statusMessage = params.status ? statusMessages[params.status] : null;
 
@@ -54,8 +78,8 @@ const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProp
 
       <div className="bqa-owner-board-content bqa-owner-form-content bqa-owner-form-content--compact">
         <OwnerHeader
-          title="วันรับจอง / walk-in"
-          description="กำหนดรายวันว่าวันไหนใช้ระบบออนไลน์ วันไหนรับลูกค้าที่หน้าร้านเท่านั้น หรือร้านปิด"
+          title="ตารางรับลูกค้าประจำสัปดาห์"
+          description="ตั้งครั้งเดียวแล้วใช้ซ้ำทุกสัปดาห์ เช่น จันทร์–ศุกร์เปิดระบบออนไลน์ และเสาร์–อาทิตย์รับเฉพาะหน้าร้าน"
           action={
             <Button asChild variant="outline" size="sm">
               <Link href="/owner/settings">
@@ -71,55 +95,111 @@ const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProp
         <RouteToast message={statusMessage} type="success" toastKey={`owner-availability-status:${params.status ?? ""}`} />
 
         <OwnerGrid className="bqa-owner-grid--workbench">
-          <Panel aria-labelledby="owner-availability-list-title">
-            <SectionHeader
-              id="owner-availability-list-title"
-              title="14 วันข้างหน้า"
-              note="ถ้าเลือกใช้ค่าปกติ ระบบจะลบ override ของวันนั้น แล้วกลับไปใช้ setting หลักของร้าน"
-            />
+          <div className="bqa-owner-availability-main">
+            <Panel aria-labelledby="owner-weekly-availability-title">
+              <SectionHeader
+                id="owner-weekly-availability-title"
+                title="จันทร์–อาทิตย์"
+                note="แต่ละวันใช้ค่าซ้ำอัตโนมัติทุกสัปดาห์"
+                action={
+                  <form action={applyOwnerWeeklyAvailabilityPresetAction}>
+                    <Button type="submit" variant="outline" size="sm">
+                      <Icon icon="lucide:wand-sparkles" aria-hidden="true" />จ.–ศ. ออนไลน์ / ส.–อา. หน้าร้าน
+                    </Button>
+                  </form>
+                }
+              />
 
-            <FormStack>
-              {items.map((item) => (
-                <form action={updateOwnerDateAvailabilityAction} key={item.dateValue} className="bqa-owner-availability-row">
-                  <input name="dateValue" type="hidden" value={item.dateValue} />
-                  <div className="bqa-owner-availability-date">
-                    <strong>{item.label}</strong>
-                    <span>{item.dateValue}</span>
-                    <small>{item.hasOverride ? getModeSummary(item.mode) : "ใช้ค่าปกติ"}</small>
-                  </div>
+              <FormStack>
+                {weeklyItems.map((item) => (
+                  <form action={updateOwnerWeeklyAvailabilityAction} key={item.dayOfWeek} className="bqa-owner-availability-row bqa-owner-weekly-row">
+                    <input name="dayOfWeek" type="hidden" value={item.dayOfWeek} />
+                    <div className="bqa-owner-weekly-day">
+                      <span>{item.shortLabel}</span>
+                      <p>
+                        <strong>{item.label}</strong>
+                        <small>{item.hasOverride ? getModeLabel(item.mode, "ใช้ค่าหลักของร้าน") : "ใช้ค่าหลักของร้าน"}</small>
+                      </p>
+                    </div>
 
-                  <FormGrid>
-                    <FormField id={`mode-${item.dateValue}`} label="สถานะวันนั้น">
-                      <Select name="mode" defaultValue={item.mode} required>
-                        <SelectTrigger id={`mode-${item.dateValue}`}>
-                          <SelectValue placeholder="เลือกสถานะ" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {modeOptions.map((option) => (
-                            <SelectItem value={option.value} key={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormField>
-                    <FormField id={`reason-${item.dateValue}`} label="หมายเหตุ" description="ไม่บังคับ">
-                      <Input id={`reason-${item.dateValue}`} name="reason" defaultValue={item.reason} placeholder="เช่น วันหยุด / ลูกค้าหน้าร้านเยอะ" />
-                    </FormField>
-                  </FormGrid>
+                    <FormGrid>
+                      <FormField id={`weekly-mode-${item.dayOfWeek}`} label="รูปแบบรับลูกค้า">
+                        <Select name="mode" defaultValue={item.mode} required>
+                          <SelectTrigger id={`weekly-mode-${item.dayOfWeek}`}>
+                            <SelectValue placeholder="เลือกสถานะ" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {weeklyModeOptions.map((option) => (
+                              <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormField>
+                      <FormField id={`weekly-reason-${item.dayOfWeek}`} label="หมายเหตุ" description="ไม่บังคับ">
+                        <Input id={`weekly-reason-${item.dayOfWeek}`} name="reason" defaultValue={item.reason} placeholder="เช่น ลูกค้าหน้าร้านเยอะ" />
+                      </FormField>
+                    </FormGrid>
 
-                  <Button type="submit" variant={item.hasOverride ? "outline" : "default"} size="md" fullWidth>
-                    <Icon icon="lucide:save" aria-hidden="true" />บันทึกวันนี้
-                  </Button>
-                </form>
-              ))}
-            </FormStack>
-          </Panel>
+                    <Button type="submit" variant={item.hasOverride ? "outline" : "default"} size="md" fullWidth>
+                      <Icon icon="lucide:save" aria-hidden="true" />บันทึก
+                    </Button>
+                  </form>
+                ))}
+              </FormStack>
+            </Panel>
+
+            <details className="bqa-owner-availability-exceptions">
+              <summary>
+                <span>
+                  <strong>วันพิเศษ 14 วันข้างหน้า</strong>
+                  <small>ใช้เฉพาะวันหยุด ช่างลา หรือวันที่ต้องการ override ตารางประจำสัปดาห์</small>
+                </span>
+                <Icon icon="lucide:chevron-down" aria-hidden="true" />
+              </summary>
+
+              <Panel>
+                <FormStack>
+                  {dateItems.map((item) => (
+                    <form action={updateOwnerDateAvailabilityAction} key={item.dateValue} className="bqa-owner-availability-row">
+                      <input name="dateValue" type="hidden" value={item.dateValue} />
+                      <div className="bqa-owner-availability-date">
+                        <strong>{item.label}</strong>
+                        <span>{item.dateValue}</span>
+                        <small>{item.hasOverride ? getModeLabel(item.mode, "ใช้ตารางประจำสัปดาห์") : "ใช้ตารางประจำสัปดาห์"}</small>
+                      </div>
+
+                      <FormGrid>
+                        <FormField id={`mode-${item.dateValue}`} label="สถานะวันนั้น">
+                          <Select name="mode" defaultValue={item.mode} required>
+                            <SelectTrigger id={`mode-${item.dateValue}`}>
+                              <SelectValue placeholder="เลือกสถานะ" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {dateModeOptions.map((option) => (
+                                <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormField>
+                        <FormField id={`reason-${item.dateValue}`} label="หมายเหตุ" description="ไม่บังคับ">
+                          <Input id={`reason-${item.dateValue}`} name="reason" defaultValue={item.reason} placeholder="เช่น วันหยุด / ช่างลา" />
+                        </FormField>
+                      </FormGrid>
+
+                      <Button type="submit" variant={item.hasOverride ? "outline" : "default"} size="md" fullWidth>
+                        <Icon icon="lucide:save" aria-hidden="true" />บันทึกวันนี้
+                      </Button>
+                    </form>
+                  ))}
+                </FormStack>
+              </Panel>
+            </details>
+          </div>
 
           <Panel tone="warm">
-            <SectionHeader title="กติกา" note="ใช้กับหน้าลูกค้าและ backend จริง" />
+            <SectionHeader title="รูปแบบรับลูกค้า" note="วันพิเศษจะมีสิทธิ์เหนือกว่าตารางประจำสัปดาห์" />
             <div className="bqa-owner-step-list">
-              {modeOptions.map((option, index) => (
+              {availabilityModes.map((option, index) => (
                 <div className="bqa-owner-step-row" key={option.value}>
                   <span>{index + 1}</span>
                   <p>

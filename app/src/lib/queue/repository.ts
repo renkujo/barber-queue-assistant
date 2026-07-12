@@ -97,8 +97,23 @@ export type OwnerDateAvailabilityItem = {
   hasOverride: boolean;
 };
 
+export type OwnerWeeklyAvailabilityItem = {
+  dayOfWeek: number;
+  label: string;
+  shortLabel: string;
+  mode: DateAvailabilityMode;
+  reason: string;
+  hasOverride: boolean;
+};
+
 export type UpdateOwnerDateAvailabilityInput = {
   dateValue: string;
+  mode: DateAvailabilityMode;
+  reason?: string;
+};
+
+export type UpdateOwnerWeeklyAvailabilityInput = {
+  dayOfWeek: number;
   mode: DateAvailabilityMode;
   reason?: string;
 };
@@ -392,6 +407,22 @@ const formatOwnerDateAvailabilityLabel = (dateValue: string, index: number) => {
   }).format(getDayBounds(dateValue).start);
 };
 
+const weeklyAvailabilityDays = [
+  { dayOfWeek: 1, label: "วันจันทร์", shortLabel: "จ." },
+  { dayOfWeek: 2, label: "วันอังคาร", shortLabel: "อ." },
+  { dayOfWeek: 3, label: "วันพุธ", shortLabel: "พ." },
+  { dayOfWeek: 4, label: "วันพฤหัสบดี", shortLabel: "พฤ." },
+  { dayOfWeek: 5, label: "วันศุกร์", shortLabel: "ศ." },
+  { dayOfWeek: 6, label: "วันเสาร์", shortLabel: "ส." },
+  { dayOfWeek: 7, label: "วันอาทิตย์", shortLabel: "อา." },
+] as const;
+
+const getIsoDayOfWeek = (dateValue: string) => {
+  const dayOfWeek = new Date(`${dateValue}T12:00:00+07:00`).getUTCDay();
+
+  return dayOfWeek === 0 ? 7 : dayOfWeek;
+};
+
 const getDateAvailabilityBooleans = (mode: Exclude<DateAvailabilityMode, "default">) => {
   if (mode === "closed") {
     return { bookingEnabled: false, walkInEnabled: false, inStoreOnly: false };
@@ -418,14 +449,18 @@ const getDateAvailabilityMode = (availability?: { bookingEnabled: boolean; walkI
 
 const getResolvedDateAvailability = async (dateValue: string) => {
   const { start } = getDayBounds(dateValue);
-  const rule = await prisma.shopDateAvailability.findUnique({ where: { date: start } });
+  const [dateRule, weeklyRule] = await Promise.all([
+    prisma.shopDateAvailability.findUnique({ where: { date: start } }),
+    prisma.shopWeeklyAvailability.findUnique({ where: { dayOfWeek: getIsoDayOfWeek(dateValue) } }),
+  ]);
+  const rule = dateRule ?? weeklyRule;
 
   return {
     bookingEnabled: rule?.bookingEnabled ?? true,
     walkInEnabled: rule?.walkInEnabled ?? true,
     inStoreOnly: rule?.inStoreOnly ?? false,
     reason: rule?.reason ?? "",
-    hasOverride: Boolean(rule),
+    hasOverride: Boolean(dateRule),
   };
 };
 
@@ -889,6 +924,86 @@ export const updateOwnerShopSettings = async (input: UpdateOwnerShopSettingsInpu
   });
 
   return mapOwnerShopSettings(updatedSettings);
+};
+
+export const getOwnerWeeklyAvailabilityItems = async (): Promise<OwnerWeeklyAvailabilityItem[]> => {
+  const rules = await prisma.shopWeeklyAvailability.findMany({
+    orderBy: { dayOfWeek: "asc" },
+  });
+  const ruleByDay = new Map(rules.map((rule) => [rule.dayOfWeek, rule]));
+
+  return weeklyAvailabilityDays.map((day) => {
+    const rule = ruleByDay.get(day.dayOfWeek);
+
+    return {
+      ...day,
+      mode: rule ? getDateAvailabilityMode(rule) : "default",
+      reason: rule?.reason ?? "",
+      hasOverride: Boolean(rule),
+    };
+  });
+};
+
+export const getOwnerWeeklyAvailabilityItemsSafe = async (): Promise<OwnerWeeklyAvailabilityItem[]> => {
+  try {
+    return await getOwnerWeeklyAvailabilityItems();
+  } catch {
+    return weeklyAvailabilityDays.map((day) => ({
+      ...day,
+      mode: "default",
+      reason: "",
+      hasOverride: false,
+    }));
+  }
+};
+
+export const updateOwnerWeeklyAvailability = async (input: UpdateOwnerWeeklyAvailabilityInput) => {
+  if (!Number.isInteger(input.dayOfWeek) || input.dayOfWeek < 1 || input.dayOfWeek > 7) {
+    throw new Error("Invalid weekly availability day.");
+  }
+
+  if (input.mode === "default") {
+    await prisma.shopWeeklyAvailability.deleteMany({ where: { dayOfWeek: input.dayOfWeek } });
+    return null;
+  }
+
+  const availability = getDateAvailabilityBooleans(input.mode);
+  const reason = input.reason?.trim() || null;
+
+  return prisma.shopWeeklyAvailability.upsert({
+    where: { dayOfWeek: input.dayOfWeek },
+    update: {
+      ...availability,
+      reason,
+    },
+    create: {
+      dayOfWeek: input.dayOfWeek,
+      ...availability,
+      reason,
+    },
+  });
+};
+
+export const applyOwnerWeeklyAvailabilityPreset = async () => {
+  await prisma.$transaction(
+    weeklyAvailabilityDays.map((day) => {
+      const mode = day.dayOfWeek <= 5 ? "booking-and-walk-in" : "in-store-only";
+      const availability = getDateAvailabilityBooleans(mode);
+
+      return prisma.shopWeeklyAvailability.upsert({
+        where: { dayOfWeek: day.dayOfWeek },
+        update: {
+          ...availability,
+          reason: null,
+        },
+        create: {
+          dayOfWeek: day.dayOfWeek,
+          ...availability,
+          reason: null,
+        },
+      });
+    }),
+  );
 };
 
 export const getOwnerDateAvailabilityItems = async (days = 14): Promise<OwnerDateAvailabilityItem[]> => {

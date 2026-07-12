@@ -7,6 +7,7 @@ import { NotificationType, QueueItemStatus } from "@/generated/prisma/enums";
 import { clearOwnerSession, requireOwnerSession, setOwnerSession, verifyPasscode } from "@/lib/admin-auth";
 import { notifyQueueEventSafe } from "@/lib/notifications/queue-notifications";
 import {
+  applyOwnerWeeklyAvailabilityPreset,
   createBreakTimeBlock,
   createOwnerService,
   createOwnerWalkIn,
@@ -17,6 +18,7 @@ import {
   setOwnerServiceActive,
   setQueueIntakeEnabled,
   updateOwnerDateAvailability,
+  updateOwnerWeeklyAvailability,
   updateOwnerService,
   updateOwnerShopSettings,
   updateQueueItem,
@@ -66,6 +68,12 @@ const ownerSettingsSchema = z.object({
 
 const ownerDateAvailabilitySchema = z.object({
   dateValue: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/),
+  mode: z.string().trim(),
+  reason: z.string().trim().optional(),
+});
+
+const ownerWeeklyAvailabilitySchema = z.object({
+  dayOfWeek: z.coerce.number().int().min(1).max(7),
   mode: z.string().trim(),
   reason: z.string().trim().optional(),
 });
@@ -348,6 +356,54 @@ export const updateOwnerSettingsAction = async (formData: FormData) => {
   revalidatePath("/owner/settings");
   revalidatePath("/api/queue/status");
   redirect("/owner/settings?status=settings-updated");
+};
+
+export const updateOwnerWeeklyAvailabilityAction = async (formData: FormData) => {
+  await requireOwnerSession();
+
+  const parsed = ownerWeeklyAvailabilitySchema.safeParse({
+    dayOfWeek: formData.get("dayOfWeek"),
+    mode: formData.get("mode"),
+    reason: formData.get("reason"),
+  });
+
+  if (!parsed.success || !allowedAvailabilityMode.has(parsed.data.mode)) {
+    redirect("/owner/settings/availability?error=invalid");
+  }
+
+  try {
+    await updateOwnerWeeklyAvailability({
+      dayOfWeek: parsed.data.dayOfWeek,
+      mode: parsed.data.mode as "default" | "booking-and-walk-in" | "in-store-only" | "closed",
+      reason: parsed.data.reason,
+    });
+  } catch {
+    redirect("/owner/settings/availability?error=database");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/book");
+  revalidatePath("/walk-in");
+  revalidatePath("/owner/settings/availability");
+  revalidatePath("/api/queue/status");
+  redirect("/owner/settings/availability?status=weekly-availability-updated");
+};
+
+export const applyOwnerWeeklyAvailabilityPresetAction = async () => {
+  await requireOwnerSession();
+
+  try {
+    await applyOwnerWeeklyAvailabilityPreset();
+  } catch {
+    redirect("/owner/settings/availability?error=database");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/book");
+  revalidatePath("/walk-in");
+  revalidatePath("/owner/settings/availability");
+  revalidatePath("/api/queue/status");
+  redirect("/owner/settings/availability?status=weekly-preset-applied");
 };
 
 

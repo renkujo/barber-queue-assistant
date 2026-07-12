@@ -3,6 +3,7 @@ import { QueueCreatedBy, QueueItemStatus, QueueItemType } from "@/generated/pris
 import { prisma } from "@/lib/prisma";
 import { createDateTime, getDayBounds, getTodayValue, getTomorrowValue } from "@/lib/queue/date";
 import {
+  applyOwnerWeeklyAvailabilityPreset,
   createBooking,
   createWalkIn,
   createOwnerService,
@@ -11,12 +12,15 @@ import {
   getQueueStatusSnapshot,
   getShopIntakeSettings,
   getAvailableBookingSlots,
+  getCustomerDateAvailability,
+  getOwnerWeeklyAvailabilityItems,
   getServices,
   reorderQueueItem,
   restoreClosedQueueItem,
   setManualWaitMinutes,
   setOwnerServiceActive,
   updateOwnerDateAvailability,
+  updateOwnerWeeklyAvailability,
   updateOwnerService,
   updateOwnerShopSettings,
   updateQueueItem,
@@ -28,6 +32,7 @@ const serviceId = "vitest-service";
 
 const cleanup = async () => {
   await prisma.shopDateAvailability.deleteMany();
+  await prisma.shopWeeklyAvailability.deleteMany();
 
   await prisma.shopSettings.updateMany({
     data: {
@@ -143,6 +148,22 @@ const setShopHours = async ({ openTime, closeTime }: { openTime: string; closeTi
   manualWaitMinutes: null,
 });
 
+const getNextDateValueForIsoDay = (targetDayOfWeek: number) => {
+  const date = new Date(`${getTodayValue()}T12:00:00+07:00`);
+
+  for (let offset = 0; offset < 8; offset += 1) {
+    const candidate = new Date(date);
+    candidate.setDate(candidate.getDate() + offset);
+    const dayOfWeek = candidate.getUTCDay() || 7;
+
+    if (dayOfWeek === targetDayOfWeek) {
+      return candidate.toISOString().slice(0, 10);
+    }
+  }
+
+  throw new Error("Unable to resolve weekly test date.");
+};
+
 const createCustomer = async (name: string) => prisma.customer.create({ data: { name, phone: "0800000000" } });
 
 const createQueueItem = async ({
@@ -231,6 +252,48 @@ describe("queue repository status workflow", () => {
       phone: "0877777777",
       serviceId,
     })).rejects.toThrow("Walk-in is closed.");
+  });
+
+  it("repeats weekly availability and lets a special date override it", async () => {
+    await setShopHours(getOpenHoursAroundNow());
+    await applyOwnerWeeklyAvailabilityPreset();
+
+    const weeklyItems = await getOwnerWeeklyAvailabilityItems();
+    const monday = weeklyItems.find((item) => item.dayOfWeek === 1);
+    const saturday = weeklyItems.find((item) => item.dayOfWeek === 6);
+
+    expect(monday?.mode).toBe("booking-and-walk-in");
+    expect(saturday?.mode).toBe("in-store-only");
+
+    const nextMonday = getNextDateValueForIsoDay(1);
+    const nextSaturday = getNextDateValueForIsoDay(6);
+    const mondayAvailability = await getCustomerDateAvailability(nextMonday);
+    const saturdayAvailability = await getCustomerDateAvailability(nextSaturday);
+
+    expect(mondayAvailability.bookingEnabled).toBe(true);
+    expect(mondayAvailability.onlineWalkInEnabled).toBe(true);
+    expect(mondayAvailability.inStoreOnly).toBe(false);
+    expect(saturdayAvailability.bookingEnabled).toBe(false);
+    expect(saturdayAvailability.onlineWalkInEnabled).toBe(false);
+    expect(saturdayAvailability.inStoreOnly).toBe(true);
+
+    await updateOwnerDateAvailability({
+      dateValue: nextSaturday,
+      mode: "booking-and-walk-in",
+      reason: "special Saturday online intake",
+    });
+
+    const overriddenSaturday = await getCustomerDateAvailability(nextSaturday);
+    expect(overriddenSaturday.bookingEnabled).toBe(true);
+    expect(overriddenSaturday.onlineWalkInEnabled).toBe(true);
+    expect(overriddenSaturday.inStoreOnly).toBe(false);
+
+    await updateOwnerWeeklyAvailability({
+      dayOfWeek: 3,
+      mode: "closed",
+      reason: "weekly Wednesday close",
+    });
+    expect((await getOwnerWeeklyAvailabilityItems()).find((item) => item.dayOfWeek === 3)?.mode).toBe("closed");
   });
 
   it("blocks online booking and walk-in while keeping an in-store-only day distinct", async () => {

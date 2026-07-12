@@ -187,3 +187,16 @@ model ShopDateAvailability {
 
   @@index([date])
 }
+
+model ShopWeeklyAvailability {
+  id             String   @id @default(cuid())
+  dayOfWeek      Int      @unique
+  bookingEnabled Boolean  @default(true)
+  walkInEnabled  Boolean  @default(true)
+  inStoreOnly    Boolean  @default(false)
+  reason         String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([dayOfWeek])
+}

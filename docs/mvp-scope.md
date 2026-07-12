@@ -43,7 +43,8 @@
 - Cancel queue.
 - Pause/block time.
 - Temporarily close queue intake.
-- Set per-date customer availability: online intake, in-store walk-in only, or shop closed.
+- Set a recurring Monday–Sunday customer availability schedule: online intake, in-store walk-in only, or shop closed.
+- Override the recurring schedule for special dates such as holidays or barber leave.
 - See late/no-show risk warnings.
 
 ### LINE OA integration

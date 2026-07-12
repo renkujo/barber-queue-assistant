@@ -139,7 +139,7 @@ Fields:
 
 ## Entity: ShopDateAvailability
 
-Per-date override for public customer intake. If no row exists for a date, the app uses `ShopSettings` defaults.
+Per-date exception for public customer intake. If no row exists for a date, the app uses `ShopWeeklyAvailability`, then `ShopSettings` defaults.
 
 Fields:
 
@@ -157,6 +157,27 @@ Rules:
 - `bookingEnabled=true`, `walkInEnabled=true`, `inStoreOnly=false`: online booking and online queue tickets are available.
 - `bookingEnabled=false`, `walkInEnabled=false`, `inStoreOnly=true`: the shop is open for physical walk-ins, but customer booking and queue tickets are disabled online.
 - `bookingEnabled=false`, `walkInEnabled=false`, `inStoreOnly=false`: the shop is closed for both online and in-store intake.
+
+## Entity: ShopWeeklyAvailability
+
+Recurring Monday–Sunday availability used automatically every week.
+
+Fields:
+
+- `id`
+- `dayOfWeek` unique ISO weekday (`1` Monday through `7` Sunday)
+- `bookingEnabled`
+- `walkInEnabled`
+- `inStoreOnly`
+- `reason` optional owner note
+- `createdAt`
+- `updatedAt`
+
+Resolution order:
+
+1. matching `ShopDateAvailability` special-date exception;
+2. matching `ShopWeeklyAvailability` weekday rule;
+3. global `ShopSettings` defaults.
 
 ## Future-safe field: staffId
 
