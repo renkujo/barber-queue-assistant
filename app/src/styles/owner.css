@@ -1572,38 +1572,91 @@
 
 .bqa-owner-availability-row {
   display: grid;
-  gap: 0.8rem;
-  padding: 0.9rem;
+  gap: 10px;
+  padding: 10px;
   border: 1px solid rgba(78, 58, 42, 0.12);
-  border-radius: 18px;
-  background: rgba(255, 253, 248, 0.72);
+  border-radius: 14px;
+  background: rgba(255, 253, 248, 0.68);
 }
 
 .bqa-owner-availability-date {
   display: grid;
-  gap: 0.18rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 8px;
+  align-items: baseline;
 }
 
 .bqa-owner-availability-date strong {
   color: var(--bqa-cocoa);
-  font-size: 0.98rem;
-  font-weight: 650;
+  font-size: 0.94rem;
+  font-weight: 620;
 }
 
-.bqa-owner-availability-date span,
-.bqa-owner-availability-date small {
+.bqa-owner-availability-date span {
   color: var(--bqa-muted);
-  font-size: 0.82rem;
+  font-size: 0.76rem;
+  font-weight: 450;
+  text-align: right;
+}
+
+.bqa-owner-availability-date small {
+  grid-column: 1 / -1;
+  color: var(--bqa-muted);
+  font-size: 0.76rem;
   font-weight: 450;
 }
 
-@media (min-width: 900px) {
+.bqa-owner-availability-row .bqa-form-grid {
+  gap: 8px;
+}
+
+.bqa-owner-availability-row .ui-form-field {
+  gap: 5px;
+  padding: 8px;
+  border-radius: 11px;
+}
+
+.bqa-owner-availability-row .ui-input,
+.bqa-owner-availability-row .ui-select-trigger {
+  min-height: 36px;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+.bqa-owner-availability-row .ui-button {
+  min-height: 36px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+@media (min-width: 760px) {
   .bqa-owner-availability-row {
-    grid-template-columns: minmax(8rem, 0.5fr) minmax(0, 1fr) auto;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .bqa-owner-availability-row .bqa-form-grid {
+    grid-template-columns: minmax(13rem, 0.8fr) minmax(14rem, 1fr);
+  }
+}
+
+@media (min-width: 980px) {
+  .bqa-owner-availability-row {
+    grid-template-columns: minmax(8rem, 0.44fr) minmax(0, 1fr) auto;
     align-items: end;
   }
 
+  .bqa-owner-availability-date {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .bqa-owner-availability-date span {
+    text-align: left;
+  }
+
   .bqa-owner-availability-row .ui-button {
-    min-width: 8.5rem;
+    min-width: 8rem;
   }
 }
