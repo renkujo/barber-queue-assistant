@@ -1569,3 +1569,41 @@
     gap: 14px;
   }
 }
+
+.bqa-owner-availability-row {
+  display: grid;
+  gap: 0.8rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(78, 58, 42, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 253, 248, 0.72);
+}
+
+.bqa-owner-availability-date {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.bqa-owner-availability-date strong {
+  color: var(--bqa-cocoa);
+  font-size: 0.98rem;
+  font-weight: 650;
+}
+
+.bqa-owner-availability-date span,
+.bqa-owner-availability-date small {
+  color: var(--bqa-muted);
+  font-size: 0.82rem;
+  font-weight: 450;
+}
+
+@media (min-width: 900px) {
+  .bqa-owner-availability-row {
+    grid-template-columns: minmax(8rem, 0.5fr) minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .bqa-owner-availability-row .ui-button {
+    min-width: 8.5rem;
+  }
+}

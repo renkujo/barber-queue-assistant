@@ -16,6 +16,7 @@ import {
   restoreClosedQueueItem,
   setManualWaitMinutes,
   setOwnerServiceActive,
+  updateOwnerDateAvailability,
   updateOwnerService,
   updateOwnerShopSettings,
   updateQueueItem,
@@ -26,6 +27,8 @@ const testPrefix = "VI-REPO";
 const serviceId = "vitest-service";
 
 const cleanup = async () => {
+  await prisma.shopDateAvailability.deleteMany();
+
   await prisma.shopSettings.updateMany({
     data: {
       shopName: "ร้านช่างหนึ่ง",
@@ -197,7 +200,7 @@ describe("queue repository status workflow", () => {
     const lineUserId = `U${Date.now()}repo`;
     const queueItem = await createWalkIn({
       customerName: `${testPrefix} Line Binding`,
-      phone: "0833333333",
+      phone: "0899933333",
       lineUserId,
       serviceId,
       note: "line binding test",
@@ -226,6 +229,62 @@ describe("queue repository status workflow", () => {
     await expect(createWalkIn({
       customerName: `${testPrefix} closed walk-in`,
       phone: "0877777777",
+      serviceId,
+    })).rejects.toThrow("Walk-in is closed.");
+  });
+
+  it("uses daily availability rules for booking slots and walk-ins", async () => {
+    const tomorrowValue = getTomorrowValue();
+
+    await setShopHours(getOpenHoursAroundNow());
+    await updateOwnerDateAvailability({
+      dateValue: tomorrowValue,
+      mode: "walk-in-only",
+      reason: "integration test walk-in only",
+    });
+
+    const tomorrowSlots = await getAvailableBookingSlots(tomorrowValue, serviceId);
+
+    expect(tomorrowSlots.length).toBeGreaterThan(0);
+    expect(tomorrowSlots.every((slot) => !slot.available)).toBe(true);
+
+    await expect(createBooking({
+      customerName: `${testPrefix} blocked by walk-in only`,
+      phone: "0899911111",
+      serviceId,
+      dateValue: tomorrowValue,
+      timeValue: tomorrowSlots[0]?.value ?? "09:00",
+    })).rejects.toThrow("Booking slot is not available.");
+
+    await updateOwnerDateAvailability({
+      dateValue: getTodayValue(),
+      mode: "walk-in-only",
+      reason: "today walk-in only",
+    });
+
+    const walkIn = await createWalkIn({
+      customerName: `${testPrefix} walk-in only allowed`,
+      phone: "0899922222",
+      serviceId,
+    });
+
+    expect(walkIn.id).toBeTruthy();
+  });
+
+  it("closes public walk-ins for a closed daily availability rule", async () => {
+    await setShopHours(getOpenHoursAroundNow());
+    await updateOwnerDateAvailability({
+      dateValue: getTodayValue(),
+      mode: "closed",
+      reason: "closed for integration test",
+    });
+
+    const settings = await getShopIntakeSettings();
+
+    expect(settings.walkInAvailable).toBe(false);
+    await expect(createWalkIn({
+      customerName: `${testPrefix} closed by daily rule`,
+      phone: "0899933333",
       serviceId,
     })).rejects.toThrow("Walk-in is closed.");
   });

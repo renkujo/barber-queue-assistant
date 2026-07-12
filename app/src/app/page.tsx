@@ -42,13 +42,13 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
   const shopOpenNow = intakeSettings.isOpenNow;
   const intakeOpen = intakeSettings.queueIntakeEnabled;
   const walkInOpen = intakeSettings.walkInAvailable;
-  const statusLabel = !shopOpenNow ? "ร้านปิดอยู่" : intakeOpen ? "เปิดรับคิว" : "ปิดรับคิว";
-  const statusTitle = !shopOpenNow ? "ตอนนี้ร้านปิดอยู่" : intakeOpen ? "คิวตอนนี้ยังรับได้" : "ตอนนี้ร้านปิดรับคิว";
+  const statusLabel = !shopOpenNow ? "ร้านปิดอยู่" : walkInOpen ? "เปิดรับคิว" : "ปิดรับคิว";
+  const statusTitle = !shopOpenNow ? "ตอนนี้ร้านปิดอยู่" : walkInOpen ? "คิวตอนนี้ยังรับได้" : "วันนี้ไม่รับ walk-in จากลูกค้า";
   const statusDescription = !shopOpenNow
     ? `${shopStatus.openLabel} ยังจองเวลาล่วงหน้าได้ แต่รับ walk-in เฉพาะช่วงร้านเปิด`
-    : intakeOpen
+    : walkInOpen
       ? `${shopStatus.openLabel} ลูกค้าดูสถานะคิวเองได้จากหน้านี้`
-      : "เจ้าของร้านปิดรับคิวจากลูกค้าชั่วคราว กลับมาเช็คใหม่อีกครั้งภายหลัง";
+      : "วันนี้เจ้าของร้านอาจตั้งเป็น walk-in เฉพาะบางช่องทางหรือปิดรับหน้าร้าน แต่ยังเช็คคิวเดิมได้";
 
   return (
     <ScreenShell>
@@ -70,6 +70,7 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
 
         {!shopOpenNow ? <Notice tone="warm">ตอนนี้อยู่นอกเวลาเปิดร้าน รับคิวหน้าร้านได้เฉพาะช่วงร้านเปิด แต่ยังจองเวลาล่วงหน้าได้</Notice> : null}
         {shopOpenNow && !intakeOpen ? <Notice tone="warm">ยังดูสถานะคิวเดิมได้ แต่ตอนนี้ไม่สามารถจองหรือรับคิวใหม่จากหน้านี้ได้</Notice> : null}
+        {shopOpenNow && intakeOpen && !walkInOpen ? <Notice tone="warm">วันนี้เจ้าของร้านปิดรับ walk-in จากหน้าลูกค้า แต่ยังดูสถานะคิวเดิมได้</Notice> : null}
 
         <StatGrid aria-label="สถานะคิว">
           <StatTile icon={<Icon icon="lucide:users" aria-hidden="true" />} label="คิวตอนนี้" value={shopStatus.currentQueueCount} unit="คน" />

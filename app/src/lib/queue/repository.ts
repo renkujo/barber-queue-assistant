@@ -83,6 +83,24 @@ export type OwnerShopSettings = {
   ownerLineUserId: string | null;
 };
 
+export type DateAvailabilityMode = "default" | "booking-and-walk-in" | "walk-in-only" | "closed";
+
+export type OwnerDateAvailabilityItem = {
+  dateValue: string;
+  label: string;
+  bookingEnabled: boolean;
+  walkInEnabled: boolean;
+  mode: DateAvailabilityMode;
+  reason: string;
+  hasOverride: boolean;
+};
+
+export type UpdateOwnerDateAvailabilityInput = {
+  dateValue: string;
+  mode: DateAvailabilityMode;
+  reason?: string;
+};
+
 export type UpdateOwnerShopSettingsInput = Omit<OwnerShopSettings, "ownerLineUserId">;
 
 export type CreateBookingInput = {
@@ -341,6 +359,66 @@ const getIsOpenNow = (businessHours: { open: string; close: string }, now = new 
 };
 
 const getOpenLabel = (businessHours: { open: string; close: string }) => `เปิด ${businessHours.open} - ${businessHours.close} น.`;
+
+const addDaysToDateValue = (dateValue: string, days: number) => {
+  const { start } = getDayBounds(dateValue);
+  const nextDate = new Date(start);
+  nextDate.setDate(nextDate.getDate() + days);
+
+  return toDateValue(nextDate);
+};
+
+const formatOwnerDateAvailabilityLabel = (dateValue: string, index: number) => {
+  if (index === 0) {
+    return "วันนี้";
+  }
+
+  if (index === 1) {
+    return "พรุ่งนี้";
+  }
+
+  return new Intl.DateTimeFormat("th-TH", {
+    day: "numeric",
+    month: "short",
+    timeZone: "Asia/Bangkok",
+  }).format(getDayBounds(dateValue).start);
+};
+
+const getDateAvailabilityBooleans = (mode: Exclude<DateAvailabilityMode, "default">) => {
+  if (mode === "closed") {
+    return { bookingEnabled: false, walkInEnabled: false };
+  }
+
+  if (mode === "walk-in-only") {
+    return { bookingEnabled: false, walkInEnabled: true };
+  }
+
+  return { bookingEnabled: true, walkInEnabled: true };
+};
+
+const getDateAvailabilityMode = (availability?: { bookingEnabled: boolean; walkInEnabled: boolean } | null): Exclude<DateAvailabilityMode, "default"> => {
+  if (!availability?.bookingEnabled && !availability?.walkInEnabled) {
+    return "closed";
+  }
+
+  if (!availability.bookingEnabled && availability.walkInEnabled) {
+    return "walk-in-only";
+  }
+
+  return "booking-and-walk-in";
+};
+
+const getResolvedDateAvailability = async (dateValue: string) => {
+  const { start } = getDayBounds(dateValue);
+  const rule = await prisma.shopDateAvailability.findUnique({ where: { date: start } });
+
+  return {
+    bookingEnabled: rule?.bookingEnabled ?? true,
+    walkInEnabled: rule?.walkInEnabled ?? true,
+    reason: rule?.reason ?? "",
+    hasOverride: Boolean(rule),
+  };
+};
 
 const getIsTimeWindowInsideBusinessHours = (timeValue: string, durationMinutes: number, businessHours: { open: string; close: string }) => {
   const openMinutes = parseTimeMinutes(businessHours.open);
@@ -607,7 +685,7 @@ const mapShopIntakeSettings = (settings: {
   queueIntakeEnabled: boolean;
   bookingEnabled: boolean;
   walkInEnabled: boolean;
-}): ShopIntakeSettings => {
+}, dateAvailability: { bookingEnabled: boolean; walkInEnabled: boolean } = { bookingEnabled: true, walkInEnabled: true }): ShopIntakeSettings => {
   const businessHours = getBusinessHours(settings.businessHours);
   const isOpenNow = getIsOpenNow(businessHours);
 
@@ -617,7 +695,7 @@ const mapShopIntakeSettings = (settings: {
     bookingEnabled: settings.bookingEnabled,
     walkInEnabled: settings.walkInEnabled,
     bookingAvailable: settings.queueIntakeEnabled && settings.bookingEnabled,
-    walkInAvailable: settings.queueIntakeEnabled && settings.walkInEnabled && isOpenNow,
+    walkInAvailable: settings.queueIntakeEnabled && settings.walkInEnabled && dateAvailability.walkInEnabled && isOpenNow,
     isOpenNow,
     openLabel: getOpenLabel(businessHours),
   };
@@ -685,10 +763,13 @@ const assertPublicQueueIntakeOpen = async (mode: "booking" | "walk-in") => {
   }
 };
 
-export const getShopIntakeSettings = async (): Promise<ShopIntakeSettings> => {
-  const settings = await getOrCreateShopSettings();
+export const getShopIntakeSettings = async (dateValue = getTodayValue()): Promise<ShopIntakeSettings> => {
+  const [settings, dateAvailability] = await Promise.all([
+    getOrCreateShopSettings(),
+    getResolvedDateAvailability(dateValue),
+  ]);
 
-  return mapShopIntakeSettings(settings);
+  return mapShopIntakeSettings(settings, dateAvailability);
 };
 
 export const getShopIntakeSettingsSafe = async (): Promise<ShopIntakeSettings> => {
@@ -715,7 +796,7 @@ export const setQueueIntakeEnabled = async (enabled: boolean): Promise<ShopIntak
     data: { queueIntakeEnabled: enabled },
   });
 
-  return mapShopIntakeSettings(updatedSettings);
+  return mapShopIntakeSettings(updatedSettings, await getResolvedDateAvailability(getTodayValue()));
 };
 
 export const setManualWaitMinutes = async (minutes: number | null) => {
@@ -772,6 +853,78 @@ export const updateOwnerShopSettings = async (input: UpdateOwnerShopSettingsInpu
   });
 
   return mapOwnerShopSettings(updatedSettings);
+};
+
+export const getOwnerDateAvailabilityItems = async (days = 14): Promise<OwnerDateAvailabilityItem[]> => {
+  const startDateValue = getTodayValue();
+  const dateValues = Array.from({ length: days }, (_, index) => addDaysToDateValue(startDateValue, index));
+  const bounds = dateValues.map((dateValue) => getDayBounds(dateValue).start);
+  const rules = await prisma.shopDateAvailability.findMany({
+    where: {
+      date: {
+        in: bounds,
+      },
+    },
+  });
+  const ruleByDateValue = new Map(rules.map((rule) => [toDateValue(rule.date), rule]));
+
+  return dateValues.map((dateValue, index) => {
+    const rule = ruleByDateValue.get(dateValue);
+    const availability = rule ? { bookingEnabled: rule.bookingEnabled, walkInEnabled: rule.walkInEnabled } : { bookingEnabled: true, walkInEnabled: true };
+
+    return {
+      dateValue,
+      label: formatOwnerDateAvailabilityLabel(dateValue, index),
+      bookingEnabled: availability.bookingEnabled,
+      walkInEnabled: availability.walkInEnabled,
+      mode: rule ? getDateAvailabilityMode(availability) : "default",
+      reason: rule?.reason ?? "",
+      hasOverride: Boolean(rule),
+    };
+  });
+};
+
+export const getOwnerDateAvailabilityItemsSafe = async () => {
+  try {
+    return await getOwnerDateAvailabilityItems();
+  } catch {
+    const startDateValue = getTodayValue();
+
+    return Array.from({ length: 7 }, (_, index) => ({
+      dateValue: addDaysToDateValue(startDateValue, index),
+      label: formatOwnerDateAvailabilityLabel(addDaysToDateValue(startDateValue, index), index),
+      bookingEnabled: true,
+      walkInEnabled: true,
+      mode: "default" as DateAvailabilityMode,
+      reason: "",
+      hasOverride: false,
+    }));
+  }
+};
+
+export const updateOwnerDateAvailability = async (input: UpdateOwnerDateAvailabilityInput) => {
+  const { start } = getDayBounds(input.dateValue);
+  const reason = input.reason?.trim() || null;
+
+  if (input.mode === "default") {
+    await prisma.shopDateAvailability.deleteMany({ where: { date: start } });
+    return null;
+  }
+
+  const availability = getDateAvailabilityBooleans(input.mode);
+
+  return prisma.shopDateAvailability.upsert({
+    where: { date: start },
+    update: {
+      ...availability,
+      reason,
+    },
+    create: {
+      date: start,
+      ...availability,
+      reason,
+    },
+  });
 };
 
 export const getFallbackStatusSnapshot = (): QueueStatusSnapshot => ({
@@ -1137,9 +1290,17 @@ export const createBreakTimeBlock = async (durationMinutes = 30) => {
 export const getAvailableBookingSlots = async (dateValue: string, serviceId?: string): Promise<BookingSlot[]> => {
   const service = serviceId ? await findService(serviceId) : null;
   const durationMinutes = service?.durationMinutes ?? fallbackServices[0]?.durationMinutes ?? 30;
-  const settings = await getOrCreateShopSettings();
+  const [settings, dateAvailability] = await Promise.all([
+    getOrCreateShopSettings(),
+    getResolvedDateAvailability(dateValue),
+  ]);
   const businessHours = getBusinessHours(settings.businessHours);
   const bookingTimes = getBookingTimesForBusinessHours(businessHours, durationMinutes);
+
+  if (!settings.queueIntakeEnabled || !settings.bookingEnabled || !dateAvailability.bookingEnabled) {
+    return bookingTimes.map((time) => ({ value: time, label: time, available: false }));
+  }
+
   const { start, end } = getDayBounds(dateValue);
   const [queueItems, timeBlocks] = await Promise.all([
     prisma.queueItem.findMany({

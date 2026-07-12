@@ -134,6 +134,28 @@ Fields:
 - `bookingEnabled`
 - `walkInEnabled`
 - `lineOaEnabled`
+- `ownerLineUserId` optional owner LINE notification target
+
+
+## Entity: ShopDateAvailability
+
+Per-date override for public customer intake. If no row exists for a date, the app uses `ShopSettings` defaults.
+
+Fields:
+
+- `id`
+- `date` unique day value
+- `bookingEnabled`
+- `walkInEnabled`
+- `reason` optional owner note
+- `createdAt`
+- `updatedAt`
+
+Rules:
+
+- `bookingEnabled=true` and `walkInEnabled=true`: customer booking and walk-in are both allowed for that date.
+- `bookingEnabled=false` and `walkInEnabled=true`: walk-in only; booking slots for that date are unavailable.
+- `bookingEnabled=false` and `walkInEnabled=false`: date is closed for public customer intake.
 
 ## Future-safe field: staffId
 

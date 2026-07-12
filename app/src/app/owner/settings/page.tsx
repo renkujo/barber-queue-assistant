@@ -211,6 +211,15 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
             </Panel>
 
             <Panel className="bqa-owner-support-panel">
+              <SectionHeader title="วันรับจอง / walk-in" note="กำหนดรายวันว่าวันไหนเปิดจองหรือรับ walk-in เท่านั้น" action={<Icon icon="lucide:calendar-days" className="bqa-muted-icon" aria-hidden="true" />} />
+              <Button asChild variant="outline" fullWidth>
+                <Link href="/owner/settings/availability">
+                  <Icon icon="lucide:calendar-days" aria-hidden="true" />ตั้งค่าวันรับคิว
+                </Link>
+              </Button>
+            </Panel>
+
+            <Panel className="bqa-owner-support-panel">
               <SectionHeader title="บริการ" note="จัดการรายการบริการ ราคา และเวลาที่ลูกค้าเลือกได้" action={<Icon icon="lucide:scissors" className="bqa-muted-icon" aria-hidden="true" />} />
               <Button asChild variant="outline" fullWidth>
                 <Link href="/owner/settings/services">

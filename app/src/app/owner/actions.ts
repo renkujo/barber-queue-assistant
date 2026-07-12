@@ -16,6 +16,7 @@ import {
   setManualWaitMinutes,
   setOwnerServiceActive,
   setQueueIntakeEnabled,
+  updateOwnerDateAvailability,
   updateOwnerService,
   updateOwnerShopSettings,
   updateQueueItem,
@@ -25,6 +26,7 @@ import {
 const allowedStatus = new Set<string>(Object.values(QueueItemStatus));
 const allowedReorderIntent = new Set<QueueReorderIntent>(["up", "down", "bottom"]);
 const allowedWaitAction = new Set(["add-10", "add-20", "reset"]);
+const allowedAvailabilityMode = new Set(["default", "booking-and-walk-in", "walk-in-only", "closed"]);
 
 const notificationTypeByStatus: Partial<Record<QueueItemStatus, NotificationType>> = {
   [QueueItemStatus.IN_PROGRESS]: NotificationType.QUEUE_NEAR,
@@ -59,6 +61,13 @@ const ownerSettingsSchema = z.object({
   bookingEnabled: z.enum(["true", "false"]).transform((value) => value === "true"),
   walkInEnabled: z.enum(["true", "false"]).transform((value) => value === "true"),
   manualWaitMinutes: z.string().trim().optional(),
+});
+
+
+const ownerDateAvailabilitySchema = z.object({
+  dateValue: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/),
+  mode: z.string().trim(),
+  reason: z.string().trim().optional(),
 });
 
 const serviceSettingsSchema = z.object({
@@ -339,6 +348,40 @@ export const updateOwnerSettingsAction = async (formData: FormData) => {
   revalidatePath("/owner/settings");
   revalidatePath("/api/queue/status");
   redirect("/owner/settings?status=settings-updated");
+};
+
+
+export const updateOwnerDateAvailabilityAction = async (formData: FormData) => {
+  await requireOwnerSession();
+
+  const parsed = ownerDateAvailabilitySchema.safeParse({
+    dateValue: formData.get("dateValue"),
+    mode: formData.get("mode"),
+    reason: formData.get("reason"),
+  });
+
+  if (!parsed.success || !allowedAvailabilityMode.has(parsed.data.mode)) {
+    redirect("/owner/settings/availability?error=invalid");
+  }
+
+  try {
+    await updateOwnerDateAvailability({
+      dateValue: parsed.data.dateValue,
+      mode: parsed.data.mode as "default" | "booking-and-walk-in" | "walk-in-only" | "closed",
+      reason: parsed.data.reason,
+    });
+  } catch {
+    redirect("/owner/settings/availability?error=database");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/book");
+  revalidatePath("/walk-in");
+  revalidatePath("/owner");
+  revalidatePath("/owner/settings");
+  revalidatePath("/owner/settings/availability");
+  revalidatePath("/api/queue/status");
+  redirect("/owner/settings/availability?status=availability-updated");
 };
 
 export const createOwnerServiceAction = async (formData: FormData) => {
