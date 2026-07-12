@@ -5,6 +5,7 @@ import {
   FormField,
   Icon,
   Input,
+  LineLogo,
   RouteToast,
   Select,
   SelectContent,
@@ -193,10 +194,10 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
             </Panel>
 
             <Panel className="bqa-owner-support-panel">
-              <SectionHeader title="LINE เจ้าของร้าน" note={`สถานะ: ${maskLineUserId(settings.ownerLineUserId)}`} action={<Icon icon="lucide:message-circle" className="bqa-muted-icon" aria-hidden="true" />} />
+              <SectionHeader title="LINE เจ้าของร้าน" note={`สถานะ: ${maskLineUserId(settings.ownerLineUserId)}`} action={<LineLogo className="bqa-line-logo bqa-line-logo--muted" aria-hidden="true" />} />
               <div className="bqa-owner-step-list">
                 <div className="bqa-owner-step-row">
-                  <span>LINE</span>
+                  <span className="bqa-line-badge"><LineLogo className="bqa-line-logo" aria-hidden="true" /></span>
                   <p>
                     <strong>{settings.ownerLineUserId ? "เชื่อมแล้ว" : "ยังไม่เชื่อม"}</strong>
                     <small>รับแจ้งเตือนคิวใหม่ผ่าน LINE แม้ไม่ได้เปิดหน้า owner อยู่</small>
@@ -205,7 +206,7 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
               </div>
               <Button asChild variant={settings.ownerLineUserId ? "outline" : "default"} fullWidth className="bqa-owner-support-action">
                 <a href={ownerLineConnectHref} target="_blank" rel="noreferrer">
-                  <Icon icon="lucide:message-circle" aria-hidden="true" />{settings.ownerLineUserId ? "เชื่อม LINE ใหม่" : "เชื่อม LINE เจ้าของร้าน"}
+                  <LineLogo className="bqa-line-logo" aria-hidden="true" />{settings.ownerLineUserId ? "เชื่อม LINE ใหม่" : "เชื่อม LINE เจ้าของร้าน"}
                 </a>
               </Button>
             </Panel>

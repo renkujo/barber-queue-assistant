@@ -14,3 +14,4 @@ export * from "./table";
 export * from "./textarea";
 export * from "./route-toast";
 export * from "./toaster";
+export * from "./line-logo";
