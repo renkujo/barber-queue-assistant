@@ -15,7 +15,7 @@ The provided `docker-compose.deploy.yml` uses `expose` instead of host `ports` s
 
 ## Required environment variables
 
-Use `.env.production.example` as the reference and set the real values in Haabiz/Dokploy.
+Use [`production-environment.md`](./production-environment.md) as the reference and set the real values in Haabiz/Dokploy.
 
 ```env
 POSTGRES_DB="barber_queue_assistant"
