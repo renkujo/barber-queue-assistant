@@ -32,6 +32,7 @@
   - [ ] `RATE_LIMIT_HASH_SECRET` (different random secret)
   - [ ] `NEXT_PUBLIC_PRIVACY_CONTACT`
   - [ ] `CUSTOMER_DATA_RETENTION_DAYS`
+  - [ ] R2 backup variables from `docs/operations/cloudflare-r2-backup.md` (`R2_BACKUP_ENABLED=false` until tested)
   - [ ] `LINE_CHANNEL_SECRET` if LINE is enabled
   - [ ] `LINE_CHANNEL_ACCESS_TOKEN` if LINE is enabled
   - [ ] `OWNER_LINE_USER_ID` only if using manual owner LINE alert fallback
@@ -62,6 +63,8 @@
 ## Phase 3.5 — Pilot operations
 
 - [ ] Run `scripts/backup-database.sh` and store backup/checksum off-host.
+- [ ] Enable the Compose `backup` sidecar and confirm a `.dump` + `.sha256` pair exists in the private R2 bucket.
+- [ ] Add a 14-day R2 lifecycle rule for the backup prefix.
 - [ ] Complete one restore rehearsal in a disposable/staging Compose project.
 - [ ] Configure external uptime monitoring for `/api/health` including HTTP `503` alerts.
 - [ ] Review `docs/pilot-readiness-plan.md` and `docs/operations/pilot-operations-runbook.md` with the shop owner.

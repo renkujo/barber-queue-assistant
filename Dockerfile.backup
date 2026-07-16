@@ -1,0 +1,11 @@
+FROM postgres:17-alpine
+
+RUN apk add --no-cache rclone tzdata
+
+COPY scripts/postgres-r2-backup.sh /usr/local/bin/postgres-r2-backup
+COPY scripts/postgres-r2-backup-loop.sh /usr/local/bin/postgres-r2-backup-loop
+COPY scripts/postgres-r2-backup-healthcheck.sh /usr/local/bin/postgres-r2-backup-healthcheck
+
+RUN chmod +x /usr/local/bin/postgres-r2-backup /usr/local/bin/postgres-r2-backup-loop /usr/local/bin/postgres-r2-backup-healthcheck
+
+ENTRYPOINT ["/usr/local/bin/postgres-r2-backup-loop"]

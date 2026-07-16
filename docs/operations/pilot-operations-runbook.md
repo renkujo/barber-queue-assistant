@@ -18,6 +18,12 @@
 
 ## Backup
 
+The production Compose stack includes a disabled-by-default logical PostgreSQL backup sidecar. Configure it with [`cloudflare-r2-backup.md`](./cloudflare-r2-backup.md). Do not use a live PostgreSQL volume snapshot as the primary database backup.
+
+For the automated path, require one verified `.dump` + `.sha256` pair in the private R2 bucket each day and a 14-day lifecycle rule.
+
+For an additional manual backup from a machine that can access the deployed Compose project:
+
 From the repository root on a machine that can access the deployed Compose project:
 
 ```bash
