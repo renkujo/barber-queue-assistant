@@ -16,6 +16,7 @@
     "prisma:validate": "prisma validate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "node scripts/seed-services.mjs",
+    "privacy:prune": "node scripts/prune-customer-data.mjs",
     "db:deploy": "prisma migrate deploy",
     "deploy:start": "prisma migrate deploy && next start -H 0.0.0.0 -p ${PORT:-3000}"
   },

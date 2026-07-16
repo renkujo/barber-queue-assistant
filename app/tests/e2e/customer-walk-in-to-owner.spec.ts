@@ -21,9 +21,9 @@ test.describe("customer walk-in to owner queue", () => {
     await page.getByLabel("หมายเหตุ").fill("customer created by Playwright");
     await page.getByRole("button", { name: "รับบัตรคิวออนไลน์" }).click();
 
-    await expect(page).toHaveURL(/\/queue\/[a-z0-9]+$/);
+    await expect(page).toHaveURL(/\/queue\/[a-f0-9-]{36}$/);
     await expect(page.getByRole("heading", { name: "คิวของคุณ" })).toBeVisible();
-    await expect(page.getByText(customerName)).toBeVisible();
+    await expect(page.getByText(`${Array.from(customerName).slice(0, 2).join("")}***`)).toBeVisible();
     await expect(page.getByText("รหัสคิว")).toBeVisible();
 
     await loginOwner(page);

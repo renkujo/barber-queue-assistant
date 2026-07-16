@@ -1,5 +1,6 @@
 import { NotificationChannel, NotificationStatus, NotificationType, QueueCreatedBy } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
+import { getQueueCode } from "@/lib/queue/code";
 import { buildOwnerQueueNotificationMessage, buildQueueNotificationMessage, getQueueTimeLabel } from "./templates";
 import { createLineClient, type ILinePushClient } from "./line-client";
 
@@ -12,8 +13,6 @@ const ownerNotificationTypes = new Set<NotificationType>([
   NotificationType.BOOKING_CONFIRMED,
   NotificationType.QUEUE_CREATED,
 ]);
-
-const getQueueCode = (id: string) => `A${id.slice(-4).toUpperCase()}`;
 
 const getOwnerLineUserId = async () => {
   const settings = await prisma.shopSettings.findFirst({ orderBy: { createdAt: "asc" } });

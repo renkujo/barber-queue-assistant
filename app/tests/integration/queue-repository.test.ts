@@ -14,6 +14,9 @@ import {
   getAvailableBookingSlots,
   getCustomerDateAvailability,
   getOwnerWeeklyAvailabilityItems,
+  getPublicQueueItemByToken,
+  getPublicQueueStatusSnapshotSafe,
+  getQueueItemByCodeAndPhone,
   getServices,
   reorderQueueItem,
   restoreClosedQueueItem,
@@ -215,6 +218,31 @@ afterAll(async () => {
 });
 
 describe("queue repository status workflow", () => {
+  it("keeps public status aggregate-only and protects tracking with token plus phone proof", async () => {
+    await setShopHours(getOpenHoursAroundNow());
+
+    const queueItem = await createWalkIn({
+      customerName: `${testPrefix} Public Boundary`,
+      phone: "0891234567",
+      serviceId,
+      note: "must not be public",
+    });
+    const trackingItem = await getPublicQueueItemByToken(queueItem.publicToken);
+    const publicStatus = await getPublicQueueStatusSnapshotSafe();
+
+    expect(queueItem.publicToken).toMatch(/^[0-9a-f-]{36}$/);
+    expect(trackingItem?.customerName).toBe("VI***");
+    expect(trackingItem).not.toHaveProperty("id");
+    expect(trackingItem).not.toHaveProperty("note");
+    expect(publicStatus).not.toHaveProperty("queue");
+
+    const matched = await getQueueItemByCodeAndPhone(trackingItem?.code ?? "", "4567");
+    const rejected = await getQueueItemByCodeAndPhone(trackingItem?.code ?? "", "0000");
+
+    expect(matched).toEqual({ publicToken: queueItem.publicToken });
+    expect(rejected).toBeNull();
+  });
+
   it("binds lineUserId to customer and queue snapshots when creating walk-ins", async () => {
     await setShopHours(getOpenHoursAroundNow());
 

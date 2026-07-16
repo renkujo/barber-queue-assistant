@@ -9,6 +9,7 @@ type LoginPageProps = {
 
 const errorMessages: Record<string, string> = {
   invalid: "รหัสเข้าหน้าเจ้าของร้านไม่ถูกต้อง",
+  "rate-limited": "ลองเข้าสู่ระบบหลายครั้งเกินไป กรุณารอ 15 นาทีแล้วลองใหม่",
   setup: "ยังไม่ได้ตั้งค่า BARBER_ADMIN_PASSCODE และ BARBER_ADMIN_SESSION_SECRET",
 };
 

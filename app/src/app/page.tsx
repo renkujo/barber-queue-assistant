@@ -1,7 +1,8 @@
+import Link from "next/link";
 import {
   ActionCard,
   AppCard,
-  FormStack,
+  FormGrid,
   Notice,
   PageHeader,
   Panel,
@@ -27,7 +28,8 @@ type HomePageProps = {
 
 const trackingErrorMessages: Record<string, string> = {
   "queue-code-required": "กรอกรหัสคิวก่อนเช็คสถานะ",
-  "queue-not-found": "ไม่พบคิวจากรหัสนี้ ลองตรวจรหัสอีกครั้ง",
+  "queue-not-found": "ไม่พบคิวจากข้อมูลนี้ ลองตรวจรหัสคิวและเลขท้ายเบอร์โทรอีกครั้ง",
+  "queue-lookup-rate-limited": "เช็คคิวหลายครั้งเกินไป กรุณารอประมาณ 10 นาทีแล้วลองใหม่",
 };
 
 const HomePage = async ({ searchParams }: HomePageProps) => {
@@ -124,16 +126,24 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
           {trackingError ? <Notice>{trackingError}</Notice> : null}
           <RouteToast message={trackingError} type="error" toastKey={`home:${params.error ?? ""}`} />
           <form action={lookupQueueAction}>
-            <FormField id="queue-code" label="รหัสคิว">
-              <FormStack className="bqa-check-form-row">
-                <Input id="queue-code" name="queueCode" defaultValue={params.queueCode ?? ""} placeholder="เช่น A08" />
-                <Button type="submit">
-                  <Icon icon="lucide:search" aria-hidden="true" />เช็ค
-                </Button>
-              </FormStack>
-            </FormField>
+            <FormGrid>
+              <FormField id="queue-code" label="รหัสคิว">
+                <Input id="queue-code" name="queueCode" defaultValue={params.queueCode ?? ""} placeholder="เช่น Q8F2A1C" />
+              </FormField>
+              <FormField id="phone-last-4" label="เลขท้ายเบอร์โทร 4 ตัว">
+                <Input id="phone-last-4" name="phoneLast4" inputMode="numeric" autoComplete="tel" minLength={4} maxLength={4} required placeholder="เช่น 1234" />
+              </FormField>
+            </FormGrid>
+            <Button type="submit">
+              <Icon icon="lucide:search" aria-hidden="true" />เช็ค
+            </Button>
           </form>
+          <p className="bqa-privacy-note">ระบบใช้เลขท้ายเบอร์โทรเพื่อลดการเปิดดูคิวของผู้อื่นโดยไม่ได้รับอนุญาต</p>
         </Panel>
+
+        <p className="bqa-privacy-note bqa-privacy-note--footer">
+          <Link href="/privacy">ประกาศความเป็นส่วนตัว</Link>
+        </p>
       </AppCard>
     </ScreenShell>
   );

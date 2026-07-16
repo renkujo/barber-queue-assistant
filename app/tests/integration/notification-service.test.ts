@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { bindLineUserId } from "@/lib/notifications/line-binding";
 import { notifyOwnerQueueEvent, notifyQueueEvent } from "@/lib/notifications/queue-notifications";
 import { createDateTime, getDayBounds, getTodayValue } from "@/lib/queue/date";
+import { getQueueCode } from "@/lib/queue/code";
 import type { ILinePushClient } from "@/lib/notifications/line-client";
 
 const testPrefix = "VI-NOTIFY";
@@ -136,6 +137,7 @@ describe("queue notifications", () => {
     expect(notification.status).toBe(NotificationStatus.SKIPPED);
     expect(notification.recipient).toBeNull();
     expect(notification.messagePreview).toContain("รับคิวแล้ว");
+    expect(notification.messagePreview).toContain(getQueueCode(queueItem.id));
     expect(notification.messagePreview).toContain("ตอนนี้คิวของคุณ");
     expect(notification.messagePreview).toContain("รอเรียกคิว");
     expect(notification.messagePreview).not.toContain(QueueItemStatus.WAITING);

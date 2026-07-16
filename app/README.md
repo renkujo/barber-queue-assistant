@@ -53,8 +53,10 @@ The initial migration SQL exists under `prisma/migrations/20260626153000_initial
 - `/owner/login` — simple owner login
 - `/owner` — owner daily queue dashboard, protected by passcode cookie
 - `/api/health` — health check
-- `/api/queue/status` — mock queue status JSON
-- `/api/line/webhook` — LINE OA webhook placeholder
+- `/api/queue/status` — aggregate public shop/queue status without customer records
+- `/api/line/webhook` — signed LINE OA webhook and customer binding
+
+Customer tracking URLs use a dedicated UUID public token, display masked names, and are marked `noindex`. Manual queue-code lookup requires the last four phone digits. Owner login and public write/lookup actions use PostgreSQL-backed rate limits.
 
 ## Assets
 

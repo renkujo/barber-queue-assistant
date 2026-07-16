@@ -9,6 +9,7 @@ import {
 } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { services as fallbackServices, shopStatus, todayQueue } from "@/lib/queue-demo";
+import { getQueueCode } from "@/lib/queue/code";
 import { createDateTime, formatThaiTime, getDayBounds, getTodayValue, toDateValue } from "./date";
 
 export type QueueService = {
@@ -60,6 +61,13 @@ export type QueueStatusSnapshot = {
   queue: QueueListItem[];
   source: "database" | "fallback";
 };
+
+export type PublicQueueStatusSnapshot = {
+  shop: QueueStatusSnapshot["shop"];
+  source: QueueStatusSnapshot["source"];
+};
+
+export type PublicQueueTrackingItem = Omit<QueueListItem, "id" | "note">;
 
 export type ShopIntakeSettings = {
   shopName: string;
@@ -580,11 +588,6 @@ const getEstimatedWalkInStart = async (dateValue: string, durationMinutes: numbe
   return findEarliestOpenSlot(cursor, durationMinutes, fixedBlocks);
 };
 
-const getQueueCode = (id: string, index: number) => {
-  const suffix = id.slice(-2).toUpperCase();
-  return `A${`${index + 1}`.padStart(2, "0")}${suffix}`;
-};
-
 const getTone = (status: string, index: number): QueueListItem["tone"] => {
   if (status === QueueItemStatus.IN_PROGRESS) {
     return "current";
@@ -617,7 +620,7 @@ const mapQueueItem = (
 
   return {
     id: item.id,
-    code: getQueueCode(item.id, index),
+    code: getQueueCode(item.id),
     customerName: item.customerNameSnapshot,
     serviceName: item.serviceNameSnapshot,
     status: item.status,
@@ -625,6 +628,30 @@ const mapQueueItem = (
     statusLabel: statusLabels[item.status] ?? item.status,
     note: item.note ?? item.serviceNameSnapshot,
     tone: getTone(item.status, index),
+  };
+};
+
+const maskCustomerName = (customerName: string) => {
+  const characters = Array.from(customerName.trim());
+  const visibleName = characters.slice(0, Math.min(2, characters.length)).join("");
+
+  return visibleName ? `${visibleName}***` : "ลูกค้า";
+};
+
+const mapPublicQueueItem = (
+  item: Parameters<typeof mapQueueItem>[0],
+  index: number,
+): PublicQueueTrackingItem => {
+  const mapped = mapQueueItem(item, index);
+
+  return {
+    code: mapped.code,
+    customerName: maskCustomerName(mapped.customerName),
+    serviceName: mapped.serviceName,
+    status: mapped.status,
+    timeLabel: mapped.timeLabel,
+    statusLabel: mapped.statusLabel,
+    tone: mapped.tone,
   };
 };
 
@@ -1225,6 +1252,15 @@ export const getQueueStatusSnapshotSafe = async () => {
   }
 };
 
+export const getPublicQueueStatusSnapshotSafe = async (): Promise<PublicQueueStatusSnapshot> => {
+  const snapshot = await getQueueStatusSnapshotSafe();
+
+  return {
+    shop: snapshot.shop,
+    source: snapshot.source,
+  };
+};
+
 export const getOwnerQueueStatusSnapshot = async (dateValue = getTodayValue()) => {
   const snapshot = await getQueueStatusSnapshot(dateValue);
 
@@ -1548,6 +1584,22 @@ const getQueueItemWithIndex = async (id: string) => {
   };
 };
 
+const getQueueItemWithIndexByPublicToken = async (publicToken: string) => {
+  const item = await prisma.queueItem.findUnique({ where: { publicToken } });
+
+  if (!item) {
+    return null;
+  }
+
+  const queueItems = await getQueueItemsForDate(item.date);
+  const index = queueItems.findIndex((queueItem) => queueItem.id === item.id);
+
+  return {
+    item,
+    index: index >= 0 ? index : 0,
+  };
+};
+
 const findOrCreateCustomer = async (input: { name: string; phone?: string; lineUserId?: string }) => {
   const lineUserId = input.lineUserId?.trim() || undefined;
 
@@ -1717,14 +1769,14 @@ export const createOwnerWalkIn = async (input: CreateOwnerWalkInInput) => {
   });
 };
 
-export const getQueueItem = async (id: string) => {
-  const result = await getQueueItemWithIndex(id);
+export const getPublicQueueItemByToken = async (publicToken: string) => {
+  const result = await getQueueItemWithIndexByPublicToken(publicToken);
 
   if (!result) {
     return null;
   }
 
-  return mapQueueItem(result.item, result.index);
+  return mapPublicQueueItem(result.item, result.index);
 };
 
 export const getQueueItemEditDetails = async (id: string): Promise<QueueItemEditDetails | null> => {
@@ -1734,12 +1786,12 @@ export const getQueueItemEditDetails = async (id: string): Promise<QueueItemEdit
     return null;
   }
 
-  const { item, index } = result;
+  const { item } = result;
   const timeSource = item.startAt ?? null;
 
   return {
     id: item.id,
-    code: getQueueCode(item.id, index),
+    code: getQueueCode(item.id),
     customerName: item.customerNameSnapshot,
     phone: item.phoneSnapshot ?? "",
     serviceId: item.serviceId ?? "",
@@ -1752,21 +1804,13 @@ export const getQueueItemEditDetails = async (id: string): Promise<QueueItemEdit
   };
 };
 
-export const getQueueItemByCode = async (code: string) => {
+export const getQueueItemByCodeAndPhone = async (code: string, phoneLast4: string) => {
   const rawCode = code.trim();
   const normalizedCode = rawCode.replace(/[\s-]/g, "").toUpperCase();
+  const normalizedPhoneLast4 = phoneLast4.replace(/\D/g, "");
 
-  if (!normalizedCode) {
+  if (!normalizedCode || normalizedPhoneLast4.length !== 4) {
     return null;
-  }
-
-  const directMatch = await getQueueItemWithIndex(rawCode).catch(() => null);
-
-  if (directMatch) {
-    return {
-      id: directMatch.item.id,
-      item: mapQueueItem(directMatch.item, directMatch.index),
-    };
   }
 
   const now = new Date();
@@ -1787,18 +1831,13 @@ export const getQueueItemByCode = async (code: string) => {
     orderBy: [{ date: "asc" }, { sortOrder: "asc" }, { startAt: "asc" }, { estimatedAt: "asc" }, { createdAt: "asc" }],
   });
 
-  const indexByDate = new Map<string, number>();
-
   for (const item of queueItems) {
-    const dateKey = item.date.toISOString();
-    const currentIndex = indexByDate.get(dateKey) ?? 0;
-    const itemCode = getQueueCode(item.id, currentIndex);
-    indexByDate.set(dateKey, currentIndex + 1);
+    const itemCode = getQueueCode(item.id);
+    const normalizedPhone = item.phoneSnapshot?.replace(/\D/g, "") ?? "";
 
-    if (itemCode === normalizedCode) {
+    if (itemCode === normalizedCode && normalizedPhone.endsWith(normalizedPhoneLast4)) {
       return {
-        id: item.id,
-        item: mapQueueItem(item, currentIndex),
+        publicToken: item.publicToken,
       };
     }
   }

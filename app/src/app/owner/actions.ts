@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { NotificationType, QueueItemStatus } from "@/generated/prisma/enums";
 import { clearOwnerSession, requireOwnerSession, setOwnerSession, verifyPasscode } from "@/lib/admin-auth";
 import { notifyQueueEventSafe } from "@/lib/notifications/queue-notifications";
+import { actionRateLimitPolicies, consumeRequestRateLimit } from "@/lib/security/rate-limit";
 import {
   applyOwnerWeeklyAvailabilityPreset,
   createBreakTimeBlock,
@@ -107,6 +108,12 @@ const getOptionalPriceBaht = (value?: string) => {
 };
 
 export const loginOwner = async (formData: FormData) => {
+  const allowed = await consumeRequestRateLimit("owner-login", actionRateLimitPolicies.ownerLogin).catch(() => false);
+
+  if (!allowed) {
+    redirect("/owner/login?error=rate-limited");
+  }
+
   const passcode = String(formData.get("passcode") ?? "");
 
   if (!verifyPasscode(passcode)) {

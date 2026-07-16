@@ -17,6 +17,7 @@
 
 ## Phase 2 — Haabiz/Dokploy setup
 
+- [ ] Schedule this migration outside operating hours with no real active queue; old database-ID tracking links will no longer open.
 - [ ] Create/confirm project in Haabiz sandbox.
 - [ ] Configure repository/deploy branch.
 - [ ] Select Docker Compose deployment using `docker-compose.deploy.yml`.
@@ -28,6 +29,9 @@
   - [ ] `DATABASE_URL`
   - [ ] `BARBER_ADMIN_PASSCODE`
   - [ ] `BARBER_ADMIN_SESSION_SECRET`
+  - [ ] `RATE_LIMIT_HASH_SECRET` (different random secret)
+  - [ ] `NEXT_PUBLIC_PRIVACY_CONTACT`
+  - [ ] `CUSTOMER_DATA_RETENTION_DAYS`
   - [ ] `LINE_CHANNEL_SECRET` if LINE is enabled
   - [ ] `LINE_CHANNEL_ACCESS_TOKEN` if LINE is enabled
   - [ ] `OWNER_LINE_USER_ID` only if using manual owner LINE alert fallback
@@ -38,6 +42,8 @@
 ## Phase 3 — App smoke
 
 - [ ] `GET /api/health` returns success.
+- [ ] Health response reports `database: reachable`; database failure returns HTTP `503`.
+- [ ] `GET /api/queue/status` contains no queue/customer detail fields.
 - [ ] `/` renders.
 - [ ] `/book` renders.
 - [ ] `/walk-in` renders.
@@ -49,6 +55,16 @@
 - [ ] Owner can mark done/cancel/no-show.
 - [ ] Closed list shows terminal queue item.
 - [ ] Notification log panel does not break if LINE env is empty.
+- [ ] Tracking URL uses a public token, displays a masked name, and sends `noindex` metadata.
+- [ ] Queue-code lookup requires the last four phone digits.
+- [ ] `/privacy` displays the real pilot contact channel.
+
+## Phase 3.5 — Pilot operations
+
+- [ ] Run `scripts/backup-database.sh` and store backup/checksum off-host.
+- [ ] Complete one restore rehearsal in a disposable/staging Compose project.
+- [ ] Configure external uptime monitoring for `/api/health` including HTTP `503` alerts.
+- [ ] Review `docs/pilot-readiness-plan.md` and `docs/operations/pilot-operations-runbook.md` with the shop owner.
 
 ## Phase 4 — LINE smoke, after public HTTPS domain exists
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppCard, FormGrid, FormStack, Notice, PageHeader, ScreenShell } from "@/components/barber/app-ui";
+import { PrivacyNote } from "@/components/barber/privacy-note";
 import {
   Button,
   FormField,
@@ -26,6 +27,7 @@ const errorMessages: Record<string, string> = {
   invalid: "กรอกข้อมูลไม่ครบ ลองตรวจชื่อ บริการ วัน และเวลาอีกครั้ง",
   closed: "ตอนนี้ร้านปิดรับคิวจากลูกค้าแล้ว ลองเช็คอีกครั้งภายหลัง",
   "slot-unavailable": "เวลานี้ถูกจองหรือถูกพักร้านแล้ว เลือกเวลาอื่นแล้วลองใหม่",
+  "rate-limited": "มีการส่งคำขอหลายครั้งเกินไป กรุณารอประมาณ 10 นาทีแล้วลองใหม่",
   database: "ยังบันทึกคิวไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
 };
 
@@ -119,7 +121,7 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
                   <Input id="customerName" name="customerName" required placeholder="ชื่อของคุณ" />
                 </FormField>
                 <FormField id="phone" label="เบอร์โทร">
-                  <Input id="phone" name="phone" inputMode="tel" placeholder="เบอร์สำหรับติดต่อ" />
+                  <Input id="phone" name="phone" inputMode="tel" autoComplete="tel" required placeholder="เบอร์สำหรับติดต่อและเช็คคิว" />
                 </FormField>
               </FormGrid>
               <FormField id="note" label="หมายเหตุ">
@@ -127,6 +129,7 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
               </FormField>
             </section>
 
+          <PrivacyNote />
           <Button type="submit" size="lg" fullWidth disabled={bookingClosed || !hasServices}>
             <Icon icon="lucide:clock" aria-hidden="true" />ยืนยันคิว
           </Button>

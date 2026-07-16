@@ -24,9 +24,18 @@ test.describe("customer booking flow", () => {
     await page.getByLabel("หมายเหตุ").fill("booking created by Playwright");
     await page.getByRole("button", { name: "ยืนยันคิว" }).click();
 
-    await expect(page).toHaveURL(/\/queue\/[a-z0-9]+$/);
+    await expect(page).toHaveURL(/\/queue\/[a-f0-9-]{36}$/);
     await expect(page.getByRole("heading", { name: "คิวของคุณ" })).toBeVisible();
-    await expect(page.getByText(customerName)).toBeVisible();
+    await expect(page.getByText(`${Array.from(customerName).slice(0, 2).join("")}***`)).toBeVisible();
     await expect(page.getByText("ยืนยันแล้ว")).toBeVisible();
+
+    const trackingUrl = page.url();
+    const queueCode = await page.locator(".bqa-tracking-ticket strong").innerText();
+
+    await page.goto("/");
+    await page.getByLabel("รหัสคิว").fill(queueCode);
+    await page.getByLabel("เลขท้ายเบอร์โทร 4 ตัว").fill(phone.slice(-4));
+    await page.getByRole("button", { name: "เช็ค" }).click();
+    await expect(page).toHaveURL(trackingUrl);
   });
 });

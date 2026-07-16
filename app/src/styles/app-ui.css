@@ -989,6 +989,46 @@
   margin-top: 20px;
 }
 
+.bqa-privacy-note {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.bqa-privacy-note a,
+.bqa-privacy-contact {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset: 0.2em;
+}
+
+.bqa-privacy-note--footer {
+  text-align: center;
+}
+
+.bqa-privacy-card {
+  gap: 1rem;
+}
+
+.bqa-privacy-list {
+  color: var(--muted);
+  display: grid;
+  font-size: 0.9rem;
+  gap: 0.55rem;
+  line-height: 1.7;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.bqa-privacy-contact {
+  display: inline-block;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
 .bqa-muted-icon {
   color: var(--muted);
 }

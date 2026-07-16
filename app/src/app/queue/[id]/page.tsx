@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { QueueItemStatus } from "@/generated/prisma/enums";
@@ -13,7 +14,17 @@ import {
   TicketPanel,
 } from "@/components/barber/app-ui";
 import { Button, Icon } from "@/components/ui";
-import { getQueueItem } from "@/lib/queue/repository";
+import { getPublicQueueItemByToken } from "@/lib/queue/repository";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "ติดตามคิว",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 type QueueTrackingPageProps = {
   params: Promise<{ id: string }>;
@@ -51,8 +62,8 @@ const getTrackingMessage = (status: string) => {
 };
 
 const QueueTrackingPage = async ({ params }: QueueTrackingPageProps) => {
-  const { id } = await params;
-  const queueItem = await getQueueItem(id).catch(() => null);
+  const { id: publicToken } = await params;
+  const queueItem = await getPublicQueueItemByToken(publicToken).catch(() => null);
 
   if (!queueItem) {
     notFound();

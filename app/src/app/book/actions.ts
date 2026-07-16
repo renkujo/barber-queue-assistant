@@ -5,10 +5,11 @@ import { z } from "zod";
 import { NotificationType } from "@/generated/prisma/enums";
 import { notifyQueueEventSafe } from "@/lib/notifications/queue-notifications";
 import { createBooking } from "@/lib/queue/repository";
+import { actionRateLimitPolicies, consumeRequestRateLimit } from "@/lib/security/rate-limit";
 
 const bookingSchema = z.object({
   customerName: z.string().trim().min(1),
-  phone: z.string().trim().optional(),
+  phone: z.string().trim().min(8).max(20).regex(/^[0-9+\-\s]+$/),
   lineUserId: z.string().trim().optional(),
   serviceId: z.string().trim().min(1),
   dateValue: z.string().trim().min(1),
@@ -17,6 +18,12 @@ const bookingSchema = z.object({
 });
 
 export const createBookingAction = async (formData: FormData) => {
+  const allowed = await consumeRequestRateLimit("public-booking", actionRateLimitPolicies.publicBooking).catch(() => false);
+
+  if (!allowed) {
+    redirect("/book?error=rate-limited");
+  }
+
   const parsed = bookingSchema.safeParse({
     customerName: formData.get("customerName"),
     phone: formData.get("phone"),
@@ -32,10 +39,12 @@ export const createBookingAction = async (formData: FormData) => {
   }
 
   let queueItemId: string;
+  let publicToken: string;
 
   try {
     const queueItem = await createBooking(parsed.data);
     queueItemId = queueItem.id;
+    publicToken = queueItem.publicToken;
     await notifyQueueEventSafe(queueItemId, NotificationType.BOOKING_CONFIRMED);
   } catch (error) {
     if (error instanceof Error && (error.message === "Queue intake is closed." || error.message === "Booking is closed.")) {
@@ -49,5 +58,5 @@ export const createBookingAction = async (formData: FormData) => {
     redirect("/book?error=database");
   }
 
-  redirect(`/queue/${queueItemId}`);
+  redirect(`/queue/${publicToken}`);
 };

@@ -13,6 +13,7 @@ This keeps the owner dashboard simple: everything for today appears in one queue
 Fields:
 
 - `id`
+- `publicToken` unique UUID used only for customer tracking links
 - `name`
 - `phone`
 - `lineUserId` optional
@@ -81,6 +82,8 @@ Notes:
 
 - `customerNameSnapshot` protects queue history if customer profile changes later.
 - `sortOrder` supports manual override without destroying original booking time.
+- Public tracking never accepts the database `id`; it resolves `publicToken` and masks the customer name.
+- The human-readable `Q` + six-character queue code is derived from the immutable queue ID, so it stays stable after reorder and matches LINE notification copy. Lookup also requires the last four phone digits and is rate-limited.
 
 ## Entity: TimeBlock
 
@@ -184,3 +187,17 @@ Resolution order:
 Even though MVP has one barber, schema can include a default `staffId` internally later if needed.
 
 For MVP UI, do not expose multi-staff complexity.
+
+## Entity: RateLimitBucket
+
+Short-lived abuse-control state for owner login, public booking/walk-in creation, and queue lookup.
+
+Fields:
+
+- `key` hashed request fingerprint scoped by action
+- `count`
+- `windowStartedAt`
+- `blockedUntil` optional
+- `updatedAt`
+
+Raw IP addresses are not stored in this table. Buckets older than 30 days are removed by the retention job.

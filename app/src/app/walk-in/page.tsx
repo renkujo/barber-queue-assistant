@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppCard, FormGrid, FormStack, Notice, PageHeader, ScreenShell, StatGrid, StatTile } from "@/components/barber/app-ui";
+import { PrivacyNote } from "@/components/barber/privacy-note";
 import {
   Button,
   FormField,
@@ -23,6 +24,7 @@ type WalkInPageProps = {
 const errorMessages: Record<string, string> = {
   invalid: "กรอกข้อมูลไม่ครบ ลองตรวจชื่อและบริการอีกครั้ง",
   closed: "ตอนนี้ยังรับบัตรคิวออนไลน์ไม่ได้ กรุณาตรวจสถานะร้านก่อนลองใหม่",
+  "rate-limited": "มีการส่งคำขอหลายครั้งเกินไป กรุณารอประมาณ 10 นาทีแล้วลองใหม่",
   database: "ยังรับคิวไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
 };
 
@@ -123,7 +125,7 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
                   <Input id="customerName" name="customerName" required placeholder="ชื่อของคุณ" />
                 </FormField>
                 <FormField id="phone" label="เบอร์โทร">
-                  <Input id="phone" name="phone" inputMode="tel" placeholder="เบอร์สำหรับติดต่อ" />
+                  <Input id="phone" name="phone" inputMode="tel" autoComplete="tel" required placeholder="เบอร์สำหรับติดต่อและเช็คคิว" />
                 </FormField>
               </FormGrid>
               <FormField id="note" label="หมายเหตุ">
@@ -131,6 +133,7 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
               </FormField>
             </section>
 
+          <PrivacyNote />
           <Button type="submit" size="lg" fullWidth disabled={walkInClosed || !hasServices}>
             <Icon icon="lucide:users" aria-hidden="true" />รับบัตรคิวออนไลน์
           </Button>

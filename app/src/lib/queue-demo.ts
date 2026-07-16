@@ -21,7 +21,7 @@ export const shopStatus = {
 
 export const todayQueue: QueueRow[] = [
   {
-    code: "A08",
+    code: "QDEMO08",
     customerName: "คุณนนท์",
     serviceName: "ตัดผมชาย",
     timeLabel: "09:20",
@@ -30,7 +30,7 @@ export const todayQueue: QueueRow[] = [
     tone: "current",
   },
   {
-    code: "A09",
+    code: "QDEMO09",
     customerName: "คุณอินทร์",
     serviceName: "ตัดผมชาย",
     timeLabel: "รอ",
@@ -39,7 +39,7 @@ export const todayQueue: QueueRow[] = [
     tone: "next",
   },
   {
-    code: "A07",
+    code: "QDEMO07",
     customerName: "คุณสมชาย",
     serviceName: "ตัดผมชาย",
     timeLabel: "09:00",

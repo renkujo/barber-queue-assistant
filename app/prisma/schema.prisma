@@ -91,6 +91,7 @@ model Service {
 
 model QueueItem {
   id                     String             @id @default(cuid())
+  publicToken            String             @unique @default(uuid())
   type                   QueueItemType
   status                 QueueItemStatus    @default(CONFIRMED)
   customerId             String?
@@ -199,4 +200,14 @@ model ShopWeeklyAvailability {
   updatedAt      DateTime @updatedAt
 
   @@index([dayOfWeek])
+}
+
+model RateLimitBucket {
+  key             String    @id
+  count           Int       @default(0)
+  windowStartedAt DateTime
+  blockedUntil    DateTime?
+  updatedAt       DateTime  @updatedAt
+
+  @@index([updatedAt])
 }
