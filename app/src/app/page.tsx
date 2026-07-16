@@ -19,7 +19,7 @@ import { RouteToast } from "@/components/ui";
 import { getQueueStatusSnapshotSafe, getServicesSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
 import { lookupQueueAction } from "./actions";
 
-const brandMarkPath = "/assets/generated-v1/app-icon-pastel.png";
+const brandMarkPath = "/icon.png";
 const statusMascotPath = "/assets/mascot/queue-ticket-mascot-v1.png";
 
 type HomePageProps = {
@@ -132,10 +132,20 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
               <form action={lookupQueueAction}>
                 <FormGrid>
                   <FormField id="queue-code" label="รหัสคิว">
-                    <Input id="queue-code" name="queueCode" defaultValue={params.queueCode ?? ""} placeholder="เช่น Q8F2A1C" />
+                    <Input
+                      id="queue-code"
+                      name="queueCode"
+                      autoCapitalize="characters"
+                      autoComplete="off"
+                      defaultValue={params.queueCode ?? ""}
+                      maxLength={12}
+                      placeholder="เช่น Q8F2A1C"
+                      required
+                      spellCheck={false}
+                    />
                   </FormField>
                   <FormField id="access-pin" label="PIN เช็คคิว 4 ตัว">
-                    <Input id="access-pin" name="accessPin" inputMode="numeric" autoComplete="one-time-code" minLength={4} maxLength={4} required placeholder="เช่น 1234" />
+                    <Input id="access-pin" name="accessPin" inputMode="numeric" autoComplete="one-time-code" minLength={4} maxLength={4} pattern="[0-9]{4}" required placeholder="เช่น 1234" />
                   </FormField>
                 </FormGrid>
                 <Button type="submit">

@@ -832,6 +832,7 @@
 
 .bqa-owner-board-grid {
   display: grid;
+  align-items: start;
   gap: 16px;
   margin: 16px var(--owner-gutter-mobile) 0;
 }
@@ -1249,10 +1250,43 @@
 .bqa-owner-queue-empty {
   display: grid;
   min-height: 140px;
-  place-items: center;
+  justify-items: center;
+  align-content: center;
+  gap: 5px;
+  padding: 24px 16px;
+  text-align: center;
   color: var(--muted);
   font-size: 14px;
   font-weight: 500;
+}
+
+.bqa-owner-queue-empty > span {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--surface-warm);
+  color: var(--primary-strong);
+  font-size: 20px;
+}
+
+.bqa-owner-queue-empty strong {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.bqa-owner-queue-empty p {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  text-wrap: pretty;
 }
 
 .bqa-owner-restore-button {
@@ -1294,6 +1328,25 @@
 }
 
 @media (max-width: 760px) {
+  .bqa-owner-form-content--compact .bqa-owner-header .ui-button,
+  .bqa-owner-form-content--compact .bqa-owner-support-action,
+  .bqa-owner-form-content--compact .ui-input,
+  .bqa-owner-form-content--compact .ui-select-trigger,
+  .bqa-owner-availability-row > .ui-button {
+    min-height: 44px;
+  }
+
+  .bqa-owner-board-actions .ui-button,
+  .bqa-owner-reorder-disclosure summary,
+  .bqa-owner-reorder-actions .ui-button {
+    min-height: 44px;
+  }
+
+  .bqa-owner-footer-status span,
+  .bqa-owner-footer-status a {
+    min-height: 44px;
+  }
+
   .bqa-owner-board-brand {
     gap: 9px;
   }
@@ -1378,7 +1431,7 @@
 
   .bqa-owner-wait-action {
     width: 100%;
-    min-height: 36px;
+    min-height: 44px;
   }
 
   .bqa-owner-status-actions form,

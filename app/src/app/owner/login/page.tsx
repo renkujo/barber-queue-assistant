@@ -1,5 +1,5 @@
 import { AppCard, FormStack, Notice, PageHeader, ScreenShell } from "@/components/barber/app-ui";
-import { Button, FormField, Icon, Input, RouteToast } from "@/components/ui";
+import { Button, FormField, Icon, Input } from "@/components/ui";
 import { isAdminConfigured } from "@/lib/admin-auth";
 import { loginOwner } from "../actions";
 
@@ -17,6 +17,8 @@ const OwnerLoginPage = async ({ searchParams }: LoginPageProps) => {
   const params = await searchParams;
   const errorMessage = params.error ? errorMessages[params.error] : null;
   const configured = isAdminConfigured();
+  const passcodeError = params.error === "invalid" || params.error === "rate-limited" ? errorMessage : null;
+  const setupError = params.error === "setup" ? errorMessage : null;
 
   return (
     <ScreenShell variant="center">
@@ -25,23 +27,29 @@ const OwnerLoginPage = async ({ searchParams }: LoginPageProps) => {
           id="login-title"
           title="เข้าหน้าเจ้าของร้าน"
           subtitle="Owner mode"
-          imageSrc="/assets/generated-v1/app-icon-pastel.png"
+          imageSrc="/icon.png"
           largeImage
         />
         <p className="bqa-copy">สำหรับดูคิววันนี้ เพิ่ม walk-in และจัดการ no-show อย่างรวดเร็ว</p>
 
         {!configured ? <Notice tone="warm">ตั้งค่า BARBER_ADMIN_PASSCODE และ BARBER_ADMIN_SESSION_SECRET ใน .env ก่อนใช้งานจริง</Notice> : null}
-        {errorMessage ? <Notice>{errorMessage}</Notice> : null}
-        <RouteToast message={errorMessage} type="error" toastKey={`owner-login:${params.error ?? ""}`} />
+        {setupError ? <Notice>{setupError}</Notice> : null}
 
         <form action={loginOwner}>
           <FormStack>
-          <FormField id="passcode" label="รหัสเจ้าของร้าน">
-            <Input id="passcode" name="passcode" type="password" autoComplete="current-password" />
-          </FormField>
-          <Button type="submit">
-            <Icon icon="lucide:log-in" aria-hidden="true" />เข้าสู่ระบบ
-          </Button>
+            <FormField id="passcode" label="รหัสเจ้าของร้าน" error={passcodeError}>
+              <Input
+                id="passcode"
+                name="passcode"
+                type="password"
+                autoComplete="current-password"
+                aria-invalid={Boolean(passcodeError)}
+                required
+              />
+            </FormField>
+            <Button type="submit">
+              <Icon icon="lucide:log-in" aria-hidden="true" />เข้าสู่ระบบ
+            </Button>
           </FormStack>
         </form>
       </AppCard>

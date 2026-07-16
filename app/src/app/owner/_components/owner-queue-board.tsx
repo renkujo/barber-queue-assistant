@@ -392,7 +392,11 @@ export const OwnerQueueBoard = ({
             />
           ))
         ) : (
-          <div className="bqa-owner-queue-empty">ยังไม่มีคิววันนี้</div>
+          <div className="bqa-owner-queue-empty">
+            <span aria-hidden="true"><Icon icon="lucide:calendar" /></span>
+            <strong>วันนี้ยังไม่มีคิว</strong>
+            <p>เมื่อมีลูกค้าจองหรือเพิ่ม walk-in รายการจะขึ้นตรงนี้</p>
+          </div>
         )}
       </div>
     </CardContent>

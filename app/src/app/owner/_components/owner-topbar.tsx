@@ -7,7 +7,7 @@ export const OwnerTopbar = () => (
   <header className="bqa-owner-board-topbar">
     <Link href="/owner" className="bqa-owner-board-brand" aria-label="Barber Queue owner dashboard">
       <span className="bqa-owner-board-brand-mark" aria-hidden="true">
-        <Image src="/assets/generated-v1/app-icon-pastel.png" alt="" width={44} height={44} priority />
+        <Image src="/icon.png" alt="" width={44} height={44} priority />
       </span>
       <span>
         <strong>Barber Queue</strong>

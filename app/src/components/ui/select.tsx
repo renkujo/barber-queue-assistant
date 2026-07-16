@@ -7,7 +7,9 @@ import { Icon } from "./icon";
 
 export type ISelectProps = ComponentPropsWithoutRef<typeof SelectPrimitive.Root>;
 
-export const Select = (props: ISelectProps) => <SelectPrimitive.Root {...props} />;
+export const Select = ({ children, ...props }: ISelectProps) => (
+  <SelectPrimitive.Root {...props}>{children}</SelectPrimitive.Root>
+);
 
 export const SelectGroup = SelectPrimitive.Group;
 export const SelectValue = SelectPrimitive.Value;

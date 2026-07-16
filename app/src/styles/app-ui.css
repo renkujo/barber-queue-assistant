@@ -45,7 +45,8 @@
 
 .bqa-home-layout {
   display: grid;
-  gap: 16px;
+  gap: 24px;
+  margin-top: 20px;
 }
 
 .bqa-home-primary,
@@ -1081,6 +1082,13 @@
   width: fit-content;
 }
 
+@media (max-width: 559px) {
+  .bqa-home-tracking form > .ui-button {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+
 @media (min-width: 860px) {
   .bqa-home-shell {
     padding-right: 24px;
@@ -1093,7 +1101,7 @@
 
   .bqa-home-layout {
     grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
-    gap: 20px;
+    gap: 28px;
     align-items: start;
   }
 
