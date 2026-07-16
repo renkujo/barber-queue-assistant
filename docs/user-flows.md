@@ -17,12 +17,12 @@
 
 1. Customer selects service.
 2. Customer selects available date/time.
-3. Customer enters name, phone, optional note.
+3. Customer enters name, optional phone, and optional note.
 4. If opened from LINE and user identity is available, system stores `lineUserId`.
 5. System confirms booking.
 6. Customer receives:
    - confirmation screen;
-   - tracking link/code;
+   - tracking link, queue code, and four-digit access PIN;
    - LINE message if available.
 7. Before appointment, system sends reminder/confirm-coming message if possible.
 
@@ -32,7 +32,7 @@
 2. System shows estimated wait and whether queue intake is open.
 3. Customer selects service and enters basic info.
 4. System creates queue ticket.
-5. Customer sees queue status/tracking link.
+5. Customer sees queue status, tracking link, queue code, and four-digit access PIN.
 6. System notifies when queue is near if channel is available.
 
 ## Owner flow — daily queue
@@ -63,11 +63,11 @@
 2. Owner quickly taps `เพิ่มคิว`.
 3. Owner enters minimum info:
    - name;
-   - phone/contact;
+   - phone/contact if available;
    - service;
    - booking time or walk-in;
    - note if needed.
-4. Queue appears in the same daily list.
+4. Queue appears in the same daily list with a PIN and copyable tracking details even when no phone is supplied.
 
 ## Queue ordering principle
 

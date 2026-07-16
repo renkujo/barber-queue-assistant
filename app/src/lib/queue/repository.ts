@@ -9,6 +9,7 @@ import {
 } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { services as fallbackServices, shopStatus, todayQueue } from "@/lib/queue-demo";
+import { getQueueAccessPin } from "@/lib/queue/access-pin";
 import { getQueueCode } from "@/lib/queue/code";
 import { createDateTime, formatThaiTime, getDayBounds, getTodayValue, toDateValue } from "./date";
 
@@ -49,7 +50,9 @@ export type QueueListItem = {
 };
 
 export type OwnerQueueListItem = QueueListItem & {
+  accessPin: string;
   ownerNote: string;
+  publicToken: string;
 };
 
 export type QueueStatusSnapshot = {
@@ -67,7 +70,9 @@ export type PublicQueueStatusSnapshot = {
   source: QueueStatusSnapshot["source"];
 };
 
-export type PublicQueueTrackingItem = Omit<QueueListItem, "id" | "note">;
+export type PublicQueueTrackingItem = Omit<QueueListItem, "id" | "note"> & {
+  accessPin: string;
+};
 
 export type ShopIntakeSettings = {
   shopName: string;
@@ -639,12 +644,13 @@ const maskCustomerName = (customerName: string) => {
 };
 
 const mapPublicQueueItem = (
-  item: Parameters<typeof mapQueueItem>[0],
+  item: Parameters<typeof mapQueueItem>[0] & { publicToken: string },
   index: number,
 ): PublicQueueTrackingItem => {
   const mapped = mapQueueItem(item, index);
 
   return {
+    accessPin: getQueueAccessPin(item.publicToken),
     code: mapped.code,
     customerName: maskCustomerName(mapped.customerName),
     serviceName: mapped.serviceName,
@@ -656,12 +662,14 @@ const mapPublicQueueItem = (
 };
 
 const mapOwnerQueueItem = (
-  item: Parameters<typeof mapQueueItem>[0] & { ownerNote: string | null },
+  item: Parameters<typeof mapQueueItem>[0] & { ownerNote: string | null; publicToken: string },
   index: number,
   scheduleWarning?: string,
 ): OwnerQueueListItem => ({
   ...mapQueueItem(item, index),
+  accessPin: getQueueAccessPin(item.publicToken),
   ownerNote: item.ownerNote ?? "",
+  publicToken: item.publicToken,
   scheduleWarning,
 });
 
@@ -1701,7 +1709,7 @@ export const createBooking = async (input: CreateBookingInput) => {
       status: QueueItemStatus.CONFIRMED,
       customerId: customer.id,
       customerNameSnapshot: customer.name,
-      phoneSnapshot: customer.phone,
+      phoneSnapshot: input.phone || null,
       lineUserIdSnapshot: customer.lineUserId,
       serviceId: service.id,
       serviceNameSnapshot: service.name,
@@ -1729,7 +1737,7 @@ export const createWalkIn = async (input: CreateWalkInInput) => {
       status: QueueItemStatus.WAITING,
       customerId: customer.id,
       customerNameSnapshot: customer.name,
-      phoneSnapshot: customer.phone,
+      phoneSnapshot: input.phone || null,
       lineUserIdSnapshot: customer.lineUserId,
       serviceId: service.id,
       serviceNameSnapshot: service.name,
@@ -1756,7 +1764,7 @@ export const createOwnerWalkIn = async (input: CreateOwnerWalkInInput) => {
       status: QueueItemStatus.WAITING,
       customerId: customer.id,
       customerNameSnapshot: customer.name,
-      phoneSnapshot: customer.phone,
+      phoneSnapshot: input.phone || null,
       lineUserIdSnapshot: customer.lineUserId,
       serviceId: service.id,
       serviceNameSnapshot: service.name,
@@ -1804,12 +1812,12 @@ export const getQueueItemEditDetails = async (id: string): Promise<QueueItemEdit
   };
 };
 
-export const getQueueItemByCodeAndPhone = async (code: string, phoneLast4: string) => {
+export const getQueueItemByCodeAndAccessPin = async (code: string, accessPin: string) => {
   const rawCode = code.trim();
   const normalizedCode = rawCode.replace(/[\s-]/g, "").toUpperCase();
-  const normalizedPhoneLast4 = phoneLast4.replace(/\D/g, "");
+  const normalizedAccessPin = accessPin.replace(/\D/g, "");
 
-  if (!normalizedCode || normalizedPhoneLast4.length !== 4) {
+  if (!normalizedCode || normalizedAccessPin.length !== 4) {
     return null;
   }
 
@@ -1833,9 +1841,9 @@ export const getQueueItemByCodeAndPhone = async (code: string, phoneLast4: strin
 
   for (const item of queueItems) {
     const itemCode = getQueueCode(item.id);
-    const normalizedPhone = item.phoneSnapshot?.replace(/\D/g, "") ?? "";
+    const accessPinMatches = getQueueAccessPin(item.publicToken) === normalizedAccessPin;
 
-    if (itemCode === normalizedCode && normalizedPhone.endsWith(normalizedPhoneLast4)) {
+    if (itemCode === normalizedCode && accessPinMatches) {
       return {
         publicToken: item.publicToken,
       };

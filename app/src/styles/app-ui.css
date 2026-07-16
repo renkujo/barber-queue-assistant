@@ -29,6 +29,39 @@
   gap: 16px;
 }
 
+.bqa-app-card.bqa-home-card {
+  width: min(100%, 1040px);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+.bqa-home-card > .bqa-page-header {
+  align-items: center;
+  padding: 0 4px 18px;
+}
+
+.bqa-home-layout {
+  display: grid;
+  gap: 16px;
+}
+
+.bqa-home-primary,
+.bqa-home-secondary {
+  min-width: 0;
+}
+
+.bqa-home-primary > .bqa-status-panel,
+.bqa-home-secondary > .bqa-panel:first-child {
+  margin-top: 0;
+}
+
+.bqa-home-secondary > .bqa-privacy-note--footer {
+  margin-top: 14px;
+}
+
 .bqa-page-header,
 .bqa-section-header,
 .bqa-owner-header,
@@ -441,6 +474,40 @@
 .bqa-tracking-message {
   border-radius: 16px;
   background: color-mix(in srgb, var(--surface) 88%, white);
+}
+
+.bqa-tracking-access {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--primary-soft) 36%, var(--surface));
+  padding: 12px 14px;
+}
+
+.bqa-tracking-access > div {
+  display: grid;
+  gap: 2px;
+}
+
+.bqa-tracking-access span,
+.bqa-tracking-access p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.bqa-tracking-access strong {
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  line-height: 1;
 }
 
 .bqa-tracking-message > .bqa-section-header {
@@ -974,6 +1041,85 @@
   font-size: 13px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+.bqa-home-services > .bqa-service-list {
+  gap: 0;
+  margin: 0;
+}
+
+.bqa-home-services .bqa-service-row {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  padding: 13px 16px;
+}
+
+.bqa-home-services .bqa-service-row:last-child {
+  border-bottom: 0;
+}
+
+.bqa-home-services .bqa-service-row::before {
+  display: none;
+}
+
+.bqa-home-tracking .ui-form-field {
+  gap: 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.bqa-home-tracking form {
+  display: grid;
+  gap: 12px;
+}
+
+.bqa-home-tracking form > .ui-button {
+  width: fit-content;
+}
+
+@media (min-width: 860px) {
+  .bqa-home-shell {
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+
+  .bqa-home-card > .bqa-page-header {
+    padding-bottom: 20px;
+  }
+
+  .bqa-home-layout {
+    grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .bqa-home-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bqa-home-actions .bqa-action-card {
+    min-width: 0;
+  }
+
+  .bqa-home-actions .bqa-action-copy strong {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .bqa-home-card > .bqa-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bqa-home-card > .bqa-page-header > .ui-badge {
+    align-self: flex-start;
+    margin-left: 76px;
+  }
 }
 
 .bqa-button-pair {

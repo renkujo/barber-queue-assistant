@@ -85,6 +85,14 @@ const QueueTrackingPage = async ({ params }: QueueTrackingPageProps) => {
           <div className="bqa-tracking-main">
             <TicketPanel className="bqa-tracking-ticket" label="รหัสคิว" value={queueItem.code} caption={queueItem.customerName} />
 
+            <section className="bqa-tracking-access" aria-labelledby="tracking-access-title">
+              <div>
+                <span id="tracking-access-title">PIN เช็คคิว</span>
+                <strong className="bqa-tracking-access-pin">{queueItem.accessPin}</strong>
+              </div>
+              <p>เก็บ PIN นี้ไว้ใช้คู่กับรหัสคิวเมื่อกลับมาเช็คสถานะจากหน้าแรก</p>
+            </section>
+
             <Panel className="bqa-panel--flush bqa-tracking-message">
               <SectionHeader title={trackingMessage.title} note={trackingMessage.note} />
             </Panel>

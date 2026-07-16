@@ -119,7 +119,7 @@ export const StatusPanel = ({
       <p className="bqa-status-copy">{description}</p>
       {children}
     </div>
-    {imageSrc ? <Image src={imageSrc} alt="" width={92} height={92} className="bqa-status-image" /> : null}
+    {imageSrc ? <Image src={imageSrc} alt="" width={92} height={92} className="bqa-status-image" priority /> : null}
   </Card>
 );
 

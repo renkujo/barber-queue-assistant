@@ -11,20 +11,28 @@ test.describe("owner queue flow", () => {
     await cleanupE2eQueueItems();
   });
 
-  test("owner can add, complete, and restore a walk-in queue item", async ({ page }) => {
+  test("owner can add, share, complete, and restore a phone-less walk-in queue item", async ({ context, page }) => {
     const customerName = `${e2eCustomerPrefix} Owner ${Date.now()}`;
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
 
     await loginOwner(page);
 
     await page.goto("/owner/walk-in");
     await page.getByLabel("ชื่อลูกค้า").fill(customerName);
-    await page.getByLabel("เบอร์โทร").fill("0800000000");
     await page.getByLabel("หมายเหตุ").fill("created by Playwright");
     await page.getByRole("button", { name: "เพิ่มเข้าคิววันนี้" }).click();
     await expect(page).toHaveURL(/\/owner(?:\?.*)?$/);
 
     const queueRow = page.locator(".bqa-owner-queue-row").filter({ hasText: customerName });
     await expect(queueRow).toBeVisible();
+    await expect(queueRow.getByText(/^PIN \d{4}$/)).toBeVisible();
+    await queueRow.getByRole("button", { name: "คัดลอกคิว" }).click();
+    await expect(queueRow.getByRole("button", { name: "คัดลอกแล้ว" })).toBeVisible();
+
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    expect(clipboardText).toMatch(/PIN เช็คคิว \d{4}/);
+    expect(clipboardText).toMatch(/\/queue\/[a-f0-9-]{36}$/);
+
     await promoteQueueRowToPrimary(page, queueRow);
 
     await queueRow.getByRole("button", { name: "เริ่มตัด" }).click();

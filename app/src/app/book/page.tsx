@@ -24,7 +24,7 @@ type BookPageProps = {
 };
 
 const errorMessages: Record<string, string> = {
-  invalid: "กรอกข้อมูลไม่ครบ ลองตรวจชื่อ บริการ วัน และเวลาอีกครั้ง",
+  invalid: "กรอกข้อมูลไม่ครบ ลองตรวจชื่อ บริการ วัน เวลา และรูปแบบเบอร์โทรอีกครั้ง",
   closed: "ตอนนี้ร้านปิดรับคิวจากลูกค้าแล้ว ลองเช็คอีกครั้งภายหลัง",
   "slot-unavailable": "เวลานี้ถูกจองหรือถูกพักร้านแล้ว เลือกเวลาอื่นแล้วลองใหม่",
   "rate-limited": "มีการส่งคำขอหลายครั้งเกินไป กรุณารอประมาณ 10 นาทีแล้วลองใหม่",
@@ -120,8 +120,8 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
                 <FormField id="customerName" label="ชื่อ">
                   <Input id="customerName" name="customerName" required placeholder="ชื่อของคุณ" />
                 </FormField>
-                <FormField id="phone" label="เบอร์โทร">
-                  <Input id="phone" name="phone" inputMode="tel" autoComplete="tel" required placeholder="เบอร์สำหรับติดต่อและเช็คคิว" />
+                <FormField id="phone" label="เบอร์โทร (ไม่บังคับ)" description="กรอกเมื่ออยากให้ร้านติดต่อกลับ">
+                  <Input id="phone" name="phone" inputMode="tel" autoComplete="tel" placeholder="เช่น 0812345678" />
                 </FormField>
               </FormGrid>
               <FormField id="note" label="หมายเหตุ">

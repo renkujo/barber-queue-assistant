@@ -57,7 +57,8 @@
 - [ ] Closed list shows terminal queue item.
 - [ ] Notification log panel does not break if LINE env is empty.
 - [ ] Tracking URL uses a public token, displays a masked name, and sends `noindex` metadata.
-- [ ] Queue-code lookup requires the last four phone digits.
+- [ ] Queue-code lookup accepts only the four-digit access PIN and rate-limits attempts by client IP and queue code.
+- [ ] Owner can copy tracking details for a phone-less queue.
 - [ ] `/privacy` displays the real pilot contact channel.
 
 ## Phase 3.5 — Pilot operations

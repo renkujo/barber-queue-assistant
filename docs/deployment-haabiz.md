@@ -13,6 +13,8 @@ Recommended production shape:
 
 The provided `docker-compose.deploy.yml` uses `expose` instead of host `ports` so it does not conflict with other apps on the Haabiz host. Let Dokploy/Traefik/Caddy route the public domain to `web:3000`.
 
+Keep the web container behind that trusted proxy and do not expose `web:3000` directly. Request rate limits use the proxy-overwritten `X-Real-IP` header, with the rightmost `X-Forwarded-For` address as fallback; allowing clients to reach the container directly would make those addresses untrusted.
+
 ## Required environment variables
 
 Use [`production-environment.md`](./production-environment.md) as the reference and set the real values in Haabiz/Dokploy.

@@ -235,6 +235,7 @@
   min-width: 0;
   align-items: center;
   gap: 10px;
+  padding-block: 2px;
   color: inherit;
   text-decoration: none;
 }
@@ -842,6 +843,7 @@
 
 .bqa-owner-board-main-column {
   display: grid;
+  align-content: start;
   gap: 12px;
   min-width: 0;
 }
@@ -976,6 +978,37 @@
 .bqa-owner-queue-edit:hover {
   border-color: var(--line-strong);
   color: var(--ink);
+}
+
+.bqa-owner-queue-access {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.bqa-owner-queue-pin {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-warm);
+  padding: 0 8px;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.bqa-owner-queue-share.ui-button {
+  min-height: 26px;
+  border-radius: 8px;
+  padding: 0 8px;
+  color: var(--muted);
+  font-size: 11px;
 }
 
 .bqa-owner-queue-mobile-note,

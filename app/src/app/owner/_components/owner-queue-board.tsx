@@ -17,9 +17,12 @@ import { cn } from "@/lib/cn";
 import type { QueueListItem } from "@/lib/queue/repository";
 import { updateQueueOrderAction, updateQueueStatusAction } from "../actions";
 import { ConfirmStatusActionButton } from "../confirm-status-action-button";
+import { OwnerQueueShareButton } from "./owner-queue-share-button";
 
 type OwnerQueueRowItem = QueueListItem & {
+  accessPin?: string;
   ownerNote?: string;
+  publicToken?: string;
 };
 
 const rowTone = (tone?: "current" | "next" | "warning") => {
@@ -154,6 +157,19 @@ const QueueRowEditLink = ({ item }: { item: QueueListItem }) => (
   </Link>
 );
 
+const QueueRowAccess = ({ item }: { item: OwnerQueueRowItem }) => {
+  if (!item.accessPin || !item.publicToken) {
+    return null;
+  }
+
+  return (
+    <div className="bqa-owner-queue-access">
+      <span className="bqa-owner-queue-pin">PIN {item.accessPin}</span>
+      <OwnerQueueShareButton accessPin={item.accessPin} publicToken={item.publicToken} queueCode={item.code} />
+    </div>
+  );
+};
+
 const QueueRowTime = ({ item }: { item: QueueListItem }) => (
   <div className="bqa-owner-queue-time">{item.timeLabel}</div>
 );
@@ -164,6 +180,7 @@ const QueueRowIdentity = ({ canMutateQueue, item }: { canMutateQueue: boolean; i
       {item.code} {item.customerName}
     </strong>
     {canMutateQueue ? <QueueRowEditLink item={item} /> : null}
+    {canMutateQueue ? <QueueRowAccess item={item} /> : null}
     <p className="bqa-owner-queue-mobile-note">
       <QueueRowNote item={item} />
     </p>

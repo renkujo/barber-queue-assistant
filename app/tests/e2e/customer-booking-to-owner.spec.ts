@@ -14,13 +14,12 @@ test.describe("customer booking flow", () => {
   test("customer can book a future time slot and see the tracking page", async ({ page }) => {
     const timestamp = Date.now();
     const customerName = `${e2eCustomerPrefix} Booking ${timestamp}`;
-    const phone = `082${String(timestamp).slice(-7)}`;
 
     await page.goto("/book");
     await page.getByLabel("วัน").click();
     await page.getByRole("option", { name: "พรุ่งนี้" }).click();
     await page.getByLabel("ชื่อ", { exact: true }).fill(customerName);
-    await page.getByLabel("เบอร์โทร").fill(phone);
+    await expect(page.getByLabel("เบอร์โทร (ไม่บังคับ)")).toBeVisible();
     await page.getByLabel("หมายเหตุ").fill("booking created by Playwright");
     await page.getByRole("button", { name: "ยืนยันคิว" }).click();
 
@@ -31,11 +30,14 @@ test.describe("customer booking flow", () => {
 
     const trackingUrl = page.url();
     const queueCode = await page.locator(".bqa-tracking-ticket strong").innerText();
+    const accessPin = await page.locator(".bqa-tracking-access-pin").innerText();
+
+    expect(accessPin).toMatch(/^\d{4}$/);
 
     await page.goto("/");
     await page.getByLabel("รหัสคิว").fill(queueCode);
-    await page.getByLabel("เลขท้ายเบอร์โทร 4 ตัว").fill(phone.slice(-4));
-    await page.getByRole("button", { name: "เช็ค" }).click();
+    await page.getByLabel("PIN เช็คคิว 4 ตัว").fill(accessPin);
+    await page.getByRole("button", { name: "เช็คสถานะคิว" }).click();
     await expect(page).toHaveURL(trackingUrl);
   });
 });

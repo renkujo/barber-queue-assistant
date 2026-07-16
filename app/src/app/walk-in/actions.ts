@@ -4,12 +4,13 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { NotificationType } from "@/generated/prisma/enums";
 import { notifyQueueEventSafe } from "@/lib/notifications/queue-notifications";
+import { optionalPhoneSchema } from "@/lib/queue/input-validation";
 import { createWalkIn } from "@/lib/queue/repository";
 import { actionRateLimitPolicies, consumeRequestRateLimit } from "@/lib/security/rate-limit";
 
 const walkInSchema = z.object({
   customerName: z.string().trim().min(1),
-  phone: z.string().trim().min(8).max(20).regex(/^[0-9+\-\s]+$/),
+  phone: optionalPhoneSchema,
   lineUserId: z.string().trim().optional(),
   serviceId: z.string().trim().min(1),
   note: z.string().trim().optional(),

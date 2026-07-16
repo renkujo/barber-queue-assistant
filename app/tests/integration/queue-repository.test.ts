@@ -16,7 +16,7 @@ import {
   getOwnerWeeklyAvailabilityItems,
   getPublicQueueItemByToken,
   getPublicQueueStatusSnapshotSafe,
-  getQueueItemByCodeAndPhone,
+  getQueueItemByCodeAndAccessPin,
   getServices,
   reorderQueueItem,
   restoreClosedQueueItem,
@@ -218,7 +218,7 @@ afterAll(async () => {
 });
 
 describe("queue repository status workflow", () => {
-  it("keeps public status aggregate-only and protects tracking with token plus phone proof", async () => {
+  it("keeps public status aggregate-only and protects manual lookup with the queue PIN", async () => {
     await setShopHours(getOpenHoursAroundNow());
 
     const queueItem = await createWalkIn({
@@ -236,11 +236,31 @@ describe("queue repository status workflow", () => {
     expect(trackingItem).not.toHaveProperty("note");
     expect(publicStatus).not.toHaveProperty("queue");
 
-    const matched = await getQueueItemByCodeAndPhone(trackingItem?.code ?? "", "4567");
-    const rejected = await getQueueItemByCodeAndPhone(trackingItem?.code ?? "", "0000");
+    const matchedByPin = await getQueueItemByCodeAndAccessPin(trackingItem?.code ?? "", trackingItem?.accessPin ?? "");
+    const rejectedPhoneDigits = await getQueueItemByCodeAndAccessPin(trackingItem?.code ?? "", "4567");
+    const rejected = await getQueueItemByCodeAndAccessPin(trackingItem?.code ?? "", "0000");
 
-    expect(matched).toEqual({ publicToken: queueItem.publicToken });
+    expect(trackingItem?.accessPin).toMatch(/^\d{4}$/);
+    expect(matchedByPin).toEqual({ publicToken: queueItem.publicToken });
+    expect(rejectedPhoneDigits).toBeNull();
     expect(rejected).toBeNull();
+  });
+
+  it("allows a phone-less customer to recover a queue with its access PIN", async () => {
+    await setShopHours(getOpenHoursAroundNow());
+
+    const queueItem = await createWalkIn({
+      customerName: `${testPrefix} PIN Only`,
+      serviceId,
+      note: "phone-less PIN lookup",
+    });
+    const storedQueueItem = await prisma.queueItem.findUniqueOrThrow({ where: { id: queueItem.id } });
+    const trackingItem = await getPublicQueueItemByToken(queueItem.publicToken);
+    const matched = await getQueueItemByCodeAndAccessPin(trackingItem?.code ?? "", trackingItem?.accessPin ?? "");
+
+    expect(storedQueueItem.phoneSnapshot).toBeNull();
+    expect(trackingItem?.accessPin).toMatch(/^\d{4}$/);
+    expect(matched).toEqual({ publicToken: queueItem.publicToken });
   });
 
   it("binds lineUserId to customer and queue snapshots when creating walk-ins", async () => {
@@ -261,6 +281,30 @@ describe("queue repository status workflow", () => {
 
     expect(storedQueueItem.lineUserIdSnapshot).toBe(lineUserId);
     expect(storedQueueItem.customer?.lineUserId).toBe(lineUserId);
+  });
+
+  it("does not copy a saved LINE customer phone into a queue when phone is omitted", async () => {
+    await setShopHours(getOpenHoursAroundNow());
+
+    const lineUserId = `U${Date.now()}phone-privacy`;
+    await createWalkIn({
+      customerName: `${testPrefix} Saved Phone First`,
+      phone: "0899912345",
+      lineUserId,
+      serviceId,
+    });
+    const phoneLessQueue = await createWalkIn({
+      customerName: `${testPrefix} Saved Phone Omitted`,
+      lineUserId,
+      serviceId,
+    });
+    const storedQueueItem = await prisma.queueItem.findUniqueOrThrow({
+      where: { id: phoneLessQueue.id },
+      include: { customer: true },
+    });
+
+    expect(storedQueueItem.phoneSnapshot).toBeNull();
+    expect(storedQueueItem.customer?.phone).toBe("0899912345");
   });
 
   it("marks public walk-in unavailable outside business hours", async () => {

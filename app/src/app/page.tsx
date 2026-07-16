@@ -27,8 +27,8 @@ type HomePageProps = {
 };
 
 const trackingErrorMessages: Record<string, string> = {
-  "queue-code-required": "กรอกรหัสคิวก่อนเช็คสถานะ",
-  "queue-not-found": "ไม่พบคิวจากข้อมูลนี้ ลองตรวจรหัสคิวและเลขท้ายเบอร์โทรอีกครั้ง",
+  "queue-code-required": "กรอกรหัสคิวและ PIN 4 ตัวก่อนเช็คสถานะ",
+  "queue-not-found": "ไม่พบคิวจากข้อมูลนี้ ลองตรวจรหัสคิวและ PIN อีกครั้ง",
   "queue-lookup-rate-limited": "เช็คคิวหลายครั้งเกินไป กรุณารอประมาณ 10 นาทีแล้วลองใหม่",
 };
 
@@ -64,8 +64,8 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
       : "วันนี้ไม่รับคิวใหม่ผ่านเว็บ แต่ยังเช็คสถานะคิวเดิมได้";
 
   return (
-    <ScreenShell>
-      <AppCard labelledBy="customer-title">
+    <ScreenShell className="bqa-home-shell">
+      <AppCard labelledBy="customer-title" className="bqa-home-card">
         <PageHeader
           id="customer-title"
           title="จองคิวตัดผม"
@@ -75,75 +75,81 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
           largeImage
         />
 
-        <StatusPanel
-          title={statusTitle}
-          description={statusDescription}
-          imageSrc={statusMascotPath}
-        />
+        <div className="bqa-home-layout">
+          <section className="bqa-home-primary" aria-label="สถานะและการรับคิว">
+            <StatusPanel
+              title={statusTitle}
+              description={statusDescription}
+              imageSrc={statusMascotPath}
+            />
 
-        {!shopOpenNow ? <Notice tone="warm">ตอนนี้อยู่นอกเวลาเปิดร้าน กรุณากลับมาในเวลา {shopStatus.openLabel.replace("เปิด ", "")}</Notice> : null}
-        {shopOpenNow && !intakeOpen ? <Notice tone="warm">ยังดูสถานะคิวเดิมได้ แต่ตอนนี้ไม่สามารถจองหรือรับคิวใหม่จากหน้านี้ได้</Notice> : null}
-        {shopOpenNow && inStoreOnly ? <Notice tone="warm">วันนี้รับเฉพาะลูกค้าที่เดินเข้าร้าน ไม่ต้องรับบัตรคิวผ่านเว็บ</Notice> : null}
-        {shopOpenNow && intakeOpen && !inStoreOnly && !walkInOpen ? <Notice tone="warm">วันนี้ปิดรับบัตรคิวออนไลน์ แต่ยังดูสถานะคิวเดิมได้</Notice> : null}
+            {!shopOpenNow ? <Notice tone="warm">ตอนนี้อยู่นอกเวลาเปิดร้าน กรุณากลับมาในเวลา {shopStatus.openLabel.replace("เปิด ", "")}</Notice> : null}
+            {shopOpenNow && !intakeOpen ? <Notice tone="warm">ยังดูสถานะคิวเดิมได้ แต่ตอนนี้ไม่สามารถจองหรือรับคิวใหม่จากหน้านี้ได้</Notice> : null}
+            {shopOpenNow && inStoreOnly ? <Notice tone="warm">วันนี้รับเฉพาะลูกค้าที่เดินเข้าร้าน ไม่ต้องรับบัตรคิวผ่านเว็บ</Notice> : null}
+            {shopOpenNow && intakeOpen && !inStoreOnly && !walkInOpen ? <Notice tone="warm">วันนี้ปิดรับบัตรคิวออนไลน์ แต่ยังดูสถานะคิวเดิมได้</Notice> : null}
 
-        <StatGrid aria-label="สถานะคิว">
-          <StatTile icon={<Icon icon="lucide:users" aria-hidden="true" />} label="คิวตอนนี้" value={shopStatus.currentQueueCount} unit="คน" />
-          <StatTile icon={<Icon icon="lucide:clock" aria-hidden="true" />} label="รอประมาณ" value={shopStatus.estimatedWaitMinutes} unit="นาที" />
-        </StatGrid>
+            <StatGrid aria-label="สถานะคิว">
+              <StatTile icon={<Icon icon="lucide:users" aria-hidden="true" />} label="คิวตอนนี้" value={shopStatus.currentQueueCount} unit="คน" />
+              <StatTile icon={<Icon icon="lucide:clock" aria-hidden="true" />} label="รอประมาณ" value={shopStatus.estimatedWaitMinutes} unit="นาที" />
+            </StatGrid>
 
-        <section className="bqa-action-list" aria-label="customer actions">
-          <ActionCard href="/book" icon={<Icon icon="lucide:calendar" aria-hidden="true" />} title="จองล่วงหน้า" description="เลือกวันที่และเวลาที่เปิดจอง" />
-          {walkInOpen ? (
-            <ActionCard href="/walk-in" icon={<Icon icon="lucide:users" aria-hidden="true" />} title="รับบัตรคิวออนไลน์" description="รับบัตรคิวก่อนมาที่ร้าน" tone="warm" />
-          ) : (
-            <Button type="button" disabled className="bqa-action-card bqa-tone-warm">
-              <span className="bqa-action-icon"><Icon icon="lucide:users" aria-hidden="true" /></span>
-              <span className="bqa-action-copy">
-                <strong>รับบัตรคิวออนไลน์</strong>
-                <span>{inStoreOnly ? "วันนี้รับเฉพาะลูกค้าที่หน้าร้าน" : shopOpenNow ? "วันนี้ปิดรับผ่านเว็บ" : "เปิดรับเฉพาะช่วงร้านเปิด"}</span>
-              </span>
-            </Button>
-          )}
-        </section>
+            <section className="bqa-action-list bqa-home-actions" aria-label="customer actions">
+              <ActionCard href="/book" icon={<Icon icon="lucide:calendar" aria-hidden="true" />} title="จองล่วงหน้า" description="เลือกวันที่และเวลาที่เปิดจอง" />
+              {walkInOpen ? (
+                <ActionCard href="/walk-in" icon={<Icon icon="lucide:users" aria-hidden="true" />} title="รับบัตรคิวออนไลน์" description="รับบัตรคิวก่อนมาที่ร้าน" tone="warm" />
+              ) : (
+                <Button type="button" disabled className="bqa-action-card bqa-tone-warm">
+                  <span className="bqa-action-icon"><Icon icon="lucide:users" aria-hidden="true" /></span>
+                  <span className="bqa-action-copy">
+                    <strong>รับบัตรคิวออนไลน์</strong>
+                    <span>{inStoreOnly ? "วันนี้รับเฉพาะลูกค้าที่หน้าร้าน" : shopOpenNow ? "วันนี้ปิดรับผ่านเว็บ" : "เปิดรับเฉพาะช่วงร้านเปิด"}</span>
+                  </span>
+                </Button>
+              )}
+            </section>
+          </section>
 
-        <Panel aria-labelledby="service-title">
-          <SectionHeader id="service-title" title="บริการยอดนิยม" note="ประมาณเวลา" />
-          <div className="bqa-service-list">
-            {services.length ? services.map((service) => (
-              <ServiceRow
-                icon={<Icon icon="lucide:scissors" aria-hidden="true" />}
-                key={service.id}
-                name={service.name}
-                price={service.priceLabel}
-                duration={`${service.durationMinutes} นาที`}
-              />
-            )) : <Notice tone="warm">ตอนนี้ยังไม่มีบริการที่เปิดใช้</Notice>}
+          <div className="bqa-home-secondary">
+            <Panel className="bqa-home-services" aria-labelledby="service-title">
+              <SectionHeader id="service-title" title="บริการยอดนิยม" note="ราคาและเวลาที่ใช้โดยประมาณ" />
+              <div className="bqa-service-list">
+                {services.length ? services.map((service) => (
+                  <ServiceRow
+                    icon={<Icon icon="lucide:scissors" aria-hidden="true" />}
+                    key={service.id}
+                    name={service.name}
+                    price={service.priceLabel}
+                    duration={`${service.durationMinutes} นาที`}
+                  />
+                )) : <Notice tone="warm">ตอนนี้ยังไม่มีบริการที่เปิดใช้</Notice>}
+              </div>
+            </Panel>
+
+            <Panel className="bqa-home-tracking" id="queue-status" aria-labelledby="tracking-title">
+              <SectionHeader id="tracking-title" title="เช็คคิวของฉัน" note="ใช้รหัสคิวและ PIN 4 ตัวจากหน้าคิว" />
+              {trackingError ? <Notice>{trackingError}</Notice> : null}
+              <RouteToast message={trackingError} type="error" toastKey={`home:${params.error ?? ""}`} />
+              <form action={lookupQueueAction}>
+                <FormGrid>
+                  <FormField id="queue-code" label="รหัสคิว">
+                    <Input id="queue-code" name="queueCode" defaultValue={params.queueCode ?? ""} placeholder="เช่น Q8F2A1C" />
+                  </FormField>
+                  <FormField id="access-pin" label="PIN เช็คคิว 4 ตัว">
+                    <Input id="access-pin" name="accessPin" inputMode="numeric" autoComplete="one-time-code" minLength={4} maxLength={4} required placeholder="เช่น 1234" />
+                  </FormField>
+                </FormGrid>
+                <Button type="submit">
+                  <Icon icon="lucide:search" aria-hidden="true" />เช็คสถานะคิว
+                </Button>
+              </form>
+              <p className="bqa-privacy-note">PIN ใช้คู่กับรหัสคิวเพื่อลดการเปิดดูคิวของผู้อื่นโดยไม่ได้รับอนุญาต</p>
+            </Panel>
+
+            <p className="bqa-privacy-note bqa-privacy-note--footer">
+              <Link href="/privacy">ประกาศความเป็นส่วนตัว</Link>
+            </p>
           </div>
-        </Panel>
-
-        <Panel id="queue-status" aria-labelledby="tracking-title">
-          <SectionHeader id="tracking-title" title="เช็คคิวของฉัน" note="กรอกรหัสคิวเพื่อดูว่าถึงคิวหรือยัง" />
-          {trackingError ? <Notice>{trackingError}</Notice> : null}
-          <RouteToast message={trackingError} type="error" toastKey={`home:${params.error ?? ""}`} />
-          <form action={lookupQueueAction}>
-            <FormGrid>
-              <FormField id="queue-code" label="รหัสคิว">
-                <Input id="queue-code" name="queueCode" defaultValue={params.queueCode ?? ""} placeholder="เช่น Q8F2A1C" />
-              </FormField>
-              <FormField id="phone-last-4" label="เลขท้ายเบอร์โทร 4 ตัว">
-                <Input id="phone-last-4" name="phoneLast4" inputMode="numeric" autoComplete="tel" minLength={4} maxLength={4} required placeholder="เช่น 1234" />
-              </FormField>
-            </FormGrid>
-            <Button type="submit">
-              <Icon icon="lucide:search" aria-hidden="true" />เช็ค
-            </Button>
-          </form>
-          <p className="bqa-privacy-note">ระบบใช้เลขท้ายเบอร์โทรเพื่อลดการเปิดดูคิวของผู้อื่นโดยไม่ได้รับอนุญาต</p>
-        </Panel>
-
-        <p className="bqa-privacy-note bqa-privacy-note--footer">
-          <Link href="/privacy">ประกาศความเป็นส่วนตัว</Link>
-        </p>
+        </div>
       </AppCard>
     </ScreenShell>
   );

@@ -8,7 +8,8 @@ Pilot boundary: **one real barber shop**, one owner/barber, and a small invited 
 - [ ] Deploy outside operating hours with no real active queue. Pre-hardening `/queue/<database-id>` links are intentionally not accepted after deployment; clear smoke rows or reissue tracking links before reopening intake.
 - [ ] Confirm `GET /api/queue/status` returns aggregate shop status only—no customer names, notes, phone numbers, queue IDs, or tracking tokens.
 - [ ] Create a booking and walk-in; both tracking URLs must use UUID-like public tokens and show a masked customer name.
-- [ ] Confirm queue-code lookup requires the last four phone digits and rate-limits repeated attempts.
+- [ ] Confirm queue-code lookup requires the four-digit access PIN, rejects phone digits as credentials, and rate-limits repeated attempts by both client IP and queue code.
+- [ ] Create one phone-less customer queue and one phone-less owner queue; verify both can be recovered through PIN/link sharing.
 - [ ] Confirm owner login, booking, and walk-in actions rate-limit repeated requests.
 - [ ] Set `RATE_LIMIT_HASH_SECRET` to a random value different from the owner passcode/session secret.
 - [ ] Set `NEXT_PUBLIC_PRIVACY_CONTACT` to the shop's real LINE URL, email, or phone contact.

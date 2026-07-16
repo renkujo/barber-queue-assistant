@@ -11,7 +11,8 @@ export type RateLimitPolicy = {
 
 export const actionRateLimitPolicies = {
   ownerLogin: { limit: 10, windowMs: 15 * 60 * 1000, blockMs: 15 * 60 * 1000 },
-  queueLookup: { limit: 12, windowMs: 10 * 60 * 1000, blockMs: 10 * 60 * 1000 },
+  queueLookupIp: { limit: 12, windowMs: 10 * 60 * 1000, blockMs: 10 * 60 * 1000 },
+  queueLookupCode: { limit: 20, windowMs: 10 * 60 * 1000, blockMs: 10 * 60 * 1000 },
   publicBooking: { limit: 8, windowMs: 10 * 60 * 1000, blockMs: 10 * 60 * 1000 },
   publicWalkIn: { limit: 8, windowMs: 10 * 60 * 1000, blockMs: 10 * 60 * 1000 },
 } satisfies Record<string, RateLimitPolicy>;
@@ -26,11 +27,24 @@ const hashFingerprint = (value: string) =>
 
 export const getRequestFingerprint = async () => {
   const requestHeaders = await headers();
-  const forwardedFor = requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const ip = forwardedFor || requestHeaders.get("x-real-ip")?.trim() || "unknown";
-  const userAgent = requestHeaders.get("user-agent")?.trim() || "unknown";
 
-  return hashFingerprint(`${ip}|${userAgent}`);
+  return hashFingerprint(getProxyClientAddress(requestHeaders));
+};
+
+export const getProxyClientAddress = (requestHeaders: Pick<Headers, "get">) => {
+  const realIp = requestHeaders.get("x-real-ip")?.trim();
+
+  if (realIp) {
+    return realIp;
+  }
+
+  const forwardedChain = requestHeaders
+    .get("x-forwarded-for")
+    ?.split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  return forwardedChain?.at(-1) ?? "unknown";
 };
 
 const consumeRateLimitOnce = async (

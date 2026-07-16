@@ -24,7 +24,7 @@ test.describe("customer walk-in to owner queue", () => {
     await expect(page).toHaveURL(/\/queue\/[a-f0-9-]{36}$/);
     await expect(page.getByRole("heading", { name: "คิวของคุณ" })).toBeVisible();
     await expect(page.getByText(`${Array.from(customerName).slice(0, 2).join("")}***`)).toBeVisible();
-    await expect(page.getByText("รหัสคิว")).toBeVisible();
+    await expect(page.getByText("รหัสคิว", { exact: true })).toBeVisible();
 
     await loginOwner(page);
 
