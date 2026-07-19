@@ -1299,7 +1299,11 @@
   }
 
   .bqa-owner-summary-pane--next strong {
+    display: -webkit-box;
     overflow-wrap: anywhere;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     font-size: 18px;
     line-height: 1.15;
   }
@@ -1354,9 +1358,26 @@
   }
 
   .bqa-owner-queue-main strong {
-    display: block;
+    display: -webkit-box;
+    overflow: hidden;
     overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     font-size: 17px;
+  }
+
+  .bqa-owner-queue-mobile-note .bqa-owner-board-note-stack > span:first-child {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .bqa-owner-queue-mobile-note .bqa-owner-private-note {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 
   .bqa-owner-queue-edit {
