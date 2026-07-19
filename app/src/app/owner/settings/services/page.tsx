@@ -1,12 +1,7 @@
 import Link from "next/link";
-import { FormGrid, FormStack, Notice, OwnerHeader, OwnerGrid, Panel, SectionHeader, StatusBadge } from "@/components/barber/app-ui";
+import { FormStack, Notice, OwnerHeader, OwnerGrid, Panel, SectionHeader, StatusBadge } from "@/components/barber/app-ui";
 import {
   Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   FormField,
   Icon,
   Input,
@@ -20,7 +15,7 @@ import {
 import { requireOwnerSession } from "@/lib/admin-auth";
 import { getOwnerServiceSettingsSafe } from "@/lib/queue/repository";
 import { createOwnerServiceAction, toggleOwnerServiceAction, updateOwnerServiceAction } from "../../actions";
-import { OwnerTopbar } from "../../_components/owner-topbar";
+import { OwnerShell } from "../../_components/owner-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +40,31 @@ const activeOptions = [
   { label: "ปิดใช้", value: "false" },
 ];
 
+const serviceIconNames: `lucide:${string}`[] = ["lucide:scissors", "lucide:sparkles", "lucide:razor", "lucide:brush", "lucide:badge-check"];
+
+const CreateServiceForm = ({ idPrefix, nextSortOrder }: { idPrefix: string; nextSortOrder: number }) => (
+  <form action={createOwnerServiceAction} className="bqa-owner-service-create-form">
+    <FormStack>
+      <FormField id={`${idPrefix}-service-name`} label="ชื่อบริการ">
+        <Input id={`${idPrefix}-service-name`} name="name" required placeholder="เช่น ตัดผม + สระ" />
+      </FormField>
+      <FormField id={`${idPrefix}-service-duration`} label="ระยะเวลา (นาที)">
+        <Input id={`${idPrefix}-service-duration`} name="durationMinutes" defaultValue={30} min={5} max={480} required type="number" />
+      </FormField>
+      <FormField id={`${idPrefix}-service-price`} label="ราคา (บาท)" description="เว้นว่างได้ถ้าต้องสอบถามราคา">
+        <Input id={`${idPrefix}-service-price`} name="priceBaht" min={0} placeholder="ไม่บังคับ" type="number" />
+      </FormField>
+      <FormField id={`${idPrefix}-service-sort`} label="ลำดับ">
+        <Input id={`${idPrefix}-service-sort`} name="sortOrder" defaultValue={nextSortOrder} min={0} max={9999} required type="number" />
+      </FormField>
+      <input name="isActive" type="hidden" value="true" />
+      <Button type="submit" size="lg" fullWidth>
+        <Icon icon="lucide:plus" aria-hidden="true" />เพิ่มบริการ
+      </Button>
+    </FormStack>
+  </form>
+);
+
 const OwnerServiceSettingsPage = async ({ searchParams }: OwnerServiceSettingsPageProps) => {
   await requireOwnerSession();
 
@@ -54,10 +74,8 @@ const OwnerServiceSettingsPage = async ({ searchParams }: OwnerServiceSettingsPa
   const nextSortOrder = services.length ? Math.max(...services.map((service) => service.sortOrder)) + 1 : 0;
 
   return (
-    <main className="bqa-owner-board-shell">
-      <OwnerTopbar />
-
-      <div className="bqa-owner-board-content bqa-owner-form-content bqa-owner-form-content--compact">
+    <OwnerShell>
+      <div className="bqa-owner-board-content bqa-owner-form-content bqa-owner-form-content--compact bqa-owner-services-page">
         <OwnerHeader
           title="ตั้งค่าบริการ"
           description="เพิ่ม แก้ไข และปิดใช้บริการที่ลูกค้าเลือกได้"
@@ -75,110 +93,130 @@ const OwnerServiceSettingsPage = async ({ searchParams }: OwnerServiceSettingsPa
         <RouteToast message={errorMessage} type="error" toastKey={`owner-service-settings-error:${params.error ?? ""}`} />
         <RouteToast message={statusMessage} type="success" toastKey={`owner-service-settings-status:${params.status ?? ""}`} />
 
-        <OwnerGrid className="bqa-owner-grid--workbench">
-          <Panel aria-labelledby="owner-service-list-title">
-            <SectionHeader id="owner-service-list-title" title="บริการทั้งหมด" note="ปิดใช้ = soft delete ไม่ลบข้อมูลจริง" />
-            <div className="grid gap-3">
-              {services.map((service) => (
-                <Card className="bqa-owner-service-settings-card !rounded-[14px] !border-[var(--line)] !bg-[color-mix(in_srgb,var(--surface)_88%,var(--paper))]" key={service.id}>
-                  <CardHeader className="flex flex-row items-start justify-between gap-3 px-3.5 py-3">
-                    <div>
-                      <CardTitle className="!mb-1 !text-base !leading-tight">{service.name}</CardTitle>
-                      <CardDescription className="!text-xs !font-medium">
-                        {service.durationMinutes} นาที · {service.priceLabel} · ลำดับ {service.sortOrder}
-                      </CardDescription>
-                    </div>
-                    <StatusBadge tone={service.isActive ? "positive" : "neutral"}>{service.isActive ? "เปิดใช้" : "ปิดใช้"}</StatusBadge>
-                  </CardHeader>
-                  <CardContent className="px-3.5 pb-3 pt-0">
-                    <details className="bqa-owner-service-edit">
-                      <summary>
-                        <span>
-                          <Icon icon="lucide:pencil" aria-hidden="true" />แก้ไขบริการ
-                        </span>
-                        <Icon icon="lucide:chevron-down" aria-hidden="true" />
-                      </summary>
+        <OwnerGrid className="bqa-owner-grid--workbench bqa-owner-services-workbench">
+          <Panel className="bqa-owner-services-create-mobile" aria-labelledby="owner-service-add-mobile-title">
+            <details className="bqa-owner-service-add-disclosure">
+              <summary>
+                <span>
+                  <Icon icon="lucide:plus" aria-hidden="true" />
+                  <span>
+                    <strong id="owner-service-add-mobile-title">เพิ่มบริการ</strong>
+                    <small>แตะเพื่อกรอกบริการใหม่</small>
+                  </span>
+                </span>
+                <Icon icon="lucide:chevron-down" aria-hidden="true" />
+              </summary>
+              <CreateServiceForm idPrefix="mobile-new" nextSortOrder={nextSortOrder} />
+            </details>
+          </Panel>
 
-                      <form action={updateOwnerServiceAction}>
+          <aside className="bqa-owner-services-create-rail">
+            <Panel aria-labelledby="owner-service-add-title">
+              <SectionHeader id="owner-service-add-title" title="เพิ่มบริการ" note="บริการใหม่เปิดใช้ทันทีและแสดงให้ลูกค้าเลือกได้" />
+              <CreateServiceForm idPrefix="new" nextSortOrder={nextSortOrder} />
+            </Panel>
+          </aside>
+
+          <Panel className="bqa-owner-services-list-panel" aria-labelledby="owner-service-list-title">
+            <SectionHeader id="owner-service-list-title" title="บริการทั้งหมด" note="ปิดใช้ = ปิดชั่วคราว ไม่ลบข้อมูล" />
+
+            {services.length ? (
+              <div className="bqa-owner-services-table" role="list" aria-label="รายการบริการทั้งหมด">
+                <div className="bqa-owner-services-table-head" aria-hidden="true">
+                  <span>บริการ</span>
+                  <span>ระยะเวลา</span>
+                  <span>ราคา</span>
+                  <span>ลำดับ</span>
+                  <span>สถานะ</span>
+                  <span>จัดการ</span>
+                </div>
+                {services.map((service, index) => (
+                  <details className="bqa-owner-service-disclosure" name="owner-service-editor" open={index === 0} key={service.id}>
+                    <summary className="bqa-owner-service-summary">
+                      <span className="bqa-owner-service-main">
+                        <span className="bqa-owner-service-icon" aria-hidden="true">
+                          <Icon icon={serviceIconNames[index % serviceIconNames.length]} />
+                        </span>
+                        <span>
+                          <strong>{service.name}</strong>
+                          <small className="bqa-owner-service-mobile-meta">
+                            {service.durationMinutes} นาที · {service.priceLabel} · ลำดับ {service.sortOrder}
+                          </small>
+                        </span>
+                      </span>
+                      <span className="bqa-owner-service-cell bqa-owner-service-duration">{service.durationMinutes} นาที</span>
+                      <span className="bqa-owner-service-cell bqa-owner-service-price">{service.priceLabel}</span>
+                      <span className="bqa-owner-service-cell bqa-owner-service-order">{service.sortOrder}</span>
+                      <span className="bqa-owner-service-status">
+                        <StatusBadge tone={service.isActive ? "positive" : "warning"}>{service.isActive ? "เปิดใช้" : "ปิดใช้"}</StatusBadge>
+                      </span>
+                      <span className="bqa-owner-service-action-label">
+                        <span>แก้ไข</span>
+                        <Icon icon="lucide:chevron-down" aria-hidden="true" />
+                      </span>
+                    </summary>
+
+                    <div className="bqa-owner-service-editor">
+                      <form id={`service-update-${service.id}`} action={updateOwnerServiceAction} className="bqa-owner-service-update-form">
                         <input name="serviceId" type="hidden" value={service.id} />
-                        <FormStack>
+                        <div className="bqa-owner-service-editor-grid">
                           <FormField id={`service-name-${service.id}`} label="ชื่อบริการ">
                             <Input id={`service-name-${service.id}`} name="name" defaultValue={service.name} required />
                           </FormField>
-                          <FormGrid>
-                            <FormField id={`service-duration-${service.id}`} label="ระยะเวลา (นาที)">
-                              <Input id={`service-duration-${service.id}`} name="durationMinutes" defaultValue={service.durationMinutes} min={5} max={480} required type="number" />
-                            </FormField>
-                            <FormField id={`service-price-${service.id}`} label="ราคา (บาท)">
-                              <Input id={`service-price-${service.id}`} name="priceBaht" defaultValue={service.priceBaht} min={0} placeholder="เว้นว่าง = สอบถามราคา" type="number" />
-                            </FormField>
-                          </FormGrid>
-                          <FormGrid>
-                            <FormField id={`service-sort-${service.id}`} label="ลำดับ">
-                              <Input id={`service-sort-${service.id}`} name="sortOrder" defaultValue={service.sortOrder} min={0} max={9999} required type="number" />
-                            </FormField>
-                            <FormField id={`service-active-${service.id}`} label="สถานะ">
-                              <Select name="isActive" defaultValue={String(service.isActive)} required>
-                                <SelectTrigger id={`service-active-${service.id}`}>
-                                  <SelectValue placeholder="เลือกสถานะ" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {activeOptions.map((option) => (
-                                    <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </FormField>
-                          </FormGrid>
-                          <Button type="submit" fullWidth>
-                            <Icon icon="lucide:save" aria-hidden="true" />บันทึกบริการ
-                          </Button>
-                        </FormStack>
+                          <FormField id={`service-duration-${service.id}`} label="ระยะเวลา (นาที)">
+                            <Input id={`service-duration-${service.id}`} name="durationMinutes" defaultValue={service.durationMinutes} min={5} max={480} required type="number" />
+                          </FormField>
+                          <FormField id={`service-price-${service.id}`} label="ราคา (บาท)" description="เว้นว่าง = สอบถามราคา">
+                            <Input id={`service-price-${service.id}`} name="priceBaht" defaultValue={service.priceBaht} min={0} placeholder="ไม่บังคับ" type="number" />
+                          </FormField>
+                          <FormField id={`service-sort-${service.id}`} label="ลำดับ">
+                            <Input id={`service-sort-${service.id}`} name="sortOrder" defaultValue={service.sortOrder} min={0} max={9999} required type="number" />
+                          </FormField>
+                          <FormField id={`service-active-${service.id}`} label="สถานะ">
+                            <Select name="isActive" defaultValue={String(service.isActive)} required>
+                              <SelectTrigger id={`service-active-${service.id}`}>
+                                <SelectValue placeholder="เลือกสถานะ" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {activeOptions.map((option) => (
+                                  <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormField>
+                        </div>
                       </form>
-                    </details>
 
-                    <form action={toggleOwnerServiceAction} className="mt-2">
-                      <input name="serviceId" type="hidden" value={service.id} />
-                      <input name="isActive" type="hidden" value={service.isActive ? "false" : "true"} />
-                      <Button variant="outline" type="submit" fullWidth>
-                        <Icon icon={service.isActive ? "lucide:eye-off" : "lucide:rotate-ccw"} aria-hidden="true" />
-                        {service.isActive ? "ปิดใช้บริการ" : "เปิดใช้กลับ"}
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                      <div className="bqa-owner-service-editor-actions">
+                        <Button form={`service-update-${service.id}`} type="submit" size="lg">
+                          <Icon icon="lucide:save" aria-hidden="true" />บันทึกบริการ
+                        </Button>
+                        <form action={toggleOwnerServiceAction} className="bqa-owner-service-toggle-form">
+                          <input name="serviceId" type="hidden" value={service.id} />
+                          <input name="isActive" type="hidden" value={service.isActive ? "false" : "true"} />
+                          <Button variant="outline" size="lg" type="submit" fullWidth>
+                            <Icon icon={service.isActive ? "lucide:eye-off" : "lucide:rotate-ccw"} aria-hidden="true" />
+                            {service.isActive ? "ปิดใช้บริการ" : "เปิดใช้บริการ"}
+                          </Button>
+                        </form>
+                      </div>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            ) : (
+              <div className="bqa-owner-services-empty">
+                <Icon icon="lucide:scissors" aria-hidden="true" />
+                <div>
+                  <strong>ยังไม่มีบริการ</strong>
+                  <p>เพิ่มบริการแรกจากฟอร์มเพิ่มบริการ แล้วลูกค้าจะเห็นบริการที่เปิดใช้ทันที</p>
+                </div>
+              </div>
+            )}
           </Panel>
-
-          <div className="bqa-owner-support-stack bqa-owner-support-stack--visible-mobile">
-            <Panel aria-labelledby="owner-service-add-title">
-              <SectionHeader id="owner-service-add-title" title="เพิ่มบริการ" note="บริการใหม่จะแสดงในหน้าจองทันทีถ้าเปิดใช้" />
-              <form action={createOwnerServiceAction}>
-                <FormStack>
-                  <FormField id="new-service-name" label="ชื่อบริการ">
-                    <Input id="new-service-name" name="name" required placeholder="เช่น ตัดผม + สระ" />
-                  </FormField>
-                  <FormField id="new-service-duration" label="ระยะเวลา (นาที)">
-                    <Input id="new-service-duration" name="durationMinutes" defaultValue={30} min={5} max={480} required type="number" />
-                  </FormField>
-                  <FormField id="new-service-price" label="ราคา (บาท)">
-                    <Input id="new-service-price" name="priceBaht" min={0} placeholder="เช่น 350" type="number" />
-                  </FormField>
-                  <FormField id="new-service-sort" label="ลำดับ">
-                    <Input id="new-service-sort" name="sortOrder" defaultValue={nextSortOrder} min={0} max={9999} required type="number" />
-                  </FormField>
-                  <input name="isActive" type="hidden" value="true" />
-                  <Button type="submit" fullWidth>
-                    <Icon icon="lucide:plus" aria-hidden="true" />เพิ่มบริการ
-                  </Button>
-                </FormStack>
-              </form>
-            </Panel>
-          </div>
         </OwnerGrid>
       </div>
-    </main>
+    </OwnerShell>
   );
 };
 

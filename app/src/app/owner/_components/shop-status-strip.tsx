@@ -1,5 +1,14 @@
 import type { QueueStatusSnapshot, ShopIntakeSettings } from "@/lib/queue/repository";
-import { Button, Icon } from "@/components/ui";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Icon,
+} from "@/components/ui";
 
 type ShopStatusStripProps = {
   breakAction: () => Promise<void>;
@@ -58,16 +67,8 @@ const WaitAdjustButton = ({
   </form>
 );
 
-export const ShopStatusStrip = ({ breakAction, intakeAction, settings, waitAction, waitEstimate }: ShopStatusStripProps) => (
-  <section className={`bqa-owner-status-strip ${settings.queueIntakeEnabled ? "" : "bqa-owner-status-strip--closed"}`} aria-label="สถานะร้าน">
-    <div className="bqa-owner-status-copy">
-      <span className="bqa-owner-status-dot" aria-hidden="true" />
-      <div>
-        <strong>{settings.queueIntakeEnabled ? "ร้านเปิดรับคิว" : "ปิดรับคิวแล้ว"}</strong>
-        <p>{settings.queueIntakeEnabled ? "ลูกค้าจองและรับคิวเองได้" : "ลูกค้าสร้างคิวไม่ได้ เจ้าของร้านยังเพิ่มเองได้"}</p>
-      </div>
-    </div>
-
+export const OwnerShopControlPanel = ({ breakAction, intakeAction, settings, waitAction, waitEstimate }: ShopStatusStripProps) => (
+  <div className="bqa-owner-shop-control-panel">
     <div className="bqa-owner-wait-control" aria-label="ปรับเวลารอที่แจ้งลูกค้า">
       <div>
         <span>เวลารอโดยประมาณ</span>
@@ -95,5 +96,44 @@ export const ShopStatusStrip = ({ breakAction, intakeAction, settings, waitActio
         </Button>
       </form>
     </div>
+  </div>
+);
+
+export const ShopStatusStrip = ({ breakAction, intakeAction, settings, waitAction, waitEstimate }: ShopStatusStripProps) => (
+  <section
+    id="owner-shop-status"
+    className={`bqa-owner-status-strip ${settings.queueIntakeEnabled ? "" : "bqa-owner-status-strip--closed"}`}
+    aria-label="สถานะร้าน"
+  >
+    <div className="bqa-owner-status-copy">
+      <span className="bqa-owner-status-dot" aria-hidden="true" />
+      <div>
+        <strong>{settings.queueIntakeEnabled ? "ร้านเปิดอยู่" : "ปิดรับคิวแล้ว"}</strong>
+        <p>{settings.queueIntakeEnabled ? "รับคิวออนไลน์" : "เจ้าของร้านยังเพิ่มคิวเองได้"}</p>
+      </div>
+    </div>
+
+    <span className="bqa-owner-status-wait">{formatFriendlyWait(waitEstimate.estimatedWaitMinutes)}</span>
+
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" type="button" size="sm" className="bqa-owner-mobile-control-trigger">
+          <Icon icon="lucide:sliders-horizontal" aria-hidden="true" />ควบคุมร้าน
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bqa-owner-mobile-control-dialog">
+        <DialogHeader>
+          <DialogTitle>ควบคุมร้าน</DialogTitle>
+          <DialogDescription>ปรับเวลารอ พักร้าน หรือเปิด–ปิดการรับคิวออนไลน์</DialogDescription>
+        </DialogHeader>
+        <OwnerShopControlPanel
+          breakAction={breakAction}
+          intakeAction={intakeAction}
+          settings={settings}
+          waitAction={waitAction}
+          waitEstimate={waitEstimate}
+        />
+      </DialogContent>
+    </Dialog>
   </section>
 );

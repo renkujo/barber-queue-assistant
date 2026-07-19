@@ -104,7 +104,25 @@ export const cleanupE2eQueueItems = async () => {
   }
 };
 
+const clearE2eOwnerLoginRateLimits = async () => {
+  const connectionString = getDatabaseUrl();
+
+  if (!connectionString) {
+    return;
+  }
+
+  const client = new Client({ connectionString });
+  await client.connect();
+
+  try {
+    await client.query(`delete from "RateLimitBucket" where "key" like 'owner-login:%'`);
+  } finally {
+    await client.end();
+  }
+};
+
 export const loginOwner = async (page: Page) => {
+  await clearE2eOwnerLoginRateLimits();
   await page.goto("/owner/login");
   await page.getByLabel("รหัสเจ้าของร้าน").fill(getOwnerPasscode() ?? "");
   await page.getByRole("button", { name: "เข้าสู่ระบบ" }).click();

@@ -358,7 +358,10 @@ export const OwnerQueueBoard = ({
   <Card className="bqa-owner-queue-board" aria-labelledby="owner-queue-title">
     <CardHeader className="bqa-owner-queue-heading">
       <div>
-        <CardTitle id="owner-queue-title">รายการวันนี้</CardTitle>
+        <CardTitle id="owner-queue-title">
+          <span className="bqa-owner-queue-title--mobile">คิววันนี้</span>
+          <span className="bqa-owner-queue-title--desktop">รายการวันนี้</span>
+        </CardTitle>
         <CardDescription>{queue.length} คิวในระบบวันนี้</CardDescription>
       </div>
       <CardAction>

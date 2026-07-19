@@ -7,8 +7,9 @@ import { CurrentNextSummary } from "./_components/current-next-summary";
 import { OwnerClosedQueueList } from "./_components/owner-closed-queue-list";
 import { OwnerFooterStatus } from "./_components/owner-footer-status";
 import { OwnerQueueBoard } from "./_components/owner-queue-board";
+import { OwnerShell } from "./_components/owner-shell";
 import { OwnerSideRail } from "./_components/owner-side-rail";
-import { OwnerTopbar } from "./_components/owner-topbar";
+import { OwnerWorkspaceHeader } from "./_components/owner-workspace-header";
 import { ShopStatusStrip } from "./_components/shop-status-strip";
 
 export const dynamic = "force-dynamic";
@@ -63,10 +64,9 @@ const OwnerPage = async ({ searchParams }: OwnerPageProps) => {
   const statusMessage = params.status ? statusMessages[params.status] : null;
 
   return (
-    <main className="bqa-owner-board-shell">
-      <OwnerTopbar />
-
+    <OwnerShell>
       <div className="bqa-owner-board-content">
+        <OwnerWorkspaceHeader intakeEnabled={intakeSettings.queueIntakeEnabled} />
         {!canMutateQueue ? <Notice tone="warm">ตอนนี้เป็นข้อมูล fallback กดเปลี่ยนสถานะไม่ได้ สร้าง booking/walk-in จริงก่อน</Notice> : null}
         <RouteToast
           message={errorMessage ?? statusMessage}
@@ -93,15 +93,19 @@ const OwnerPage = async ({ searchParams }: OwnerPageProps) => {
           <OwnerSideRail
             breakAction={createBreakAction}
             currentCount={currentCount}
+            intakeAction={updateQueueIntakeAction}
+            intakeSettings={intakeSettings}
             notificationLogs={notificationLogs}
             totalCount={todayQueue.length}
+            waitAction={updateManualWaitAction}
+            waitEstimate={snapshot.shop}
             waitingCount={waitingCount}
           />
         </div>
 
         <OwnerFooterStatus />
       </div>
-    </main>
+    </OwnerShell>
   );
 };
 

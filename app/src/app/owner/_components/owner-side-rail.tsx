@@ -1,38 +1,44 @@
-import Link from "next/link";
-import { Button, Card, CardContent, CardHeader, CardTitle, Icon } from "@/components/ui";
-import type { OwnerNotificationLogItem } from "@/lib/queue/repository";
+import { Card, CardContent, CardHeader, CardTitle, Icon } from "@/components/ui";
+import type { OwnerNotificationLogItem, QueueStatusSnapshot, ShopIntakeSettings } from "@/lib/queue/repository";
 import { OwnerNotificationLogPanel } from "./owner-notification-log-panel";
+import { OwnerShopControlPanel } from "./shop-status-strip";
 
 type OwnerSideRailProps = {
   currentCount: number;
   waitingCount: number;
   totalCount: number;
   breakAction: () => Promise<void>;
+  intakeAction: (formData: FormData) => Promise<void>;
+  intakeSettings: ShopIntakeSettings;
   notificationLogs: OwnerNotificationLogItem[];
+  waitAction: (formData: FormData) => Promise<void>;
+  waitEstimate: QueueStatusSnapshot["shop"];
 };
 
-export const OwnerSideRail = ({ currentCount, waitingCount, totalCount, breakAction, notificationLogs }: OwnerSideRailProps) => (
+export const OwnerSideRail = ({
+  breakAction,
+  currentCount,
+  intakeAction,
+  intakeSettings,
+  notificationLogs,
+  totalCount,
+  waitAction,
+  waitEstimate,
+  waitingCount,
+}: OwnerSideRailProps) => (
   <aside className="bqa-owner-side-rail" aria-label="การทำงานเร็วและสรุปวันนี้">
     <Card className="!rounded-[14px] !border-[var(--line-strong)] !bg-[color-mix(in_srgb,var(--surface)_84%,var(--paper))] !p-0 !shadow-none" aria-labelledby="quick-actions-title">
       <CardHeader className="px-3.5 pt-3.5 pb-0">
-        <CardTitle id="quick-actions-title" className="!mb-0 !text-base !leading-tight">การทำงานเร็ว</CardTitle>
+        <CardTitle id="quick-actions-title" className="!mb-0 !text-base !leading-tight">ควบคุมร้าน</CardTitle>
       </CardHeader>
-      <CardContent className="grid gap-2.5 px-3.5 pt-3 pb-3.5">
-        <Button asChild variant="outline" size="md" fullWidth>
-          <Link href="/owner/walk-in">
-            <Icon icon="lucide:plus" aria-hidden="true" />เพิ่มคิว
-          </Link>
-        </Button>
-        <form action={breakAction}>
-          <Button variant="outline" type="submit" size="md" fullWidth>
-            <Icon icon="lucide:coffee" aria-hidden="true" />พักร้าน
-          </Button>
-        </form>
-        <Button asChild variant="outline" size="md" fullWidth>
-          <Link href="/owner">
-            <Icon icon="lucide:refresh-cw" aria-hidden="true" />รีเฟรชคิว
-          </Link>
-        </Button>
+      <CardContent className="px-3.5 pt-3 pb-3.5">
+        <OwnerShopControlPanel
+          breakAction={breakAction}
+          intakeAction={intakeAction}
+          settings={intakeSettings}
+          waitAction={waitAction}
+          waitEstimate={waitEstimate}
+        />
       </CardContent>
     </Card>
 

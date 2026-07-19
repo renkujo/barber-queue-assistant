@@ -16,7 +16,7 @@ Primary reference:
 1. **Queue board first** - the daily queue is the main object. Do not bury it under analytics, cards, or navigation.
 2. **Next action clarity** - the most likely next owner action must be obvious within 1 second.
 3. **Mobile is primary** - owner may use the app between haircuts, with one hand and limited attention.
-4. **Desktop adds breadth, not complexity** - desktop may show more rows and a side rail, but should not become back-office software.
+4. **Desktop is a small-business back office** - desktop adds persistent navigation, comparison density, and management breadth for the same owner, without enterprise analytics, staff roles, or salon-suite complexity.
 5. **Soft operational tone** - warm, local, approachable, but still precise enough for queue control.
 6. **Thai first** - Thai labels, queue codes, times, and status chips must be readable before decorative polish.
 7. **Destructive actions stay quiet** - cancel/no-show actions are visible but never compete with the expected next action.

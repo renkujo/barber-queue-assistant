@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { FormGrid } from "@/components/barber/app-ui";
 import { FormField, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui";
 import type { QueueService } from "@/lib/queue/repository";
 
@@ -104,23 +103,31 @@ export const OwnerQueueEditScheduleFields = ({
   };
 
   return (
-    <>
-      <FormField id="serviceId" label="บริการ">
-        <Select name="serviceId" value={serviceId} onValueChange={(nextServiceId) => updateServiceDateAndTime(nextServiceId, dateValue)} required>
-          <SelectTrigger id="serviceId">
-            <SelectValue placeholder="เลือกบริการ" />
-          </SelectTrigger>
-          <SelectContent>
-            {services.map((service) => (
-              <SelectItem value={service.id} key={service.id}>
-                {service.name} · {service.durationMinutes} นาที · {service.priceLabel}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </FormField>
+    <div className="bqa-owner-edit-section bqa-owner-edit-section--schedule">
+      <div className="bqa-owner-edit-section-heading">
+        <span>02</span>
+        <div>
+          <h2>บริการและเวลา</h2>
+          <p>เลือกบริการ วัน และเวลาล็อกคิว หรือปล่อยเป็น walk-in ไม่ล็อกเวลา</p>
+        </div>
+      </div>
 
-      <FormGrid>
+      <div className="bqa-owner-edit-schedule-grid">
+        <FormField id="serviceId" label="บริการ">
+          <Select name="serviceId" value={serviceId} onValueChange={(nextServiceId) => updateServiceDateAndTime(nextServiceId, dateValue)} required>
+            <SelectTrigger id="serviceId">
+              <SelectValue placeholder="เลือกบริการ" />
+            </SelectTrigger>
+            <SelectContent>
+              {services.map((service) => (
+                <SelectItem value={service.id} key={service.id}>
+                  {service.name} · {service.durationMinutes} นาที · {service.priceLabel}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FormField>
+
         <FormField id="dateValue" label="วัน">
           <Select name="dateValue" value={dateValue} onValueChange={(nextDateValue) => updateServiceDateAndTime(serviceId, nextDateValue)} required>
             <SelectTrigger id="dateValue">
@@ -135,6 +142,7 @@ export const OwnerQueueEditScheduleFields = ({
             </SelectContent>
           </Select>
         </FormField>
+
         <FormField id="timeValue" label="เวลา" description="เลือกไม่ล็อกเวลาได้สำหรับ walk-in">
           <Select name="timeValue" value={timeValue} onValueChange={setTimeValue}>
             <SelectTrigger id="timeValue">
@@ -150,7 +158,12 @@ export const OwnerQueueEditScheduleFields = ({
             </SelectContent>
           </Select>
         </FormField>
-      </FormGrid>
-    </>
+      </div>
+
+      <p className="bqa-owner-edit-no-lock-note">
+        <strong>ไม่ล็อกเวลา / walk-in</strong>
+        <span>ใช้เมื่อไม่ต้องจองช่องเวลา ระบบจะบันทึกคิวโดยไม่มีเวลาเฉพาะ</span>
+      </p>
+    </div>
   );
 };

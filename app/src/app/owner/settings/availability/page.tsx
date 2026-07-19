@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FormGrid, FormStack, Notice, OwnerGrid, OwnerHeader, Panel, SectionHeader } from "@/components/barber/app-ui";
+import { cn } from "@/lib/cn";
 import {
   Button,
   FormField,
@@ -23,7 +24,8 @@ import {
   updateOwnerDateAvailabilityAction,
   updateOwnerWeeklyAvailabilityAction,
 } from "../../actions";
-import { OwnerTopbar } from "../../_components/owner-topbar";
+import { OwnerShell } from "../../_components/owner-shell";
+import { OwnerAvailabilityResponsiveSchedule } from "./owner-availability-responsive-schedule";
 
 export const dynamic = "force-dynamic";
 
@@ -73,9 +75,7 @@ const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProp
   const statusMessage = params.status ? statusMessages[params.status] : null;
 
   return (
-    <main className="bqa-owner-board-shell">
-      <OwnerTopbar />
-
+    <OwnerShell>
       <div className="bqa-owner-board-content bqa-owner-form-content bqa-owner-form-content--compact">
         <OwnerHeader
           title="ตารางรับลูกค้าประจำสัปดาห์"
@@ -96,56 +96,81 @@ const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProp
 
         <OwnerGrid className="bqa-owner-grid--workbench">
           <div className="bqa-owner-availability-main">
-            <Panel aria-labelledby="owner-weekly-availability-title">
+            <Panel aria-labelledby="owner-weekly-availability-title" className="bqa-owner-weekly-schedule-panel">
               <SectionHeader
                 id="owner-weekly-availability-title"
                 title="จันทร์–อาทิตย์"
-                note="แต่ละวันใช้ค่าซ้ำอัตโนมัติทุกสัปดาห์"
+                note="บันทึกแยกทีละวัน ไม่มีปุ่มบันทึกทั้งสัปดาห์"
                 action={
                   <form action={applyOwnerWeeklyAvailabilityPresetAction}>
-                    <Button type="submit" variant="outline" size="sm">
+                    <Button type="submit" variant="outline" size="sm" className="bqa-owner-weekly-preset-button">
                       <Icon icon="lucide:wand-sparkles" aria-hidden="true" />จ.–ศ. ออนไลน์ / ส.–อา. หน้าร้าน
                     </Button>
                   </form>
                 }
               />
 
-              <FormStack>
-                {weeklyItems.map((item) => (
-                  <form action={updateOwnerWeeklyAvailabilityAction} key={item.dayOfWeek} className="bqa-owner-availability-row bqa-owner-weekly-row">
-                    <input name="dayOfWeek" type="hidden" value={item.dayOfWeek} />
-                    <div className="bqa-owner-weekly-day">
-                      <span>{item.shortLabel}</span>
-                      <p>
-                        <strong>{item.label}</strong>
-                        <small>{item.hasOverride ? getModeLabel(item.mode, "ใช้ค่าหลักของร้าน") : "ใช้ค่าหลักของร้าน"}</small>
-                      </p>
-                    </div>
+              <OwnerAvailabilityResponsiveSchedule>
+                <div className="bqa-owner-weekly-schedule-head" aria-hidden="true">
+                  <span>วัน</span>
+                  <span>รูปแบบรับลูกค้า</span>
+                  <span>หมายเหตุ (ไม่บังคับ)</span>
+                  <span>บันทึกแยกวัน</span>
+                </div>
+                {weeklyItems.map((item) => {
+                  const modeLabel = item.hasOverride ? getModeLabel(item.mode, "ใช้ค่าหลักของร้าน") : "ใช้ค่าหลักของร้าน";
 
-                    <FormGrid>
-                      <FormField id={`weekly-mode-${item.dayOfWeek}`} label="รูปแบบรับลูกค้า">
-                        <Select name="mode" defaultValue={item.mode} required>
-                          <SelectTrigger id={`weekly-mode-${item.dayOfWeek}`}>
-                            <SelectValue placeholder="เลือกสถานะ" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {weeklyModeOptions.map((option) => (
-                              <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormField>
-                      <FormField id={`weekly-reason-${item.dayOfWeek}`} label="หมายเหตุ" description="ไม่บังคับ">
-                        <Input id={`weekly-reason-${item.dayOfWeek}`} name="reason" defaultValue={item.reason} placeholder="เช่น ลูกค้าหน้าร้านเยอะ" />
-                      </FormField>
-                    </FormGrid>
+                  return (
+                    <details
+                      open={item.dayOfWeek === 1}
+                      key={item.dayOfWeek}
+                      className={cn("bqa-owner-weekly-disclosure", item.dayOfWeek === 1 && "bqa-owner-weekly-disclosure--default-open")}
+                    >
+                      <summary className="bqa-owner-weekly-summary">
+                        <span className="bqa-owner-weekly-summary-day">
+                          <span>{item.shortLabel}</span>
+                          <strong>{item.label}</strong>
+                        </span>
+                        <span className="bqa-owner-weekly-summary-mode">{modeLabel}</span>
+                        <Icon icon="lucide:chevron-right" aria-hidden="true" />
+                      </summary>
 
-                    <Button type="submit" variant={item.hasOverride ? "outline" : "default"} size="md" fullWidth>
-                      <Icon icon="lucide:save" aria-hidden="true" />บันทึก
-                    </Button>
-                  </form>
-                ))}
-              </FormStack>
+                      <form action={updateOwnerWeeklyAvailabilityAction} className="bqa-owner-availability-row bqa-owner-weekly-row">
+                        <input name="dayOfWeek" type="hidden" value={item.dayOfWeek} />
+                        <div className="bqa-owner-weekly-day">
+                          <span>{item.shortLabel}</span>
+                          <p>
+                            <strong>{item.label}</strong>
+                            <small>{modeLabel}</small>
+                          </p>
+                        </div>
+
+                        <FormGrid>
+                          <FormField id={`weekly-mode-${item.dayOfWeek}`} label="รูปแบบรับลูกค้า">
+                            <Select name="mode" defaultValue={item.mode} required>
+                              <SelectTrigger id={`weekly-mode-${item.dayOfWeek}`}>
+                                <SelectValue placeholder="เลือกสถานะ" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {weeklyModeOptions.map((option) => (
+                                  <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormField>
+                          <FormField id={`weekly-reason-${item.dayOfWeek}`} label="หมายเหตุ" description="ไม่บังคับ">
+                            <Input id={`weekly-reason-${item.dayOfWeek}`} name="reason" defaultValue={item.reason} placeholder="เพิ่มหมายเหตุ" />
+                          </FormField>
+                        </FormGrid>
+
+                        <Button type="submit" variant="default" size="md" fullWidth className="bqa-owner-weekly-save-button">
+                          <Icon icon="lucide:save" aria-hidden="true" />บันทึกวันนี้
+                        </Button>
+                      </form>
+                    </details>
+                  );
+                })}
+              </OwnerAvailabilityResponsiveSchedule>
             </Panel>
 
             <details className="bqa-owner-availability-exceptions">
@@ -196,12 +221,14 @@ const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProp
             </details>
           </div>
 
-          <Panel tone="warm">
-            <SectionHeader title="รูปแบบรับลูกค้า" note="วันพิเศษจะมีสิทธิ์เหนือกว่าตารางประจำสัปดาห์" />
+          <Panel tone="warm" className="bqa-owner-availability-legend">
+            <SectionHeader title="รูปแบบรับลูกค้า" note="คำอธิบายผลลัพธ์ที่ลูกค้าจะเห็น" />
             <div className="bqa-owner-step-list">
-              {availabilityModes.map((option, index) => (
+              {availabilityModes.map((option) => (
                 <div className="bqa-owner-step-row" key={option.value}>
-                  <span>{index + 1}</span>
+                  <span aria-hidden="true">
+                    <Icon icon={option.value === "booking-and-walk-in" ? "lucide:laptop" : option.value === "in-store-only" ? "lucide:store" : "lucide:badge-x"} />
+                  </span>
                   <p>
                     <strong>{option.label}</strong>
                     <small>{option.description}</small>
@@ -212,7 +239,7 @@ const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProp
           </Panel>
         </OwnerGrid>
       </div>
-    </main>
+    </OwnerShell>
   );
 };
 
