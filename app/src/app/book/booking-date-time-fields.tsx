@@ -1,43 +1,44 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FormGrid, Notice } from "@/components/barber/app-ui";
 import { FormField, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui";
 
-type CustomerDateAvailability = {
+export type CustomerDateAvailability = {
   bookingEnabled: boolean;
   onlineWalkInEnabled: boolean;
   inStoreOnly: boolean;
 };
 
-type BookingServiceOption = {
+export type BookingServiceOption = {
   id: string;
   name: string;
   durationMinutes: number;
   priceLabel: string;
 };
 
-type BookingSlotOption = {
+export type BookingSlotOption = {
   value: string;
   label: string;
   available: boolean;
 };
 
-type BookingSlotGroup = {
+export type BookingSlotGroup = {
   today: BookingSlotOption[];
   tomorrow: BookingSlotOption[];
 };
 
-type BookingDateTimeFieldsProps = {
+export type BookingDateTimeFieldsProps = {
   services: BookingServiceOption[];
   todayValue: string;
   tomorrowValue: string;
   defaultServiceId?: string;
   slotsByServiceId: Record<string, BookingSlotGroup>;
   availabilityByDateValue: Record<string, CustomerDateAvailability>;
+  onAvailabilityChange?: (hasAvailableSlot: boolean) => void;
 };
 
-const getFirstAvailableSlot = (slots: BookingSlotOption[]) => slots.find((slot) => slot.available) ?? slots[0];
+const getFirstAvailableSlot = (slots: BookingSlotOption[]) => slots.find((slot) => slot.available);
 
 const getPreferredDateValue = ({ slots, todayValue, tomorrowValue }: { slots?: BookingSlotGroup; todayValue: string; tomorrowValue: string }) => {
   if (slots?.today.some((slot) => slot.available)) {
@@ -66,6 +67,7 @@ export const BookingDateTimeFields = ({
   defaultServiceId,
   slotsByServiceId,
   availabilityByDateValue,
+  onAvailabilityChange,
 }: BookingDateTimeFieldsProps) => {
   const initialServiceId = defaultServiceId ?? services[0]?.id ?? "";
   const [serviceId, setServiceId] = useState(initialServiceId);
@@ -85,6 +87,10 @@ export const BookingDateTimeFields = ({
     : selectedDateAvailability && !selectedDateAvailability.bookingEnabled
       ? `${selectedDateLabel}ร้านไม่เปิดรับคิวใหม่`
       : `${selectedDateLabel}ไม่มีเวลาว่างสำหรับบริการนี้ ลองเลือกวันหรือบริการอื่น`;
+
+  useEffect(() => {
+    onAvailabilityChange?.(hasAvailableSlot);
+  }, [hasAvailableSlot, onAvailabilityChange]);
 
   const updateDateAndTime = (nextServiceId: string, nextDateValue: string) => {
     const nextSlots = getSlotsForDate({ slots: slotsByServiceId[nextServiceId], dateValue: nextDateValue, tomorrowValue });
@@ -108,7 +114,7 @@ export const BookingDateTimeFields = ({
       <FormField id="serviceId" label="บริการ">
         <Select name="serviceId" value={serviceId} onValueChange={handleServiceChange} required>
           <SelectTrigger id="serviceId"><SelectValue placeholder="เลือกบริการ" /></SelectTrigger>
-          <SelectContent>
+          <SelectContent className="qw-v2-select-content">
             {services.map((service) => (
               <SelectItem value={service.id} key={service.id}>{service.name} · {service.durationMinutes} นาที · {service.priceLabel}</SelectItem>
             ))}
@@ -120,7 +126,7 @@ export const BookingDateTimeFields = ({
         <FormField id="dateValue" label="วัน">
           <Select name="dateValue" value={dateValue} onValueChange={handleDateChange} required>
             <SelectTrigger id="dateValue"><SelectValue placeholder="เลือกวัน" /></SelectTrigger>
-            <SelectContent>
+            <SelectContent className="qw-v2-select-content">
               <SelectItem value={todayValue}>วันนี้{availabilityByDateValue[todayValue]?.inStoreOnly ? " · หน้าร้านเท่านั้น" : ""}</SelectItem>
               <SelectItem value={tomorrowValue}>พรุ่งนี้{availabilityByDateValue[tomorrowValue]?.inStoreOnly ? " · หน้าร้านเท่านั้น" : ""}</SelectItem>
             </SelectContent>
@@ -129,7 +135,7 @@ export const BookingDateTimeFields = ({
         <FormField id="timeValue" label="เวลา">
           <Select name="timeValue" value={timeValue} onValueChange={setTimeValue} required>
             <SelectTrigger id="timeValue"><SelectValue placeholder="เลือกเวลา" /></SelectTrigger>
-            <SelectContent>
+            <SelectContent className="qw-v2-select-content">
               {visibleSlots.map((slot) => (
                 <SelectItem value={slot.value} key={slot.value} disabled={!slot.available}>
                   {slot.label}

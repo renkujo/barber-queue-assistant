@@ -16,7 +16,7 @@ Route: `/owner/settings`
 - The page also contains factual support/actions:
   - settings effect guidance explaining online queue intake and manual wait;
   - owner LINE connection status from `ownerLineUserId`, masked when present;
-  - `เชื่อม LINE เจ้าของร้าน` / `เชื่อม LINE ใหม่` link generated with LIFF when configured, otherwise `/line/owner?token=...`;
+  - `เชื่อม LINE เจ้าของร้าน` / `เชื่อม LINE ใหม่` opens authenticated `/owner/settings/line-connect`, which issues the one-use nonce only when clicked and then redirects to LIFF or a truthful setup-missing fallback;
   - link to `/owner/settings/availability` labelled `ตั้งค่าวันรับคิว`;
   - link to `/owner/settings/services` labelled `จัดการบริการ`.
 - Current Desktop 1440×1000 is truthful and compact, but the main form and right helper cards still read as a generic two-column settings page rather than a controlled shop console.

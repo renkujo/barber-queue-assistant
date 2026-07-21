@@ -73,8 +73,8 @@ const OwnerQueueEditPage = async ({ params, searchParams }: OwnerQueueEditPagePr
   const errorMessage = query.error ? errorMessages[query.error] : null;
 
   return (
-    <OwnerShell>
-      <div className="bqa-owner-board-content bqa-owner-form-content">
+    <OwnerShell visualVersion="v2">
+      <div className="bqa-owner-board-content bqa-owner-form-content bqa-owner-queue-edit-v2">
         <OwnerHeader
           title={`แก้ไขคิว ${queueItem.code}`}
           description={`${queueItem.customerName} · ${queueItem.statusLabel}`}

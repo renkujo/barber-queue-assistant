@@ -6,8 +6,10 @@ const cookieName = "bqa_owner_session";
 
 const getPasscode = () => process.env.BARBER_ADMIN_PASSCODE;
 
-const getSessionSecret = () =>
-  process.env.BARBER_ADMIN_SESSION_SECRET ?? process.env.BARBER_ADMIN_PASSCODE;
+const getSessionSecret = () => {
+  const explicitSecret = process.env.BARBER_ADMIN_SESSION_SECRET;
+  return explicitSecret?.trim() ? explicitSecret : process.env.BARBER_ADMIN_PASSCODE;
+};
 
 const getSessionValue = () => {
   const secret = getSessionSecret();

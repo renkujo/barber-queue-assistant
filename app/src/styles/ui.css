@@ -254,6 +254,12 @@
   color: var(--muted);
 }
 
+.ui-badge--danger {
+  border-color: color-mix(in srgb, var(--rose) 78%, transparent);
+  background: color-mix(in srgb, var(--rose-soft) 52%, transparent);
+  color: #8f3d37;
+}
+
 .ui-badge--positive {
   border-color: color-mix(in srgb, var(--sage) 74%, transparent);
   background: color-mix(in srgb, var(--mint) 44%, transparent);

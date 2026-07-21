@@ -39,7 +39,7 @@ export const OwnerClosedQueueList = ({ queue }: { queue: QueueListItem[] }) => {
       </CardHeader>
 
       <CardContent className="p-0">
-        <ol className="m-0 grid list-none divide-y divide-[var(--line)] p-0 min-[760px]:hidden" aria-label="คิวที่ปิดแล้ววันนี้">
+        <ol className="bqa-owner-closed-mobile m-0 grid list-none divide-y divide-[var(--line)] p-0 min-[760px]:hidden" aria-label="คิวที่ปิดแล้ววันนี้">
           {queue.map((item) => (
             <li className="grid gap-3 px-3.5 py-3" key={item.id}>
               <div className="grid grid-cols-[52px_minmax(0,1fr)] gap-3">
@@ -47,10 +47,10 @@ export const OwnerClosedQueueList = ({ queue }: { queue: QueueListItem[] }) => {
                   {item.timeLabel}
                 </time>
                 <div className="min-w-0">
-                  <strong className="block min-w-0 text-sm font-medium leading-snug text-[var(--ink)]">
+                  <strong className="bqa-owner-closed-name block min-w-0 text-sm font-medium leading-snug text-[var(--ink)]" title={`${item.code} ${item.customerName}`}>
                     {item.code} {item.customerName}
                   </strong>
-                  <p className="mt-1 line-clamp-2 text-xs font-medium leading-snug text-[var(--muted)]">
+                  <p className="bqa-owner-closed-note mt-1 line-clamp-2 text-xs font-medium leading-snug text-[var(--muted)]" title={item.note || item.serviceName}>
                     {item.note || item.serviceName}
                   </p>
                 </div>
@@ -63,7 +63,7 @@ export const OwnerClosedQueueList = ({ queue }: { queue: QueueListItem[] }) => {
           ))}
         </ol>
 
-        <div className="hidden min-[760px]:block">
+        <div className="bqa-owner-closed-desktop hidden min-[760px]:block">
           <Table className="bqa-owner-closed-table min-w-[720px]">
             <TableHeader>
               <TableRow>
@@ -79,7 +79,7 @@ export const OwnerClosedQueueList = ({ queue }: { queue: QueueListItem[] }) => {
                 <TableRow key={item.id}>
                   <TableCell className="w-[72px] font-medium tabular-nums text-[color-mix(in_srgb,var(--ink)_74%,var(--muted))]">{item.timeLabel}</TableCell>
                   <TableCell>
-                    <strong className="min-w-0 text-sm font-medium leading-tight text-[var(--ink)]">
+                    <strong className="bqa-owner-closed-name min-w-0 text-sm font-medium leading-tight text-[var(--ink)]" title={`${item.code} ${item.customerName}`}>
                       {item.code} {item.customerName}
                     </strong>
                   </TableCell>

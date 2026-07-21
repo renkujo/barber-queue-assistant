@@ -1,8 +1,10 @@
 # Design System V1 — Pastel Paper Queue
 
+> Runtime status: retired for every promoted Queue Workspace V2 route. This document remains authoritative only for the intentionally unpromoted global non-queue 404 plus historical V1 asset/reference records. Current owner, owner-login, and customer route authority is [Global Design System V2 — Queue Workspace](./design-system-v2-queue-workspace.md).
+
 ## Direction
 
-Pastel Paper Queue is the base direction for Barber Queue Assistant.
+Pastel Paper Queue is the historical baseline direction for Barber Queue Assistant. Do not reintroduce its visual tokens into a promoted V2 route.
 
 The product should feel soft, calm, local, and easy for a one-owner barber shop. It should not feel like enterprise salon software. Customer screens should reduce repeated questions. Owner screens should make queue decisions fast while the barber has little attention.
 

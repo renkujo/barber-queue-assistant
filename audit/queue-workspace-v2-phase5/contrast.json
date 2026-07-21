@@ -1,0 +1,112 @@
+{
+  "generatedAt": "2026-07-21T06:22:14.703Z",
+  "source": "rendered production CSS custom properties at /, 390x844",
+  "cases": [
+    {
+      "name": "primary text",
+      "foreground": "--qw-color-ink-deep",
+      "background": "--qw-color-canvas",
+      "foregroundValue": "#17120f",
+      "backgroundValue": "#fff",
+      "ratio": 18.59,
+      "minimum": 4.5,
+      "rule": "WCAG AA normal text",
+      "pass": true
+    },
+    {
+      "name": "secondary text",
+      "foreground": "--qw-color-text-secondary",
+      "background": "--qw-color-canvas",
+      "foregroundValue": "#625b55",
+      "backgroundValue": "#fff",
+      "ratio": 6.67,
+      "minimum": 4.5,
+      "rule": "WCAG AA normal text",
+      "pass": true
+    },
+    {
+      "name": "dark CTA text",
+      "foreground": "--qw-color-on-dark",
+      "background": "--qw-color-ink-deep",
+      "foregroundValue": "#fff",
+      "backgroundValue": "#17120f",
+      "ratio": 18.59,
+      "minimum": 4.5,
+      "rule": "WCAG AA normal text",
+      "pass": true
+    },
+    {
+      "name": "positive semantic",
+      "foreground": "--qw-color-positive",
+      "background": "--qw-color-positive-soft",
+      "foregroundValue": "#2f746b",
+      "backgroundValue": "#edf5f3",
+      "ratio": 4.95,
+      "minimum": 4.5,
+      "rule": "WCAG AA normal text",
+      "pass": true
+    },
+    {
+      "name": "warning semantic",
+      "foreground": "--qw-color-warning",
+      "background": "--qw-color-warning-soft",
+      "foregroundValue": "#8a5a00",
+      "backgroundValue": "#f6f2e8",
+      "ratio": 5.3,
+      "minimum": 4.5,
+      "rule": "WCAG AA normal text",
+      "pass": true
+    },
+    {
+      "name": "danger semantic",
+      "foreground": "--qw-color-danger",
+      "background": "--qw-color-danger-soft",
+      "foregroundValue": "#a24038",
+      "backgroundValue": "#f7eceb",
+      "ratio": 5.46,
+      "minimum": 4.5,
+      "rule": "WCAG AA normal text",
+      "pass": true
+    },
+    {
+      "name": "error semantic",
+      "foreground": "--qw-color-error",
+      "background": "--qw-color-error-soft",
+      "foregroundValue": "#8c2f3d",
+      "backgroundValue": "#f7ecef",
+      "ratio": 7.03,
+      "minimum": 4.5,
+      "rule": "WCAG AA normal text",
+      "pass": true
+    },
+    {
+      "name": "focus ring",
+      "foreground": "--qw-color-brand-blue",
+      "background": "--qw-color-canvas",
+      "foregroundValue": "#3d5fcc",
+      "backgroundValue": "#fff",
+      "ratio": 5.66,
+      "minimum": 3,
+      "rule": "WCAG non-text focus indicator",
+      "pass": true
+    },
+    {
+      "name": "strong control border",
+      "foreground": "--qw-color-border-strong",
+      "background": "--qw-color-canvas",
+      "foregroundValue": "#918981",
+      "backgroundValue": "#fff",
+      "ratio": 3.44,
+      "minimum": 3,
+      "rule": "WCAG non-text component boundary",
+      "pass": true
+    }
+  ],
+  "disabled": {
+    "foreground": "--qw-color-text-secondary",
+    "background": "--qw-color-surface-soft",
+    "ratio": 5.85,
+    "note": "Recorded for inspection; disabled controls are exempt from WCAG contrast requirements."
+  },
+  "allRequiredPass": true
+}

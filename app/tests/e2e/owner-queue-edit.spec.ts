@@ -28,12 +28,14 @@ test.describe("owner queue edit workbench", () => {
     await expect(page).toHaveURL(/\/owner\/queue\/.+\/edit$/);
 
     await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.locator("main[data-owner-visual='v2'] .bqa-owner-queue-edit-v2")).toBeVisible();
     await expect(page.locator(".bqa-owner-mobile-bottom-nav [aria-current='page']")).toContainText("วันนี้");
     await expect(page.getByRole("heading", { name: /แก้ไขคิว/ })).toBeVisible();
     await expect(page.getByLabel("บริการ")).toBeVisible();
     await expect(page.getByLabel("วัน")).toBeVisible();
     await expect(page.getByLabel("เวลา")).toBeVisible();
     await page.getByLabel("เวลา").click();
+    await expect(page.locator(".qw-v2-select-content")).toBeVisible();
     await expect(page.getByRole("option", { name: "ไม่ล็อกเวลา / walk-in" })).toBeVisible();
     await page.getByRole("option", { name: "ไม่ล็อกเวลา / walk-in" }).click();
     await expect(page.getByLabel("เวลา")).toContainText("ไม่ล็อกเวลา / walk-in");
@@ -61,6 +63,30 @@ test.describe("owner queue edit workbench", () => {
     expect(mobileGeometry.saveBottom).toBeLessThanOrEqual(mobileGeometry.bottomNavTop);
     expect(mobileGeometry.scrollWidth).toBe(mobileGeometry.clientWidth);
 
+    for (const viewport of [
+      { width: 768, height: 1024, rail: "below" },
+      { width: 1024, height: 768, rail: "below" },
+      { width: 1180, height: 900, rail: "below" },
+      { width: 1399, height: 900, rail: "below" },
+      { width: 1400, height: 900, rail: "right" },
+    ]) {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height });
+      const panelBox = await page.locator(".bqa-owner-edit-panel").boundingBox();
+      const railBox = await page.locator(".bqa-owner-edit-rule-rail").boundingBox();
+
+      if (viewport.rail === "right") {
+        expect(railBox?.x ?? 0).toBeGreaterThan((panelBox?.x ?? 0) + (panelBox?.width ?? 0));
+      } else {
+        expect(railBox?.y ?? 0).toBeGreaterThanOrEqual((panelBox?.y ?? 0) + (panelBox?.height ?? 0));
+      }
+
+      const width = await page.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }));
+      expect(width.scroll).toBe(width.client);
+    }
+
     await page.getByLabel("ชื่อลูกค้า").fill(updatedName);
     await page.getByLabel("เบอร์โทร").fill("");
     await page.getByLabel("หมายเหตุลูกค้า").fill("หมายเหตุลูกค้ายาวสำหรับตรวจภาษาไทยและพื้นที่ข้อความบนมือถือ");
@@ -78,8 +104,11 @@ test.describe("owner queue edit workbench", () => {
     }));
     expect(desktopViewport.scrollWidth).toBe(desktopViewport.clientWidth);
 
-    await page.getByRole("button", { name: "บันทึกการแก้ไข" }).click();
-    await expect(page).toHaveURL(/\/owner\?status=queue-updated$/);
+    await Promise.all([
+      page.waitForURL(/\/owner\?status=queue-updated$/, { waitUntil: "commit" }),
+      page.getByRole("button", { name: "บันทึกการแก้ไข" }).click(),
+    ]);
+    await expect(page).toHaveURL(/\/owner(?:\?status=queue-updated)?$/);
     const updatedRow = page.locator(".bqa-owner-queue-row").filter({ hasText: updatedName });
     await expect(updatedRow).toBeVisible();
     await expect(updatedRow).toContainText("โน้ต: โน้ตส่วนตัวของร้าน ห้ามเข้าใจว่าเป็นข้อความแจ้งลูกค้า");

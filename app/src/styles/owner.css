@@ -3197,10 +3197,6 @@
   --service-grid: minmax(220px, 1.55fr) minmax(104px, 0.62fr) minmax(104px, 0.62fr) minmax(72px, 0.42fr) minmax(96px, 0.5fr) minmax(96px, 0.46fr);
 }
 
-.bqa-owner-services-workbench {
-  align-items: start;
-}
-
 .bqa-owner-services-create-rail {
   order: -1;
 }

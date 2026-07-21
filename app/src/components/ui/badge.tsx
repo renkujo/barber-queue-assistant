@@ -7,6 +7,7 @@ const badgeVariants = tv({
   variants: {
     variant: {
       neutral: "ui-badge--neutral",
+      danger: "ui-badge--danger",
       positive: "ui-badge--positive",
       warning: "ui-badge--warning",
       warm: "ui-badge--warm",

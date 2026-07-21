@@ -13,7 +13,7 @@ Implemented:
 - LINE webhook route: `app/src/app/api/line/webhook/route.ts`
 - Signature verification with `LINE_CHANNEL_SECRET`
 - Basic user binding from webhook `follow` / `message` events via `source.userId`
-- Optional `lineUserId` query support on `/book` and `/walk-in`
+- Server-verified LIFF ID-token handoff through a signed, short-lived HttpOnly cookie
 - Queue notification boundary and `NotificationLog` recording
 - LINE push wrapper for text messages
 - Tests for notification logs, user binding, and webhook signatures
@@ -27,8 +27,8 @@ Not implemented yet:
 Implemented after the foundation:
 
 - LIFF entry route at `/line`
-- `/line?target=book` redirects to `/book?lineUserId=...` after LIFF profile lookup
-- `/line?target=walk-in` redirects to `/walk-in?lineUserId=...` after LIFF profile lookup
+- `/line?target=book` verifies the LIFF ID token server-side, sets the identity cookie, then redirects to clean `/book`
+- `/line?target=walk-in` verifies the LIFF ID token server-side, sets the identity cookie, then redirects to clean `/walk-in`
 
 ## LINE side setup
 
@@ -78,7 +78,7 @@ Owner-created walk-ins are intentionally not pushed back to the owner to avoid s
 
 ## LIFF setup
 
-Create a LIFF app in the same LINE Developers channel if you want rich-menu links to automatically attach `lineUserId` to booking/walk-in forms.
+Create a LIFF app in the same LINE Login channel if you want rich-menu links to associate verified LINE identity with booking/walk-in forms without exposing identity in URLs.
 
 Recommended LIFF settings:
 
@@ -164,8 +164,9 @@ Current binding is intentionally minimal.
 The app creates/updates `Customer.lineUserId` when:
 
 1. LINE sends a webhook `follow` or `message` event with `source.userId`.
-2. A customer opens `/line?target=book` or `/line?target=walk-in` from LINE and LIFF injects `lineUserId` into the destination form.
-3. A customer opens `/book?lineUserId=...` or `/walk-in?lineUserId=...` directly and submits the form.
+2. A customer opens `/line?target=book` or `/line?target=walk-in`; LIFF supplies an ID token, the server verifies it with LINE, and the verified subject is stored in a signed HttpOnly cookie for the destination action.
+
+Direct `lineUserId` query parameters and hidden form values are intentionally ignored.
 
 If the webhook creates a placeholder customer first, the later form submission updates that customer with the real customer name and phone.
 

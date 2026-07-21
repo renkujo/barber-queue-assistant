@@ -1,0 +1,36 @@
+[
+  {
+    "viewport": {
+      "width": 1024,
+      "height": 768
+    },
+    "sidebar": {
+      "x": 16,
+      "y": 16,
+      "width": 220,
+      "height": 736,
+      "bottom": 752
+    },
+    "footerBottom": 738,
+    "sidebarBackground": "rgb(23, 18, 15)",
+    "activeBackground": "rgb(255, 255, 255)",
+    "overflow": 0
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "sidebar": {
+      "x": 16,
+      "y": 16,
+      "width": 220,
+      "height": 968,
+      "bottom": 984
+    },
+    "footerBottom": 970,
+    "sidebarBackground": "rgb(23, 18, 15)",
+    "activeBackground": "rgb(255, 255, 255)",
+    "overflow": 0
+  }
+]

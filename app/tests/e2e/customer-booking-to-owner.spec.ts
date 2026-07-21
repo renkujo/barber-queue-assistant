@@ -16,6 +16,7 @@ test.describe("customer booking flow", () => {
     const customerName = `${e2eCustomerPrefix} Booking ${timestamp}`;
 
     await page.goto("/book");
+    await expect(page.locator("main[data-customer-visual='v2'].bqa-customer-book-v2")).toBeVisible();
     await page.getByLabel("วัน").click();
     await page.getByRole("option", { name: "พรุ่งนี้" }).click();
     await page.getByLabel("ชื่อ", { exact: true }).fill(customerName);

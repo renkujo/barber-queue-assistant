@@ -64,8 +64,8 @@ const OwnerPage = async ({ searchParams }: OwnerPageProps) => {
   const statusMessage = params.status ? statusMessages[params.status] : null;
 
   return (
-    <OwnerShell>
-      <div className="bqa-owner-board-content">
+    <OwnerShell visualVersion="v2">
+      <div className="bqa-owner-board-content bqa-owner-dashboard-content">
         <OwnerWorkspaceHeader intakeEnabled={intakeSettings.queueIntakeEnabled} />
         {!canMutateQueue ? <Notice tone="warm">ตอนนี้เป็นข้อมูล fallback กดเปลี่ยนสถานะไม่ได้ สร้าง booking/walk-in จริงก่อน</Notice> : null}
         <RouteToast

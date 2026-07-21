@@ -1,0 +1,82 @@
+[
+  {
+    "viewport": {
+      "width": 360,
+      "height": 800
+    },
+    "clientWidth": 360,
+    "scrollWidth": 360,
+    "rootVisual": "v2",
+    "bodyBackground": "rgb(255, 255, 255)",
+    "bottomNavVisible": true,
+    "saveHeight": 48,
+    "primaryButtonRadius": "9999px",
+    "primaryButtonBackground": "rgb(23, 18, 15)",
+    "railActionsInsideCards": true,
+    "bottomNavClearanceAfterScroll": 131.390625
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "rootVisual": "v2",
+    "bodyBackground": "rgb(255, 255, 255)",
+    "bottomNavVisible": true,
+    "saveHeight": 48,
+    "primaryButtonRadius": "9999px",
+    "primaryButtonBackground": "rgb(23, 18, 15)",
+    "railActionsInsideCards": true,
+    "bottomNavClearanceAfterScroll": 131.390625
+  },
+  {
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "clientWidth": 768,
+    "scrollWidth": 768,
+    "rootVisual": "v2",
+    "bodyBackground": "rgb(255, 255, 255)",
+    "bottomNavVisible": true,
+    "saveHeight": 48,
+    "primaryButtonRadius": "9999px",
+    "primaryButtonBackground": "rgb(23, 18, 15)",
+    "railActionsInsideCards": true,
+    "bottomNavClearanceAfterScroll": 46.53125
+  },
+  {
+    "viewport": {
+      "width": 1024,
+      "height": 768
+    },
+    "clientWidth": 1024,
+    "scrollWidth": 1024,
+    "rootVisual": "v2",
+    "bodyBackground": "rgb(255, 255, 255)",
+    "bottomNavVisible": false,
+    "saveHeight": 48,
+    "primaryButtonRadius": "9999px",
+    "primaryButtonBackground": "rgb(23, 18, 15)",
+    "railActionsInsideCards": true,
+    "bottomNavClearanceAfterScroll": null
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "rootVisual": "v2",
+    "bodyBackground": "rgb(255, 255, 255)",
+    "bottomNavVisible": false,
+    "saveHeight": 48,
+    "primaryButtonRadius": "9999px",
+    "primaryButtonBackground": "rgb(23, 18, 15)",
+    "railActionsInsideCards": true,
+    "bottomNavClearanceAfterScroll": null
+  }
+]

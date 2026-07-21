@@ -16,12 +16,15 @@ test.describe("customer walk-in to owner queue", () => {
     const customerName = `${e2eCustomerPrefix} Customer ${Date.now()}`;
 
     await page.goto("/walk-in");
+    await expect(page.locator("main[data-customer-visual='v2'].bqa-customer-walkin-v2")).toBeVisible();
     await page.getByLabel("ชื่อ", { exact: true }).fill(customerName);
     await page.getByLabel("เบอร์โทร").fill("0811111111");
     await page.getByLabel("หมายเหตุ").fill("customer created by Playwright");
     await page.getByRole("button", { name: "รับบัตรคิวออนไลน์" }).click();
 
     await expect(page).toHaveURL(/\/queue\/[a-f0-9-]{36}$/);
+    await expect(page.locator("main[data-customer-visual='v2'].bqa-customer-tracking-v2")).toBeVisible();
+    await expect(page.locator("main[data-owner-visual]")).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "คิวของคุณ" })).toBeVisible();
     await expect(page.getByText(`${Array.from(customerName).slice(0, 2).join("")}***`)).toBeVisible();
     await expect(page.getByText("รหัสคิว", { exact: true })).toBeVisible();

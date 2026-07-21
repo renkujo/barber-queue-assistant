@@ -75,6 +75,7 @@ export type PublicQueueTrackingItem = Omit<QueueListItem, "id" | "note"> & {
 };
 
 export type ShopIntakeSettings = {
+  source: "database" | "fallback";
   shopName: string;
   queueIntakeEnabled: boolean;
   bookingEnabled: boolean;
@@ -531,10 +532,17 @@ const findEarliestOpenSlot = (cursor: Date, durationMinutes: number, fixedBlocks
   return candidateStart;
 };
 
-const getEstimatedWalkInStart = async (dateValue: string, durationMinutes: number, now = new Date()) => {
+type QueueTimelineClient = Pick<typeof prisma, "queueItem" | "timeBlock">;
+
+const getEstimatedWalkInStart = async (
+  dateValue: string,
+  durationMinutes: number,
+  now = new Date(),
+  database: QueueTimelineClient = prisma,
+) => {
   const { start, end } = getDayBounds(dateValue);
   const [queueItems, timeBlocks] = await Promise.all([
-    prisma.queueItem.findMany({
+    database.queueItem.findMany({
       where: {
         date: {
           gte: start,
@@ -553,7 +561,7 @@ const getEstimatedWalkInStart = async (dateValue: string, durationMinutes: numbe
         status: true,
       },
     }),
-    prisma.timeBlock.findMany({
+    database.timeBlock.findMany({
       where: {
         date: {
           gte: start,
@@ -637,10 +645,23 @@ const mapQueueItem = (
 };
 
 const maskCustomerName = (customerName: string) => {
-  const characters = Array.from(customerName.trim());
-  const visibleName = characters.slice(0, Math.min(2, characters.length)).join("");
+  const graphemes = Array.from(
+    new Intl.Segmenter("th", { granularity: "grapheme" }).segment(customerName.trim()),
+    (part) => part.segment,
+  );
 
-  return visibleName ? `${visibleName}***` : "ลูกค้า";
+  if (!graphemes.length) {
+    return "ลูกค้า";
+  }
+
+  if (graphemes.length === 1) {
+    return "***";
+  }
+
+  const visibleCount = Math.min(2, graphemes.length - 1);
+  const visibleName = graphemes.slice(0, visibleCount).join("");
+
+  return `${visibleName}***`;
 };
 
 const mapPublicQueueItem = (
@@ -769,11 +790,12 @@ const mapShopIntakeSettings = (settings: {
   const isOpenNow = getIsOpenNow(businessHours);
 
   return {
+    source: "database",
     shopName: settings.shopName,
     queueIntakeEnabled: settings.queueIntakeEnabled,
     bookingEnabled: settings.bookingEnabled,
     walkInEnabled: settings.walkInEnabled,
-    bookingAvailable: settings.queueIntakeEnabled && settings.bookingEnabled,
+    bookingAvailable: settings.queueIntakeEnabled && settings.bookingEnabled && dateAvailability.bookingEnabled,
     walkInAvailable: settings.queueIntakeEnabled && settings.walkInEnabled && dateAvailability.walkInEnabled && isOpenNow,
     inStoreOnly: dateAvailability.inStoreOnly,
     isOpenNow,
@@ -870,8 +892,8 @@ export const getCustomerDateAvailabilitySafe = async (dateValue: string): Promis
     return await getCustomerDateAvailability(dateValue);
   } catch {
     return {
-      bookingEnabled: true,
-      onlineWalkInEnabled: true,
+      bookingEnabled: false,
+      onlineWalkInEnabled: false,
       inStoreOnly: false,
     };
   }
@@ -882,14 +904,15 @@ export const getShopIntakeSettingsSafe = async (): Promise<ShopIntakeSettings> =
     return await getShopIntakeSettings();
   } catch {
     return {
+      source: "fallback",
       shopName: shopStatus.shopName,
-      queueIntakeEnabled: true,
-      bookingEnabled: true,
-      walkInEnabled: true,
-      bookingAvailable: true,
-      walkInAvailable: true,
+      queueIntakeEnabled: false,
+      bookingEnabled: false,
+      walkInEnabled: false,
+      bookingAvailable: false,
+      walkInAvailable: false,
       inStoreOnly: false,
-      isOpenNow: true,
+      isOpenNow: false,
       openLabel: shopStatus.openLabel,
     };
   }
@@ -1144,13 +1167,15 @@ export const getServices = async (): Promise<QueueService[]> => {
   }));
 };
 
-export const getServicesSafe = async () => {
+export const getServicesWithSourceSafe = async () => {
   try {
-    return await getServices();
+    return { services: await getServices(), source: "database" as const };
   } catch {
-    return fallbackServices;
+    return { services: fallbackServices, source: "fallback" as const };
   }
 };
+
+export const getServicesSafe = async () => (await getServicesWithSourceSafe()).services;
 
 export const getOwnerServiceSettings = async (): Promise<OwnerServiceSettingsItem[]> => {
   const [services, serviceCount] = await Promise.all([
@@ -1557,7 +1582,7 @@ export const getAvailableBookingSlotsSafe = async (dateValue: string, serviceId?
   try {
     return await getAvailableBookingSlots(dateValue, serviceId);
   } catch {
-    return getDefaultBookingTimes().map((time) => ({ value: time, label: time, available: true }));
+    return getDefaultBookingTimes().map((time) => ({ value: time, label: time, available: false }));
   }
 };
 
@@ -1593,6 +1618,12 @@ const getQueueItemWithIndex = async (id: string) => {
 };
 
 const getQueueItemWithIndexByPublicToken = async (publicToken: string) => {
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+  if (!uuidPattern.test(publicToken)) {
+    return null;
+  }
+
   const item = await prisma.queueItem.findUnique({ where: { publicToken } });
 
   if (!item) {
@@ -1608,14 +1639,19 @@ const getQueueItemWithIndexByPublicToken = async (publicToken: string) => {
   };
 };
 
-const findOrCreateCustomer = async (input: { name: string; phone?: string; lineUserId?: string }) => {
+type QueueWriteClient = Pick<typeof prisma, "customer" | "queueItem" | "service" | "timeBlock">;
+
+const findOrCreateCustomer = async (
+  input: { name: string; phone?: string; lineUserId?: string },
+  database: QueueWriteClient = prisma,
+) => {
   const lineUserId = input.lineUserId?.trim() || undefined;
 
   if (lineUserId) {
-    const existingLineCustomer = await prisma.customer.findUnique({ where: { lineUserId } });
+    const existingLineCustomer = await database.customer.findUnique({ where: { lineUserId } });
 
     if (existingLineCustomer) {
-      return prisma.customer.update({
+      return database.customer.update({
         where: { id: existingLineCustomer.id },
         data: {
           name: input.name,
@@ -1626,11 +1662,11 @@ const findOrCreateCustomer = async (input: { name: string; phone?: string; lineU
   }
 
   if (input.phone) {
-    const existingCustomer = await prisma.customer.findFirst({ where: { phone: input.phone } });
+    const existingCustomer = await database.customer.findFirst({ where: { phone: input.phone } });
 
     if (existingCustomer) {
       if (lineUserId && !existingCustomer.lineUserId) {
-        return prisma.customer.update({
+        return database.customer.update({
           where: { id: existingCustomer.id },
           data: { lineUserId },
         });
@@ -1640,7 +1676,7 @@ const findOrCreateCustomer = async (input: { name: string; phone?: string; lineU
     }
   }
 
-  return prisma.customer.create({
+  return database.customer.create({
     data: {
       name: input.name,
       phone: input.phone,
@@ -1650,8 +1686,8 @@ const findOrCreateCustomer = async (input: { name: string; phone?: string; lineU
   });
 };
 
-const findService = async (serviceId: string) => {
-  const service = await prisma.service.findUnique({ where: { id: serviceId } });
+const findService = async (serviceId: string, database: QueueWriteClient = prisma) => {
+  const service = await database.service.findUnique({ where: { id: serviceId } });
 
   if (service) {
     return service;
@@ -1659,7 +1695,7 @@ const findService = async (serviceId: string) => {
 
   const fallback = fallbackServices.find((item) => item.id === serviceId) ?? fallbackServices[0];
 
-  return prisma.service.create({
+  return database.service.create({
     data: {
       id: fallback.id,
       name: fallback.name,
@@ -1668,6 +1704,21 @@ const findService = async (serviceId: string) => {
       sortOrder: fallbackServices.findIndex((item) => item.id === fallback.id),
     },
   });
+};
+
+const findActiveService = async (serviceId: string, database: QueueWriteClient = prisma) => {
+  const service = await database.service.findFirst({
+    where: {
+      id: serviceId,
+      isActive: true,
+    },
+  });
+
+  if (!service) {
+    throw new Error("Service is unavailable.");
+  }
+
+  return service;
 };
 
 export const ensureDefaultServices = async () => {
@@ -1692,8 +1743,8 @@ export const ensureDefaultServices = async () => {
 export const createBooking = async (input: CreateBookingInput) => {
   await assertPublicQueueIntakeOpen("booking");
 
+  const service = await findActiveService(input.serviceId);
   const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId });
-  const service = await findService(input.serviceId);
   const startAt = createDateTime(input.dateValue, input.timeValue);
   const { start } = getDayBounds(input.dateValue);
   const slots = await getAvailableBookingSlots(input.dateValue, service.id);
@@ -1725,55 +1776,61 @@ export const createBooking = async (input: CreateBookingInput) => {
 export const createWalkIn = async (input: CreateWalkInInput) => {
   await assertPublicQueueIntakeOpen("walk-in");
 
-  const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId });
-  const service = await findService(input.serviceId);
-  const todayValue = getTodayValue();
-  const { start } = getDayBounds(todayValue);
-  const estimatedAt = await getEstimatedWalkInStart(todayValue, service.durationMinutes);
+  return prisma.$transaction(async (transaction) => {
+    await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('bqa:walk-in-estimate'))`;
+    const service = await findActiveService(input.serviceId, transaction);
+    const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId }, transaction);
+    const todayValue = getTodayValue();
+    const { start } = getDayBounds(todayValue);
+    const estimatedAt = await getEstimatedWalkInStart(todayValue, service.durationMinutes, new Date(), transaction);
 
-  return prisma.queueItem.create({
-    data: {
-      type: QueueItemType.WALK_IN,
-      status: QueueItemStatus.WAITING,
-      customerId: customer.id,
-      customerNameSnapshot: customer.name,
-      phoneSnapshot: input.phone || null,
-      lineUserIdSnapshot: customer.lineUserId,
-      serviceId: service.id,
-      serviceNameSnapshot: service.name,
-      serviceDurationMinutes: service.durationMinutes,
-      date: start,
-      estimatedAt,
-      note: input.note,
-      createdBy: QueueCreatedBy.CUSTOMER,
-    },
+    return transaction.queueItem.create({
+      data: {
+        type: QueueItemType.WALK_IN,
+        status: QueueItemStatus.WAITING,
+        customerId: customer.id,
+        customerNameSnapshot: customer.name,
+        phoneSnapshot: input.phone || null,
+        lineUserIdSnapshot: customer.lineUserId,
+        serviceId: service.id,
+        serviceNameSnapshot: service.name,
+        serviceDurationMinutes: service.durationMinutes,
+        date: start,
+        estimatedAt,
+        note: input.note,
+        createdBy: QueueCreatedBy.CUSTOMER,
+      },
+    });
   });
 };
 
 
 export const createOwnerWalkIn = async (input: CreateOwnerWalkInInput) => {
-  const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId });
-  const service = await findService(input.serviceId);
-  const todayValue = getTodayValue();
-  const { start } = getDayBounds(todayValue);
-  const estimatedAt = await getEstimatedWalkInStart(todayValue, service.durationMinutes);
+  return prisma.$transaction(async (transaction) => {
+    await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('bqa:walk-in-estimate'))`;
+    const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId }, transaction);
+    const service = await findService(input.serviceId, transaction);
+    const todayValue = getTodayValue();
+    const { start } = getDayBounds(todayValue);
+    const estimatedAt = await getEstimatedWalkInStart(todayValue, service.durationMinutes, new Date(), transaction);
 
-  return prisma.queueItem.create({
-    data: {
-      type: QueueItemType.WALK_IN,
-      status: QueueItemStatus.WAITING,
-      customerId: customer.id,
-      customerNameSnapshot: customer.name,
-      phoneSnapshot: input.phone || null,
-      lineUserIdSnapshot: customer.lineUserId,
-      serviceId: service.id,
-      serviceNameSnapshot: service.name,
-      serviceDurationMinutes: service.durationMinutes,
-      date: start,
-      estimatedAt,
-      note: input.note,
-      createdBy: QueueCreatedBy.OWNER,
-    },
+    return transaction.queueItem.create({
+      data: {
+        type: QueueItemType.WALK_IN,
+        status: QueueItemStatus.WAITING,
+        customerId: customer.id,
+        customerNameSnapshot: customer.name,
+        phoneSnapshot: input.phone || null,
+        lineUserIdSnapshot: customer.lineUserId,
+        serviceId: service.id,
+        serviceNameSnapshot: service.name,
+        serviceDurationMinutes: service.durationMinutes,
+        date: start,
+        estimatedAt,
+        note: input.note,
+        createdBy: QueueCreatedBy.OWNER,
+      },
+    });
   });
 };
 

@@ -1,59 +1,48 @@
 import Link from "next/link";
-import { AppCard, FormGrid, FormStack, Notice, PageHeader, ScreenShell, StatGrid, StatTile } from "@/components/barber/app-ui";
-import { PrivacyNote } from "@/components/barber/privacy-note";
-import {
-  Button,
-  FormField,
-  Icon,
-  Input,
-  RouteToast,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Textarea,
-} from "@/components/ui";
-import { getQueueStatusSnapshotSafe, getServicesSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
-import { createWalkInAction } from "./actions";
+import { AppCard, Notice, PageHeader, ScreenShell, StatGrid, StatTile } from "@/components/barber/app-ui";
+import { Button, Icon } from "@/components/ui";
+import { getQueueStatusSnapshotSafe, getServicesWithSourceSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
+import { walkInErrorMessages } from "./walk-in-contract";
+import { WalkInForm } from "./walk-in-form";
 
 type WalkInPageProps = {
-  searchParams: Promise<{ error?: string; lineUserId?: string }>;
-};
-
-const errorMessages: Record<string, string> = {
-  invalid: "กรอกข้อมูลไม่ครบ ลองตรวจชื่อ บริการ และรูปแบบเบอร์โทรอีกครั้ง",
-  closed: "ตอนนี้ยังรับบัตรคิวออนไลน์ไม่ได้ กรุณาตรวจสถานะร้านก่อนลองใหม่",
-  "rate-limited": "มีการส่งคำขอหลายครั้งเกินไป กรุณารอประมาณ 10 นาทีแล้วลองใหม่",
-  database: "ยังรับคิวไม่ได้ ตรวจ database/migration ก่อนลองใหม่",
+  searchParams: Promise<{ error?: string }>;
 };
 
 const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
-  const [params, services, snapshot, intakeSettings] = await Promise.all([
+  const [params, serviceResult, snapshot, intakeSettings] = await Promise.all([
     searchParams,
-    getServicesSafe(),
+    getServicesWithSourceSafe(),
     getQueueStatusSnapshotSafe(),
     getShopIntakeSettingsSafe(),
   ]);
-  const errorMessage = params.error ? errorMessages[params.error] : null;
-  const lineUserId = params.lineUserId?.trim();
+  const services = serviceResult.services;
+  const errorMessage = params.error && params.error in walkInErrorMessages
+    ? walkInErrorMessages[params.error as keyof typeof walkInErrorMessages]
+    : null;
   const defaultServiceId = services[0]?.id;
   const hasServices = services.length > 0;
-  const walkInClosed = !intakeSettings.walkInAvailable;
+  const statusUnavailable = snapshot.source !== "database" || intakeSettings.source !== "database";
+  const servicesUnavailable = serviceResult.source !== "database";
+  const walkInClosed = statusUnavailable || !intakeSettings.walkInAvailable;
   const inStoreOnly = intakeSettings.inStoreOnly;
-  const walkInClosedMessage = inStoreOnly
-    ? "วันนี้รับเฉพาะลูกค้าที่เดินเข้าร้าน ไม่เปิดรับบัตรคิวผ่านเว็บ กรุณาเข้ามาสอบถามคิวที่ร้านได้เลย"
+  const effectiveInStoreOnly = !statusUnavailable && intakeSettings.isOpenNow && inStoreOnly;
+  const walkInClosedMessage = statusUnavailable
+    ? "ขณะนี้ตรวจสถานะร้านไม่ได้ จึงปิดการรับบัตรคิวใหม่ชั่วคราว กรุณาลองใหม่ภายหลัง"
     : !intakeSettings.isOpenNow
       ? `ตอนนี้อยู่นอกเวลาเปิดร้าน (${intakeSettings.openLabel}) รับบัตรคิวออนไลน์ได้เฉพาะช่วงร้านเปิด`
+      : inStoreOnly
+        ? "วันนี้รับเฉพาะลูกค้าที่เดินเข้าร้าน ไม่เปิดรับบัตรคิวผ่านเว็บ กรุณาเข้ามาสอบถามคิวที่ร้านได้เลย"
       : "วันนี้ปิดรับบัตรคิวออนไลน์ กรุณากลับมาเช็คใหม่ภายหลัง";
+  const canSubmit = !walkInClosed && !servicesUnavailable && hasServices;
 
   return (
-    <ScreenShell className="bqa-book-shell">
+    <ScreenShell className="bqa-book-shell bqa-customer-walkin-v2" visualVersion="v2">
       <AppCard labelledBy="walk-in-title" className="bqa-book-card bqa-walk-in-card">
         <PageHeader
           id="walk-in-title"
           title="รับบัตรคิวออนไลน์"
-          subtitle={inStoreOnly ? "วันนี้รับเฉพาะหน้าร้าน" : "คิวสำหรับวันนี้"}
+          subtitle={effectiveInStoreOnly ? "วันนี้รับเฉพาะหน้าร้าน" : "คิวสำหรับวันนี้"}
           action={
             <Button asChild variant="ghost" size="sm">
               <Link href="/">
@@ -64,23 +53,22 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
         />
 
         {errorMessage ? <Notice>{errorMessage}</Notice> : null}
-        {walkInClosed ? <Notice tone="warm">{walkInClosedMessage}</Notice> : null}
-        {!hasServices ? <Notice>ยังไม่มีบริการที่เปิดใช้ ตอนนี้ยังรับคิวจากลูกค้าไม่ได้</Notice> : null}
-        <RouteToast message={errorMessage} type="error" toastKey={`walk-in:${params.error ?? ""}`} />
-
+        {walkInClosed ? <Notice tone={statusUnavailable ? undefined : "warm"}>{walkInClosedMessage}</Notice> : null}
+        {servicesUnavailable ? <Notice>ยังโหลดรายการบริการไม่ได้ จึงปิดการรับบัตรคิวใหม่ชั่วคราว</Notice> : null}
+        {!servicesUnavailable && !hasServices ? <Notice>ยังไม่มีบริการที่เปิดใช้ ตอนนี้ยังรับคิวจากลูกค้าไม่ได้</Notice> : null}
         <div className="bqa-book-layout">
           <aside className="bqa-book-guide bqa-walk-in-guide" aria-label="สถานะคิวตอนนี้">
             <div>
               <span>สถานะหน้าร้าน</span>
-              <strong>{inStoreOnly ? "รับเฉพาะหน้าร้าน" : walkInClosed ? (intakeSettings.isOpenNow ? "ปิดรับออนไลน์" : "ร้านปิดอยู่") : "รับคิวออนไลน์อยู่"}</strong>
+              <strong>{statusUnavailable ? "ตรวจสถานะไม่ได้" : !intakeSettings.isOpenNow ? "ร้านปิดอยู่" : effectiveInStoreOnly ? "รับเฉพาะหน้าร้าน" : walkInClosed ? "ปิดรับออนไลน์" : "รับคิวออนไลน์อยู่"}</strong>
             </div>
             <StatGrid className="bqa-stat-grid--flush bqa-walk-in-status-grid">
-              <StatTile icon={<Icon icon="lucide:users" aria-hidden="true" />} label="คิวตอนนี้" value={snapshot.shop.currentQueueCount} unit="คน" />
-              <StatTile icon={<Icon icon="lucide:clock" aria-hidden="true" />} label="รอประมาณ" value={snapshot.shop.estimatedWaitMinutes} unit="นาที" />
+              <StatTile icon={<Icon icon="lucide:users" aria-hidden="true" />} label="คิวตอนนี้" value={statusUnavailable ? "—" : snapshot.shop.currentQueueCount} unit={statusUnavailable ? undefined : "คน"} />
+              <StatTile icon={<Icon icon="lucide:clock" aria-hidden="true" />} label="รอประมาณ" value={statusUnavailable ? "—" : snapshot.shop.estimatedWaitMinutes} unit={statusUnavailable ? undefined : "นาที"} />
             </StatGrid>
           </aside>
 
-        {inStoreOnly ? (
+        {effectiveInStoreOnly ? (
           <section className="bqa-book-form bqa-book-section" aria-labelledby="in-store-only-title">
             <div className="bqa-book-section-heading">
               <h2 id="in-store-only-title">เข้ามาที่ร้านได้เลย</h2>
@@ -93,52 +81,11 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
             </Button>
           </section>
         ) : (
-        <form action={createWalkInAction} className="bqa-book-form">
-          {lineUserId ? <input type="hidden" name="lineUserId" value={lineUserId} /> : null}
-          <FormStack className="bqa-book-form-stack">
-            <section className="bqa-book-section" aria-labelledby="walk-in-service-title">
-              <div className="bqa-book-section-heading">
-                <h2 id="walk-in-service-title">บริการที่ต้องการ</h2>
-                <p>เลือกบริการที่จะเข้าคิววันนี้</p>
-              </div>
-
-              <FormField id="serviceId" label="บริการ">
-                <Select name="serviceId" defaultValue={defaultServiceId} required>
-                  <SelectTrigger id="serviceId"><SelectValue placeholder="เลือกบริการ" /></SelectTrigger>
-                  <SelectContent>
-                    {services.map((service) => (
-                      <SelectItem value={service.id} key={service.id}>{service.name} · {service.durationMinutes} นาที · {service.priceLabel}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormField>
-            </section>
-
-            <section className="bqa-book-section" aria-labelledby="walk-in-contact-title">
-              <div className="bqa-book-section-heading">
-                <h2 id="walk-in-contact-title">ข้อมูลติดต่อ</h2>
-                <p>ใช้เรียกคิวและติดต่อกลับหากคิวเปลี่ยน</p>
-              </div>
-
-              <FormGrid>
-                <FormField id="customerName" label="ชื่อ">
-                  <Input id="customerName" name="customerName" required placeholder="ชื่อของคุณ" />
-                </FormField>
-                <FormField id="phone" label="เบอร์โทร (ไม่บังคับ)" description="กรอกเมื่ออยากให้ร้านติดต่อกลับ">
-                  <Input id="phone" name="phone" inputMode="tel" autoComplete="tel" placeholder="เช่น 0812345678" />
-                </FormField>
-              </FormGrid>
-              <FormField id="note" label="หมายเหตุ">
-                <Textarea id="note" name="note" placeholder="เช่น รอที่ร้านแล้ว" />
-              </FormField>
-            </section>
-
-          <PrivacyNote />
-          <Button type="submit" size="lg" fullWidth disabled={walkInClosed || !hasServices}>
-            <Icon icon="lucide:users" aria-hidden="true" />รับบัตรคิวออนไลน์
-          </Button>
-          </FormStack>
-        </form>
+          <WalkInForm
+            canSubmit={canSubmit}
+            defaultServiceId={defaultServiceId}
+            services={servicesUnavailable ? [] : services}
+          />
         )}
         </div>
       </AppCard>

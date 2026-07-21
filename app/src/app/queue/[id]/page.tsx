@@ -31,34 +31,47 @@ type QueueTrackingPageProps = {
 };
 
 const statusTone = (status: string) => {
-  if (status === QueueItemStatus.DONE || status === QueueItemStatus.IN_PROGRESS) return "positive";
-  if (status === QueueItemStatus.LATE || status === QueueItemStatus.NO_SHOW || status === QueueItemStatus.CANCELLED) return "warning";
+  if (status === QueueItemStatus.ARRIVED || status === QueueItemStatus.DONE || status === QueueItemStatus.IN_PROGRESS) return "positive";
+  if (status === QueueItemStatus.LATE) return "warning";
+  if (status === QueueItemStatus.NO_SHOW || status === QueueItemStatus.CANCELLED) return "danger";
 
-  return "warm";
+  return "neutral";
 };
 
 const getTrackingMessage = (status: string) => {
+  if (status === QueueItemStatus.CONFIRMED) {
+    return { title: "ยืนยันคิวแล้ว", note: "ร้านได้รับคิวจองของคุณแล้ว ตรวจวันและเวลาที่แสดงไว้ก่อนเดินทาง" };
+  }
+
+  if (status === QueueItemStatus.ARRIVED) {
+    return { title: "เช็กอินถึงร้านแล้ว", note: "ร้านรับทราบว่าคุณมาถึงแล้ว กรุณารอเจ้าของร้านเรียกตามลำดับ" };
+  }
+
+  if (status === QueueItemStatus.WAITING) {
+    return { title: "กำลังรอเรียกคิว", note: "คิวของคุณอยู่ในรายการรอ กรุณาติดตามสถานะจากหน้านี้" };
+  }
+
   if (status === QueueItemStatus.IN_PROGRESS) {
     return { title: "กำลังให้บริการ", note: "ถึงคิวของคุณแล้ว เจ้าของร้านกำลังดำเนินการอยู่" };
   }
 
   if (status === QueueItemStatus.LATE) {
-    return { title: "คิวนี้ถูกทำเครื่องหมายว่ามาสาย", note: "ถ้ายังจะมา แนะนำติดต่อร้านโดยตรงเพื่อให้เจ้าของร้านจัดคิวใหม่" };
+    return { title: "คิวนี้ถูกทำเครื่องหมายว่ามาสาย", note: "หากยังต้องการรับบริการ ให้รับบัตรคิวใหม่เพื่อให้ร้านจัดลำดับอีกครั้ง" };
   }
 
   if (status === QueueItemStatus.NO_SHOW) {
-    return { title: "คิวนี้ถูกบันทึกว่าไม่มา", note: "คิวนี้ถูกปิดแล้ว หากต้องการรับบริการ ให้รับคิวใหม่หรือติดต่อร้าน" };
+    return { title: "คิวนี้ถูกบันทึกว่าไม่มา", note: "คิวนี้ถูกปิดแล้ว หากยังต้องการรับบริการ ให้รับบัตรคิวใหม่" };
   }
 
   if (status === QueueItemStatus.CANCELLED) {
-    return { title: "คิวนี้ถูกยกเลิก", note: "คิวนี้ไม่อยู่ในรายการรอแล้ว หากต้องการรับบริการ ให้จองหรือรับคิวใหม่" };
+    return { title: "คิวนี้ถูกยกเลิก", note: "คิวนี้ไม่อยู่ในรายการรอแล้ว หากยังต้องการรับบริการ ให้รับบัตรคิวใหม่" };
   }
 
   if (status === QueueItemStatus.DONE) {
     return { title: "บริการเสร็จแล้ว", note: "คิวนี้ถูกปิดงานเรียบร้อยแล้ว ขอบคุณที่ใช้บริการ" };
   }
 
-  return { title: "แจ้งเตือนคิว", note: "ถ้าเข้าผ่าน LINE OA ภายหลัง ระบบจะส่งเตือนเมื่อใกล้ถึงคิวได้" };
+  return { title: "ติดตามสถานะคิว", note: "เก็บรหัสคิวและ PIN ไว้ใช้กลับมาเปิดหน้านี้อีกครั้ง" };
 };
 
 const QueueTrackingPage = async ({ params }: QueueTrackingPageProps) => {
@@ -72,7 +85,7 @@ const QueueTrackingPage = async ({ params }: QueueTrackingPageProps) => {
   const trackingMessage = getTrackingMessage(queueItem.status);
 
   return (
-    <ScreenShell className="bqa-book-shell">
+    <ScreenShell className="bqa-book-shell bqa-customer-tracking-v2" visualVersion="v2">
       <AppCard labelledBy="tracking-title" className="bqa-book-card bqa-tracking-card">
         <PageHeader
           id="tracking-title"
@@ -114,7 +127,7 @@ const QueueTrackingPage = async ({ params }: QueueTrackingPageProps) => {
           </Button>
           <Button asChild variant="outline">
             <Link href="/walk-in">
-              <Icon icon="lucide:users" aria-hidden="true" />รับคิวเพิ่ม
+              <Icon icon="lucide:users" aria-hidden="true" />รับบัตรคิวใหม่
             </Link>
           </Button>
         </div>

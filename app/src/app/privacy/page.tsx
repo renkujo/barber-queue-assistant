@@ -27,7 +27,7 @@ const PrivacyPage = () => {
   const contactHref = getContactHref(privacyContact);
 
   return (
-    <ScreenShell className="bqa-book-shell">
+    <ScreenShell className="bqa-book-shell bqa-customer-privacy-v2" visualVersion="v2">
       <AppCard labelledBy="privacy-title" className="bqa-book-card bqa-privacy-card">
         <PageHeader
           id="privacy-title"
@@ -60,6 +60,7 @@ const PrivacyPage = () => {
           <ul className="bqa-privacy-list">
             <li>สร้างและติดตามคิว ป้องกันเวลาซ้อน และให้เจ้าของร้านติดต่อกลับ</li>
             <li>ส่งข้อความยืนยันหรือแจ้งเตือนผ่าน LINE เมื่อเชื่อมบัญชีไว้</li>
+            <li>เมื่อเข้าผ่าน LINE ระบบเก็บ LINE user ID ชั่วคราวในคุกกี้ HttpOnly ที่ลงลายเซ็นและแยกตามวัตถุประสงค์ไว้ไม่เกิน 10 นาที เพื่อส่งต่อไปยังแบบฟอร์มโดยไม่ใส่ข้อมูลระบุตัวตนใน URL และลบหลังสร้างคิวหรือจบขั้นตอนเชื่อมต่อ</li>
             <li>ตรวจสอบปัญหาการใช้งานและปรับปรุงความแม่นยำของเวลารอ</li>
           </ul>
           <p className="bqa-copy">ข้อมูลเจ้าของร้านและหมายเหตุภายในจะไม่แสดงบนหน้าติดตามคิวสาธารณะ</p>
@@ -68,8 +69,8 @@ const PrivacyPage = () => {
         <Panel>
           <SectionHeader title="การเก็บรักษาและสิทธิของลูกค้า" />
           <p className="bqa-copy">
-            ในช่วง pilot ร้านจะตรวจลบหรือทำให้ข้อมูลคิวที่เกินความจำเป็นไม่สามารถระบุตัวบุคคลได้ภายใน 180 วัน
-            เว้นแต่จำเป็นต้องเก็บต่อเพื่อแก้ปัญหา ข้อพิพาท หรือหน้าที่ตามกฎหมาย
+            ในช่วง pilot ข้อมูลคิวที่มีอายุเกิน 180 วันจะเข้ารอบตรวจลบหรือทำให้ไม่สามารถระบุตัวบุคคลได้ในการดำเนินงานรายเดือนครั้งถัดไป
+            เว้นแต่จำเป็นต้องเก็บต่อเพื่อแก้ปัญหา ข้อพิพาท หรือหน้าที่ตามกฎหมาย จึงอาจมีข้อมูลคงอยู่ระหว่างรอรอบดำเนินงานถัดไป
           </p>
           <p className="bqa-copy">
             ลูกค้าสามารถขอดู แก้ไข หรือลบข้อมูลของตนได้โดยแจ้งชื่อ รหัสคิว และ PIN เช็คคิวกับร้าน โดยแจ้งเบอร์โทรเพิ่มเมื่อเคยกรอกไว้
@@ -85,7 +86,7 @@ const PrivacyPage = () => {
           )}
         </Panel>
 
-        <p className="bqa-privacy-note">ปรับปรุงล่าสุด: 16 กรกฎาคม 2569</p>
+        <p className="bqa-privacy-note">ปรับปรุงล่าสุด: 21 กรกฎาคม 2569</p>
       </AppCard>
     </ScreenShell>
   );

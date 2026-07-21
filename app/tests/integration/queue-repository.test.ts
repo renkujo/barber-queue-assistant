@@ -244,6 +244,22 @@ describe("queue repository status workflow", () => {
     expect(matchedByPin).toEqual({ publicToken: queueItem.publicToken });
     expect(rejectedPhoneDigits).toBeNull();
     expect(rejected).toBeNull();
+    expect(await getPublicQueueItemByToken("not-a-public-token")).toBeNull();
+    expect(await getPublicQueueItemByToken(queueItem.id)).toBeNull();
+  });
+
+  it("always conceals part of short customer names by Thai grapheme", async () => {
+    const oneGrapheme = await createQueueItem({ name: "ก" });
+    const combiningGrapheme = await createQueueItem({ name: "ก้" });
+    const twoGraphemes = await createQueueItem({ name: "สม" });
+
+    try {
+      expect((await getPublicQueueItemByToken(oneGrapheme.publicToken))?.customerName).toBe("***");
+      expect((await getPublicQueueItemByToken(combiningGrapheme.publicToken))?.customerName).toBe("***");
+      expect((await getPublicQueueItemByToken(twoGraphemes.publicToken))?.customerName).toBe("ส***");
+    } finally {
+      await prisma.queueItem.deleteMany({ where: { id: { in: [oneGrapheme.id, combiningGrapheme.id, twoGraphemes.id] } } });
+    }
   });
 
   it("allows a phone-less customer to recover a queue with its access PIN", async () => {
@@ -399,8 +415,19 @@ describe("queue repository status workflow", () => {
 
     const settings = await getShopIntakeSettings();
 
+    expect(settings.source).toBe("database");
     expect(settings.inStoreOnly).toBe(true);
+    expect(settings.bookingAvailable).toBe(false);
+    expect(settings.bookingEnabled).toBe(true);
     expect(settings.walkInAvailable).toBe(false);
+
+    await updateOwnerDateAvailability({
+      dateValue: tomorrowValue,
+      mode: "booking-and-walk-in",
+      reason: "tomorrow remains bookable",
+    });
+    const tomorrowBookableSlots = await getAvailableBookingSlots(tomorrowValue, serviceId);
+    expect(tomorrowBookableSlots.some((slot) => slot.available)).toBe(true);
     await expect(createWalkIn({
       customerName: `${testPrefix} online walk-in blocked`,
       phone: "0899922222",
@@ -434,6 +461,7 @@ describe("queue repository status workflow", () => {
 
     const settings = await getShopIntakeSettings();
 
+    expect(settings.bookingAvailable).toBe(false);
     expect(settings.walkInAvailable).toBe(false);
     expect(settings.inStoreOnly).toBe(false);
     await expect(createWalkIn({
@@ -441,6 +469,37 @@ describe("queue repository status workflow", () => {
       phone: "0899933333",
       serviceId,
     })).rejects.toThrow("Walk-in is closed.");
+  });
+
+  it("rejects inactive or unknown services for customer-created queues", async () => {
+    await setShopHours(getOpenHoursAroundNow());
+    await setOwnerServiceActive(serviceId, false);
+
+    try {
+      await expect(createWalkIn({
+        customerName: `${testPrefix} inactive walk-in service`,
+        phone: "0899944444",
+        serviceId,
+      })).rejects.toThrow("Service is unavailable.");
+
+      await expect(createBooking({
+        customerName: `${testPrefix} unknown booking service`,
+        phone: "0899955555",
+        serviceId: "unknown-public-service",
+        dateValue: getTomorrowValue(),
+        timeValue: "12:00",
+      })).rejects.toThrow("Service is unavailable.");
+
+      expect(await prisma.queueItem.count({
+        where: {
+          customerNameSnapshot: {
+            startsWith: `${testPrefix} inactive`,
+          },
+        },
+      })).toBe(0);
+    } finally {
+      await setOwnerServiceActive(serviceId, true);
+    }
   });
 
   it("builds booking slots from shop hours and service duration", async () => {
@@ -563,6 +622,28 @@ describe("queue repository status workflow", () => {
     const ownerWalkIn = ownerSnapshot.queue.find((item) => item.id === walkIn.id);
     expect(ownerWalkIn?.scheduleWarning).toContain("มีคิวจองคั่นอยู่");
     expect(ownerWalkIn?.scheduleWarning).toContain("ระบบวางคิวนี้หลังคิวจอง");
+  });
+
+  it("serializes concurrent walk-in estimates so they do not claim the same slot", async () => {
+    await setShopHours(getOpenHoursAroundNow());
+
+    const [first, second] = await Promise.all([
+      createWalkIn({
+        customerName: `${testPrefix} concurrent walk-in A`,
+        phone: "0844400001",
+        serviceId,
+      }),
+      createWalkIn({
+        customerName: `${testPrefix} concurrent walk-in B`,
+        phone: "0844400002",
+        serviceId,
+      }),
+    ]);
+
+    expect(first.estimatedAt).toBeInstanceOf(Date);
+    expect(second.estimatedAt).toBeInstanceOf(Date);
+    expect(first.estimatedAt?.getTime()).not.toBe(second.estimatedAt?.getTime());
+    expect(Math.abs((first.estimatedAt?.getTime() ?? 0) - (second.estimatedAt?.getTime() ?? 0))).toBeGreaterThanOrEqual(30 * 60 * 1000);
   });
 
   it("moves an existing in-progress item back to waiting when another item starts", async () => {

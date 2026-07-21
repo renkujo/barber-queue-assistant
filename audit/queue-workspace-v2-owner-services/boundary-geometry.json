@@ -1,0 +1,94 @@
+[
+  {
+    "viewport": {
+      "width": 1399,
+      "height": 900
+    },
+    "clientWidth": 1399,
+    "scrollWidth": 1399,
+    "tableHeadVisible": false,
+    "serviceCellsVisible": 0,
+    "table": {
+      "x": 283,
+      "width": 725,
+      "right": 1008,
+      "clientWidth": 723,
+      "scrollWidth": 723
+    },
+    "firstAction": {
+      "x": 961,
+      "width": 34,
+      "right": 995
+    },
+    "actionInsideTable": true
+  },
+  {
+    "viewport": {
+      "width": 1400,
+      "height": 900
+    },
+    "clientWidth": 1400,
+    "scrollWidth": 1400,
+    "tableHeadVisible": false,
+    "serviceCellsVisible": 0,
+    "table": {
+      "x": 283,
+      "width": 726,
+      "right": 1009,
+      "clientWidth": 724,
+      "scrollWidth": 724
+    },
+    "firstAction": {
+      "x": 962,
+      "width": 34,
+      "right": 996
+    },
+    "actionInsideTable": true
+  },
+  {
+    "viewport": {
+      "width": 1439,
+      "height": 900
+    },
+    "clientWidth": 1439,
+    "scrollWidth": 1439,
+    "tableHeadVisible": false,
+    "serviceCellsVisible": 0,
+    "table": {
+      "x": 283,
+      "width": 765,
+      "right": 1048,
+      "clientWidth": 763,
+      "scrollWidth": 763
+    },
+    "firstAction": {
+      "x": 1001,
+      "width": 34,
+      "right": 1035
+    },
+    "actionInsideTable": true
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "tableHeadVisible": true,
+    "serviceCellsVisible": 15,
+    "table": {
+      "x": 283,
+      "width": 766,
+      "right": 1049,
+      "clientWidth": 764,
+      "scrollWidth": 764
+    },
+    "firstAction": {
+      "x": 949.984375,
+      "width": 84,
+      "right": 1033.984375
+    },
+    "actionInsideTable": true
+  }
+]

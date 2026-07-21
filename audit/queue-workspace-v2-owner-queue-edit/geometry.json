@@ -1,0 +1,126 @@
+[
+  {
+    "viewport": {
+      "width": 360,
+      "height": 800
+    },
+    "clientWidth": 360,
+    "scrollWidth": 360,
+    "sidebar": null,
+    "sidebarFooterBottom": null,
+    "panel": {
+      "x": 16,
+      "y": 279.59375,
+      "width": 328,
+      "height": 1685.3125,
+      "bottom": 1964.90625
+    },
+    "ruleRail": null,
+    "saveHeight": 52,
+    "bottomNavVisible": true
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "sidebar": null,
+    "sidebarFooterBottom": null,
+    "panel": {
+      "x": 16,
+      "y": 279.59375,
+      "width": 358,
+      "height": 1664.46875,
+      "bottom": 1944.0625
+    },
+    "ruleRail": null,
+    "saveHeight": 52,
+    "bottomNavVisible": true
+  },
+  {
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "clientWidth": 768,
+    "scrollWidth": 768,
+    "sidebar": null,
+    "sidebarFooterBottom": null,
+    "panel": {
+      "x": 20,
+      "y": 202.59375,
+      "width": 728,
+      "height": 1260.90625,
+      "bottom": 1463.5
+    },
+    "ruleRail": {
+      "x": 20,
+      "y": 1479.5,
+      "width": 728
+    },
+    "saveHeight": 52,
+    "bottomNavVisible": true
+  },
+  {
+    "viewport": {
+      "width": 1024,
+      "height": 768
+    },
+    "clientWidth": 1024,
+    "scrollWidth": 1024,
+    "sidebar": {
+      "x": 16,
+      "y": 16,
+      "width": 220,
+      "height": 736,
+      "bottom": 752
+    },
+    "sidebarFooterBottom": 738,
+    "panel": {
+      "x": 268,
+      "y": 153.390625,
+      "width": 716,
+      "height": 1260.90625,
+      "bottom": 1414.296875
+    },
+    "ruleRail": {
+      "x": 268,
+      "y": 1430.296875,
+      "width": 716
+    },
+    "saveHeight": 52,
+    "bottomNavVisible": false
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "sidebar": {
+      "x": 16,
+      "y": 16,
+      "width": 220,
+      "height": 968,
+      "bottom": 984
+    },
+    "sidebarFooterBottom": 970,
+    "panel": {
+      "x": 268,
+      "y": 157.078125,
+      "width": 836,
+      "height": 1114.90625,
+      "bottom": 1271.984375
+    },
+    "ruleRail": {
+      "x": 1120,
+      "y": 141.078125,
+      "width": 280
+    },
+    "saveHeight": 52,
+    "bottomNavVisible": false
+  }
+]

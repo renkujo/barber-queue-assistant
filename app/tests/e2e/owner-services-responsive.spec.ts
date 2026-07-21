@@ -24,13 +24,14 @@ test.describe("owner services responsive settings", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/owner/settings/services");
 
+    await expect(page.locator("main[data-owner-visual='v2'] .bqa-owner-services-page")).toBeVisible();
     await expect(page.getByRole("heading", { name: "ตั้งค่าบริการ", level: 1 })).toBeVisible();
     await expect(page.locator(".bqa-owner-mobile-bottom-nav [aria-current='page']")).toContainText("เพิ่มเติม");
 
     const addPanel = page.locator(".bqa-owner-services-create-mobile");
     const listPanel = page.locator(".bqa-owner-services-list-panel");
     await expect(addPanel.getByText("เพิ่มบริการ").first()).toBeVisible();
-    await expect(addPanel.locator("summary")).toHaveCSS("min-height", "52px");
+    await expect(addPanel.locator("summary")).toHaveCSS("min-height", "56px");
     await expect(addPanel).toBeVisible();
     await expect(listPanel).toBeVisible();
 
@@ -72,6 +73,7 @@ test.describe("owner services responsive settings", () => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto("/owner/settings/services");
 
+    await expect(page.locator("main[data-owner-visual='v2'] .bqa-owner-services-page")).toBeVisible();
     await expect(page.locator(".bqa-owner-desktop-sidebar")).toBeVisible();
     await expect(page.locator(".bqa-owner-desktop-nav [aria-current='page']")).toContainText("บริการ");
     await expect(page.locator(".bqa-owner-services-table-head")).toBeVisible();
@@ -84,8 +86,58 @@ test.describe("owner services responsive settings", () => {
     const serviceHeader = await page.locator(".bqa-owner-services-list-panel").boundingBox();
     const createRail = await page.locator(".bqa-owner-services-create-rail").boundingBox();
     expect((createRail?.x ?? 0) > (serviceHeader?.x ?? 0)).toBe(true);
+    const table = page.locator(".bqa-owner-services-table");
+    const tableBox = await table.boundingBox();
+    const actionBox = await page.locator(".bqa-owner-service-summary").first().locator(".bqa-owner-service-action-label").boundingBox();
+    const tableWidth = await table.evaluate((element) => ({ client: element.clientWidth, scroll: element.scrollWidth }));
+    expect(tableWidth.scroll).toBeLessThanOrEqual(tableWidth.client + 2);
+    expect((actionBox?.x ?? 0) + (actionBox?.width ?? 0)).toBeLessThanOrEqual((tableBox?.x ?? 0) + (tableBox?.width ?? 0));
 
     const viewport = await getViewportWidthState(page);
     expect(viewport.scrollWidth).toBe(viewport.clientWidth);
+  });
+
+  test("keeps the connected service list contained at tablet and compact desktop widths", async ({ page }) => {
+    await loginOwner(page);
+
+    for (const viewport of [
+      { width: 768, height: 1024, sidebar: false },
+      { width: 1024, height: 768, sidebar: true },
+      { width: 1180, height: 900, sidebar: true },
+      { width: 1399, height: 900, sidebar: true },
+      { width: 1400, height: 900, sidebar: true },
+      { width: 1439, height: 900, sidebar: true },
+    ]) {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height });
+      await page.goto("/owner/settings/services");
+
+      await expect(page.locator(".bqa-owner-desktop-sidebar")).toBeVisible({ visible: viewport.sidebar });
+      await expect(page.locator(".bqa-owner-services-list-panel")).toBeVisible();
+      await expect(page.locator(".bqa-owner-services-table-head")).toBeHidden();
+      await expect(page.locator(".bqa-owner-service-cell:visible")).toHaveCount(0);
+      const listBox = await page.locator(".bqa-owner-services-list-panel").boundingBox();
+      const tableBox = await page.locator(".bqa-owner-services-table").boundingBox();
+      expect((tableBox?.x ?? 0) + (tableBox?.width ?? 0)).toBeLessThanOrEqual((listBox?.x ?? 0) + (listBox?.width ?? 0));
+      const tableWidth = await page.locator(".bqa-owner-services-table").evaluate((element) => ({
+        client: element.clientWidth,
+        scroll: element.scrollWidth,
+      }));
+      expect(tableWidth.scroll).toBe(tableWidth.client);
+
+      const width = await getViewportWidthState(page);
+      expect(width.scrollWidth).toBe(width.clientWidth);
+    }
+  });
+
+  test("keeps service status Select portals explicitly scoped", async ({ page }) => {
+    await loginOwner(page);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/owner/settings/services");
+
+    const trigger = page.locator(".bqa-owner-service-editor:visible .ui-select-trigger");
+    await trigger.click();
+    await expect(page.locator(".qw-v2-select-content")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.locator(".qw-v2-select-content")).toBeHidden();
   });
 });

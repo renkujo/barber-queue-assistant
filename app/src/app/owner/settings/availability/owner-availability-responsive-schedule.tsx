@@ -10,7 +10,7 @@ export const OwnerAvailabilityResponsiveSchedule = ({ children }: OwnerAvailabil
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(min-width: 760px)");
+    const mediaQuery = window.matchMedia("(min-width: 1400px)");
 
     const syncDisclosureState = () => {
       const root = rootRef.current;

@@ -23,12 +23,14 @@ If not, continue with phone/name and tracking code.
 
 Current binding foundation:
 
-- `/book` and `/walk-in` accept optional `lineUserId` from query string and submit it as a hidden field.
-- Booking/walk-in actions pass `lineUserId` into queue creation.
+- LIFF sends its ID token to a server action; the server verifies it with LINE and derives `lineUserId` from the verified `sub` claim.
+- The verified identity is carried in a signed, purpose-bound, 10-minute, HttpOnly cookie. Booking, walk-in, and owner binding use separate signed purposes/cookie names and cannot consume each other. `/book`, `/walk-in`, and `/line/owner` do not accept LINE identity from query strings or hidden fields.
+- Booking/walk-in actions read the verified cookie, pass the identity into queue creation, and clear it after success while preserving it across recoverable retries.
 - Customer lookup first prefers `lineUserId`, then phone fallback; if a LINE placeholder customer exists, the real form submission updates its name/phone.
 - Queue items snapshot `lineUserIdSnapshot`, so later notification sends do not depend only on the mutable customer row.
 - `/api/line/webhook` binds `follow` and `message` events with `source.userId` into placeholder customers named `LINE user ...` until the user submits a real form.
-- Full LIFF profile lookup and rich-menu deep-link strategy are still future work.
+- LIFF entry and rich-menu deep-link targets are implemented through `/line?target=...`.
+- Authenticated `/owner/settings/line-connect` issues an owner connection link only when clicked. It carries a signed random nonce recorded in `OwnerLineConnectToken`; completion atomically consumes it once before updating the owner destination.
 
 ## MVP LINE features
 

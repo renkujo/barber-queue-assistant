@@ -1,30 +1,17 @@
 import { AppCard, Notice, PageHeader, ScreenShell } from "@/components/barber/app-ui";
 import { Button, Icon } from "@/components/ui";
-import { bindOwnerLineUserId } from "@/lib/notifications/owner-line-binding";
+import { verifyOwnerLineResultToken } from "@/lib/notifications/owner-line-binding";
 
 type OwnerLinePageProps = {
-  searchParams: Promise<{ token?: string; lineUserId?: string }>;
+  searchParams: Promise<{ result?: string }>;
 };
 
 const OwnerLinePage = async ({ searchParams }: OwnerLinePageProps) => {
   const params = await searchParams;
-  const token = params.token?.trim() ?? "";
-  const lineUserId = params.lineUserId?.trim() ?? "";
-  let status: "connected" | "missing-line" | "invalid" = "missing-line";
-
-  if (token && lineUserId) {
-    try {
-      await bindOwnerLineUserId(lineUserId, token);
-      status = "connected";
-    } catch {
-      status = "invalid";
-    }
-  } else if (!token) {
-    status = "invalid";
-  }
+  const status = params.result ? verifyOwnerLineResultToken(params.result) ?? "invalid" : "missing-line";
 
   return (
-    <ScreenShell className="bqa-book-shell bqa-line-shell">
+    <ScreenShell className="bqa-book-shell bqa-line-shell bqa-customer-line-v2 bqa-owner-line-status-v2" visualVersion="v2">
       <AppCard labelledBy="owner-line-title" className="bqa-book-card bqa-line-card">
         <PageHeader
           id="owner-line-title"
@@ -33,13 +20,13 @@ const OwnerLinePage = async ({ searchParams }: OwnerLinePageProps) => {
         />
 
         {status === "connected" ? (
-          <Notice tone="warm">เชื่อม LINE เจ้าของร้านเรียบร้อยแล้ว ระบบจะส่งแจ้งเตือนคิวใหม่มาที่ LINE นี้</Notice>
+          <Notice tone="warm" role="status" ariaLive="polite" className="bqa-owner-line-notice bqa-owner-line-notice--connected">เชื่อม LINE เจ้าของร้านเรียบร้อยแล้ว ระบบบันทึก LINE นี้เป็นปลายทางสำหรับแจ้งเตือนคิวใหม่</Notice>
         ) : null}
         {status === "missing-line" ? (
-          <Notice>เปิดลิงก์นี้ผ่าน LINE เพื่อให้ระบบอ่าน LINE ID ของเจ้าของร้าน</Notice>
+          <Notice tone="warm" role="status" ariaLive="polite" className="bqa-owner-line-notice bqa-owner-line-notice--missing-line">เปิดลิงก์นี้ผ่าน LINE เพื่อให้ระบบอ่าน LINE ID ของเจ้าของร้าน</Notice>
         ) : null}
         {status === "invalid" ? (
-          <Notice>ลิงก์เชื่อม LINE หมดอายุหรือไม่ถูกต้อง กลับไปสร้างลิงก์ใหม่จากหน้า owner settings</Notice>
+          <Notice className="bqa-owner-line-notice bqa-owner-line-notice--invalid">ลิงก์เชื่อม LINE หมดอายุหรือไม่ถูกต้อง กลับไปสร้างลิงก์ใหม่จากหน้า owner settings</Notice>
         ) : null}
 
         <div className="bqa-button-pair">

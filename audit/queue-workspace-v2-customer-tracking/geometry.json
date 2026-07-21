@@ -1,0 +1,344 @@
+[
+  {
+    "viewport": {
+      "width": 360,
+      "height": 800
+    },
+    "clientWidth": 360,
+    "scrollWidth": 360,
+    "customerVisual": "v2",
+    "main": {
+      "x": 33,
+      "y": 117.078125,
+      "width": 294,
+      "height": 357.125,
+      "right": 327,
+      "bottom": 474.203125
+    },
+    "side": {
+      "x": 33,
+      "y": 490.203125,
+      "width": 294
+    },
+    "actions": [
+      {
+        "x": 33,
+        "y": 719.296875,
+        "width": 294,
+        "height": 48
+      },
+      {
+        "x": 33,
+        "y": 775.296875,
+        "width": 294,
+        "height": 48
+      }
+    ],
+    "pin": "9245",
+    "robots": "noindex, nofollow"
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "customerVisual": "v2",
+    "main": {
+      "x": 33,
+      "y": 117.078125,
+      "width": 324,
+      "height": 361.625,
+      "right": 357,
+      "bottom": 478.703125
+    },
+    "side": {
+      "x": 33,
+      "y": 494.703125,
+      "width": 324
+    },
+    "actions": [
+      {
+        "x": 33,
+        "y": 723.796875,
+        "width": 324,
+        "height": 48
+      },
+      {
+        "x": 33,
+        "y": 779.796875,
+        "width": 324,
+        "height": 48
+      }
+    ],
+    "pin": "9245",
+    "robots": "noindex, nofollow"
+  },
+  {
+    "viewport": {
+      "width": 559,
+      "height": 900
+    },
+    "clientWidth": 559,
+    "scrollWidth": 559,
+    "customerVisual": "v2",
+    "main": {
+      "x": 33,
+      "y": 117.078125,
+      "width": 493,
+      "height": 356.28125,
+      "right": 526,
+      "bottom": 473.359375
+    },
+    "side": {
+      "x": 33,
+      "y": 489.359375,
+      "width": 493
+    },
+    "actions": [
+      {
+        "x": 33,
+        "y": 675.953125,
+        "width": 493,
+        "height": 48
+      },
+      {
+        "x": 33,
+        "y": 731.953125,
+        "width": 493,
+        "height": 48
+      }
+    ],
+    "pin": "9245",
+    "robots": "noindex, nofollow"
+  },
+  {
+    "viewport": {
+      "width": 560,
+      "height": 900
+    },
+    "clientWidth": 560,
+    "scrollWidth": 560,
+    "customerVisual": "v2",
+    "main": {
+      "x": 33,
+      "y": 117.078125,
+      "width": 494,
+      "height": 356.28125,
+      "right": 527,
+      "bottom": 473.359375
+    },
+    "side": {
+      "x": 33,
+      "y": 489.359375,
+      "width": 494
+    },
+    "actions": [
+      {
+        "x": 33,
+        "y": 675.953125,
+        "width": 243,
+        "height": 48
+      },
+      {
+        "x": 284,
+        "y": 675.953125,
+        "width": 243,
+        "height": 48
+      }
+    ],
+    "pin": "9245",
+    "robots": "noindex, nofollow"
+  },
+  {
+    "viewport": {
+      "width": 759,
+      "height": 900
+    },
+    "clientWidth": 759,
+    "scrollWidth": 759,
+    "customerVisual": "v2",
+    "main": {
+      "x": 33,
+      "y": 125.71875,
+      "width": 693,
+      "height": 356.28125,
+      "right": 726,
+      "bottom": 482
+    },
+    "side": {
+      "x": 33,
+      "y": 498,
+      "width": 693
+    },
+    "actions": [
+      {
+        "x": 33,
+        "y": 663.34375,
+        "width": 342.5,
+        "height": 48
+      },
+      {
+        "x": 383.5,
+        "y": 663.34375,
+        "width": 342.5,
+        "height": 48
+      }
+    ],
+    "pin": "9245",
+    "robots": "noindex, nofollow"
+  },
+  {
+    "viewport": {
+      "width": 760,
+      "height": 900
+    },
+    "clientWidth": 760,
+    "scrollWidth": 760,
+    "customerVisual": "v2",
+    "main": {
+      "x": 41,
+      "y": 145.71875,
+      "width": 438,
+      "height": 356.28125,
+      "right": 479,
+      "bottom": 502
+    },
+    "side": {
+      "x": 499,
+      "y": 145.71875,
+      "width": 220
+    },
+    "actions": [
+      {
+        "x": 41,
+        "y": 518,
+        "width": 335,
+        "height": 48
+      },
+      {
+        "x": 384,
+        "y": 518,
+        "width": 335,
+        "height": 48
+      }
+    ],
+    "pin": "9245",
+    "robots": "noindex, nofollow"
+  },
+  {
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "clientWidth": 768,
+    "scrollWidth": 768,
+    "customerVisual": "v2",
+    "main": {
+      "x": 41,
+      "y": 145.71875,
+      "width": 446,
+      "height": 356.28125,
+      "right": 487,
+      "bottom": 502
+    },
+    "side": {
+      "x": 507,
+      "y": 145.71875,
+      "width": 220
+    },
+    "actions": [
+      {
+        "x": 41,
+        "y": 518,
+        "width": 339,
+        "height": 48
+      },
+      {
+        "x": 388,
+        "y": 518,
+        "width": 339,
+        "height": 48
+      }
+    ],
+    "pin": "9245",
+    "robots": "noindex, nofollow"
+  },
+  {
+    "viewport": {
+      "width": 1024,
+      "height": 768
+    },
+    "clientWidth": 1024,
+    "scrollWidth": 1024,
+    "customerVisual": "v2",
+    "main": {
+      "x": 73,
+      "y": 145.71875,
+      "width": 638,
+      "height": 356.28125,
+      "right": 711,
+      "bottom": 502
+    },
+    "side": {
+      "x": 731,
+      "y": 145.71875,
+      "width": 220
+    },
+    "actions": [
+      {
+        "x": 73,
+        "y": 518,
+        "width": 435,
+        "height": 48
+      },
+      {
+        "x": 516,
+        "y": 518,
+        "width": 435,
+        "height": 48
+      }
+    ],
+    "pin": "9245",
+    "robots": "noindex, nofollow"
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "customerVisual": "v2",
+    "main": {
+      "x": 281,
+      "y": 145.71875,
+      "width": 638,
+      "height": 356.28125,
+      "right": 919,
+      "bottom": 502
+    },
+    "side": {
+      "x": 939,
+      "y": 145.71875,
+      "width": 220
+    },
+    "actions": [
+      {
+        "x": 281,
+        "y": 518,
+        "width": 435,
+        "height": 48
+      },
+      {
+        "x": 724,
+        "y": 518,
+        "width": 435,
+        "height": 48
+      }
+    ],
+    "pin": "9245",
+    "robots": "noindex, nofollow"
+  }
+]

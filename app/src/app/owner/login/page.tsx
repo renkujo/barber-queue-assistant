@@ -10,7 +10,7 @@ type LoginPageProps = {
 const errorMessages: Record<string, string> = {
   invalid: "รหัสเข้าหน้าเจ้าของร้านไม่ถูกต้อง",
   "rate-limited": "ลองเข้าสู่ระบบหลายครั้งเกินไป กรุณารอ 15 นาทีแล้วลองใหม่",
-  setup: "ยังไม่ได้ตั้งค่า BARBER_ADMIN_PASSCODE และ BARBER_ADMIN_SESSION_SECRET",
+  setup: "ยังไม่ได้ตั้งค่า BARBER_ADMIN_PASSCODE สำหรับเข้าสู่ระบบเจ้าของร้าน",
 };
 
 const OwnerLoginPage = async ({ searchParams }: LoginPageProps) => {
@@ -21,8 +21,8 @@ const OwnerLoginPage = async ({ searchParams }: LoginPageProps) => {
   const setupError = params.error === "setup" ? errorMessage : null;
 
   return (
-    <ScreenShell variant="center">
-      <AppCard labelledBy="login-title">
+    <ScreenShell variant="center" className="bqa-owner-login-v2" visualVersion="v2">
+      <AppCard labelledBy="login-title" className="bqa-owner-login-card-v2">
         <PageHeader
           id="login-title"
           title="เข้าหน้าเจ้าของร้าน"
@@ -30,12 +30,15 @@ const OwnerLoginPage = async ({ searchParams }: LoginPageProps) => {
           imageSrc="/icon.png"
           largeImage
         />
-        <p className="bqa-copy">สำหรับดูคิววันนี้ เพิ่ม walk-in และจัดการ no-show อย่างรวดเร็ว</p>
+        <p className="bqa-copy bqa-owner-login-copy">สำหรับดูคิววันนี้ เพิ่ม walk-in และจัดการ no-show อย่างรวดเร็ว</p>
 
-        {!configured ? <Notice tone="warm">ตั้งค่า BARBER_ADMIN_PASSCODE และ BARBER_ADMIN_SESSION_SECRET ใน .env ก่อนใช้งานจริง</Notice> : null}
-        {setupError ? <Notice>{setupError}</Notice> : null}
+        {!configured ? (
+          <Notice tone="warm">ตั้งค่า BARBER_ADMIN_PASSCODE ใน .env ก่อนใช้งาน และตั้ง BARBER_ADMIN_SESSION_SECRET แยกต่างหากก่อน production</Notice>
+        ) : setupError ? (
+          <Notice>{setupError}</Notice>
+        ) : null}
 
-        <form action={loginOwner}>
+        <form action={loginOwner} className="bqa-owner-login-form">
           <FormStack>
             <FormField id="passcode" label="รหัสเจ้าของร้าน" error={passcodeError}>
               <Input

@@ -14,7 +14,7 @@ export const CurrentNextSummary = ({ current, next }: CurrentNextSummaryProps) =
       </span>
       <div>
         <strong>{current ? "กำลังตัด" : "ตอนนี้ว่าง"}</strong>
-        <p>{current ? current.customerName : "รอลูกค้าคนถัดไป"}</p>
+        <p className="bqa-owner-summary-customer" title={current?.customerName}>{current ? current.customerName : "รอลูกค้าคนถัดไป"}</p>
       </div>
     </div>
 
@@ -26,8 +26,8 @@ export const CurrentNextSummary = ({ current, next }: CurrentNextSummaryProps) =
       </span>
       <div>
         <span>ถัดไป</span>
-        <strong>{next ? `${next.code} ${next.customerName}` : "ยังไม่มีคิวถัดไป"}</strong>
-        {next?.note ? <p>{next.note}</p> : null}
+        <strong className="bqa-owner-summary-next-name" title={next ? `${next.code} ${next.customerName}` : undefined}>{next ? `${next.code} ${next.customerName}` : "ยังไม่มีคิวถัดไป"}</strong>
+        {next?.note ? <p className="bqa-owner-summary-note" title={next.note}>{next.note}</p> : null}
       </div>
     </div>
   </section>

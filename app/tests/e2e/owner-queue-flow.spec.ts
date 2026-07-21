@@ -88,6 +88,14 @@ test.describe("owner queue flow", () => {
     await page.getByRole("button", { name: "ยืนยันเสร็จ" }).click();
     await expect(page).toHaveURL(/\/owner(?:\?.*)?$/);
 
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await page.goto("/owner");
+    await expect(page.locator(".bqa-owner-closed-mobile").getByText(customerName)).toBeVisible();
+    await expect(page.locator(".bqa-owner-closed-desktop")).toBeHidden();
+
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto("/owner");
+
     const closedRow = page.locator(".bqa-owner-closed-table tr").filter({ hasText: customerName });
     await expect(closedRow).toBeVisible();
     await expect(closedRow).toContainText("เสร็จแล้ว");

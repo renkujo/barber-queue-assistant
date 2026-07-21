@@ -19,12 +19,12 @@ type OwnerNotificationLogPanelProps = {
 };
 
 export const OwnerNotificationLogPanel = ({ logs }: OwnerNotificationLogPanelProps) => (
-  <Card className="bqa-owner-notification-panel overflow-hidden !rounded-[14px] !border-[var(--line-strong)] !bg-[color-mix(in_srgb,var(--surface)_84%,var(--paper))] !p-0 !shadow-none" aria-labelledby="owner-notification-title">
-    <CardHeader className="flex flex-row items-center justify-between gap-2.5 border-b border-[var(--line)] px-3.5 py-3">
-      <CardTitle id="owner-notification-title" className="inline-flex items-center gap-2 !mb-0 !text-base !leading-tight">
+  <Card className="bqa-owner-notification-panel bqa-owner-rail-card" aria-labelledby="owner-notification-title">
+    <CardHeader className="bqa-owner-notification-header">
+      <CardTitle id="owner-notification-title" className="bqa-owner-notification-title">
         <Icon icon="lucide:message-circle" aria-hidden="true" />แจ้งเตือน LINE
       </CardTitle>
-      <span className="text-xs font-medium leading-none text-[var(--muted)]">{logs.length ? `${logs.length} ล่าสุด` : "ยังไม่มี"}</span>
+      <span className="bqa-owner-notification-count">{logs.length ? `${logs.length} ล่าสุด` : "ยังไม่มี"}</span>
     </CardHeader>
 
     {logs.length ? (
@@ -42,7 +42,7 @@ export const OwnerNotificationLogPanel = ({ logs }: OwnerNotificationLogPanelPro
                 <Icon icon={toneIcon[log.tone]} />
               </span>
               <div className="min-w-0">
-                <strong className="block truncate text-[13px] font-medium leading-snug text-[var(--ink)]">
+                <strong className="block truncate text-[13px] font-medium leading-snug text-[var(--ink)]" title={`${log.statusLabel} · ${log.customerName}`}>
                   {log.statusLabel} · {log.customerName}
                 </strong>
                 <p className="mt-0.5 mb-0 text-xs font-medium leading-snug text-[var(--muted)]">{log.typeLabel}</p>

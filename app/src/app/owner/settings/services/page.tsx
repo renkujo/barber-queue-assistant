@@ -74,7 +74,7 @@ const OwnerServiceSettingsPage = async ({ searchParams }: OwnerServiceSettingsPa
   const nextSortOrder = services.length ? Math.max(...services.map((service) => service.sortOrder)) + 1 : 0;
 
   return (
-    <OwnerShell>
+    <OwnerShell visualVersion="v2">
       <div className="bqa-owner-board-content bqa-owner-form-content bqa-owner-form-content--compact bqa-owner-services-page">
         <OwnerHeader
           title="ตั้งค่าบริการ"
@@ -138,7 +138,7 @@ const OwnerServiceSettingsPage = async ({ searchParams }: OwnerServiceSettingsPa
                           <Icon icon={serviceIconNames[index % serviceIconNames.length]} />
                         </span>
                         <span>
-                          <strong>{service.name}</strong>
+                          <strong title={service.name}>{service.name}</strong>
                           <small className="bqa-owner-service-mobile-meta">
                             {service.durationMinutes} นาที · {service.priceLabel} · ลำดับ {service.sortOrder}
                           </small>
@@ -177,7 +177,7 @@ const OwnerServiceSettingsPage = async ({ searchParams }: OwnerServiceSettingsPa
                               <SelectTrigger id={`service-active-${service.id}`}>
                                 <SelectValue placeholder="เลือกสถานะ" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="qw-v2-select-content">
                                 {activeOptions.map((option) => (
                                   <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
                                 ))}

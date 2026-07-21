@@ -75,8 +75,8 @@ const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProp
   const statusMessage = params.status ? statusMessages[params.status] : null;
 
   return (
-    <OwnerShell>
-      <div className="bqa-owner-board-content bqa-owner-form-content bqa-owner-form-content--compact">
+    <OwnerShell visualVersion="v2">
+      <div className="bqa-owner-board-content bqa-owner-form-content bqa-owner-form-content--compact bqa-owner-availability-v2">
         <OwnerHeader
           title="ตารางรับลูกค้าประจำสัปดาห์"
           description="ตั้งครั้งเดียวแล้วใช้ซ้ำทุกสัปดาห์ เช่น จันทร์–ศุกร์เปิดระบบออนไลน์ และเสาร์–อาทิตย์รับเฉพาะหน้าร้าน"
@@ -151,7 +151,7 @@ const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProp
                               <SelectTrigger id={`weekly-mode-${item.dayOfWeek}`}>
                                 <SelectValue placeholder="เลือกสถานะ" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="qw-v2-select-content">
                                 {weeklyModeOptions.map((option) => (
                                   <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
                                 ))}
@@ -199,7 +199,7 @@ const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProp
                             <SelectTrigger id={`mode-${item.dateValue}`}>
                               <SelectValue placeholder="เลือกสถานะ" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="qw-v2-select-content">
                               {dateModeOptions.map((option) => (
                                 <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
                               ))}

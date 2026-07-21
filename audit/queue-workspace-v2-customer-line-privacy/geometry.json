@@ -1,0 +1,298 @@
+{
+  "line": [
+    {
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "state": "bqa-line-entry-panel bqa-line-entry-panel--error",
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "panel": {
+        "x": 33,
+        "y": 346.40625,
+        "width": 294,
+        "height": 97.1875,
+        "bottom": 443.59375
+      },
+      "actions": {
+        "x": 33,
+        "y": 455.59375,
+        "width": 294
+      },
+      "buttons": [
+        {
+          "x": 33,
+          "y": 455.59375,
+          "width": 294,
+          "height": 48
+        },
+        {
+          "x": 33,
+          "y": 511.59375,
+          "width": 294,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": "bqa-line-entry-panel bqa-line-entry-panel--error",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "panel": {
+        "x": 33,
+        "y": 369.796875,
+        "width": 324,
+        "height": 97.1875,
+        "bottom": 466.984375
+      },
+      "actions": {
+        "x": 33,
+        "y": 478.984375,
+        "width": 324
+      },
+      "buttons": [
+        {
+          "x": 33,
+          "y": 478.984375,
+          "width": 324,
+          "height": 48
+        },
+        {
+          "x": 33,
+          "y": 534.984375,
+          "width": 324,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "state": "bqa-line-entry-panel bqa-line-entry-panel--error",
+      "clientWidth": 768,
+      "scrollWidth": 768,
+      "panel": {
+        "x": 165,
+        "y": 450.109375,
+        "width": 438,
+        "height": 78.34375,
+        "bottom": 528.453125
+      },
+      "actions": {
+        "x": 165,
+        "y": 540.453125,
+        "width": 438
+      },
+      "buttons": [
+        {
+          "x": 165,
+          "y": 540.453125,
+          "width": 438,
+          "height": 48
+        },
+        {
+          "x": 165,
+          "y": 596.453125,
+          "width": 438,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "bqa-line-entry-panel bqa-line-entry-panel--error",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "panel": {
+        "x": 501,
+        "y": 438.109375,
+        "width": 438,
+        "height": 78.34375,
+        "bottom": 516.453125
+      },
+      "actions": {
+        "x": 501,
+        "y": 528.453125,
+        "width": 438
+      },
+      "buttons": [
+        {
+          "x": 501,
+          "y": 528.453125,
+          "width": 438,
+          "height": 48
+        },
+        {
+          "x": 501,
+          "y": 584.453125,
+          "width": 438,
+          "height": 48
+        }
+      ]
+    }
+  ],
+  "privacy": [
+    {
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "panels": [
+        {
+          "x": 33,
+          "y": 238.6875,
+          "width": 294,
+          "height": 278.78125,
+          "bottom": 517.46875
+        },
+        {
+          "x": 33,
+          "y": 529.46875,
+          "width": 294,
+          "height": 470.78125,
+          "bottom": 1000.25
+        },
+        {
+          "x": 33,
+          "y": 1012.25,
+          "width": 294,
+          "height": 262.53125,
+          "bottom": 1274.78125
+        },
+        {
+          "x": 33,
+          "y": 1286.78125,
+          "width": 294,
+          "height": 194.171875,
+          "bottom": 1480.953125
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "panels": [
+        {
+          "x": 33,
+          "y": 238.6875,
+          "width": 324,
+          "height": 254.296875,
+          "bottom": 492.984375
+        },
+        {
+          "x": 33,
+          "y": 504.984375,
+          "width": 324,
+          "height": 446.296875,
+          "bottom": 951.28125
+        },
+        {
+          "x": 33,
+          "y": 963.28125,
+          "width": 324,
+          "height": 262.53125,
+          "bottom": 1225.8125
+        },
+        {
+          "x": 33,
+          "y": 1237.8125,
+          "width": 324,
+          "height": 194.171875,
+          "bottom": 1431.984375
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "clientWidth": 768,
+      "scrollWidth": 768,
+      "panels": [
+        {
+          "x": 41,
+          "y": 207.71875,
+          "width": 686,
+          "height": 180.84375,
+          "bottom": 388.5625
+        },
+        {
+          "x": 41,
+          "y": 400.5625,
+          "width": 686,
+          "height": 301.484375,
+          "bottom": 702.046875
+        },
+        {
+          "x": 41,
+          "y": 714.046875,
+          "width": 686,
+          "height": 195.359375,
+          "bottom": 909.40625
+        },
+        {
+          "x": 41,
+          "y": 921.40625,
+          "width": 686,
+          "height": 156.484375,
+          "bottom": 1077.890625
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "panels": [
+        {
+          "x": 351,
+          "y": 207.71875,
+          "width": 738,
+          "height": 180.84375,
+          "bottom": 388.5625
+        },
+        {
+          "x": 351,
+          "y": 400.5625,
+          "width": 738,
+          "height": 277,
+          "bottom": 677.5625
+        },
+        {
+          "x": 351,
+          "y": 689.5625,
+          "width": 738,
+          "height": 172.96875,
+          "bottom": 862.53125
+        },
+        {
+          "x": 351,
+          "y": 874.53125,
+          "width": 738,
+          "height": 156.484375,
+          "bottom": 1031.015625
+        }
+      ]
+    }
+  ]
+}

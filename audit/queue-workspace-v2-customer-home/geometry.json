@@ -1,0 +1,431 @@
+[
+  {
+    "viewport": {
+      "width": 360,
+      "height": 800
+    },
+    "clientWidth": 360,
+    "scrollWidth": 360,
+    "statusLabel": "เปิดจองและรับคิวออนไลน์",
+    "statusImageVisible": true,
+    "statusImage": {
+      "width": 72,
+      "height": 72
+    },
+    "primary": {
+      "x": 16,
+      "y": 151,
+      "width": 328,
+      "height": 489.796875,
+      "bottom": 640.796875
+    },
+    "secondary": {
+      "x": 16,
+      "y": 660.796875,
+      "width": 328
+    },
+    "actionRoles": [
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      },
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      }
+    ],
+    "trackingSubmitHeight": 48
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "statusLabel": "เปิดจองและรับคิวออนไลน์",
+    "statusImageVisible": true,
+    "statusImage": {
+      "width": 72,
+      "height": 72
+    },
+    "primary": {
+      "x": 16,
+      "y": 151,
+      "width": 358,
+      "height": 467.40625,
+      "bottom": 618.40625
+    },
+    "secondary": {
+      "x": 16,
+      "y": 638.40625,
+      "width": 358
+    },
+    "actionRoles": [
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      },
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      }
+    ],
+    "trackingSubmitHeight": 48
+  },
+  {
+    "viewport": {
+      "width": 420,
+      "height": 844
+    },
+    "clientWidth": 420,
+    "scrollWidth": 420,
+    "statusLabel": "เปิดจองและรับคิวออนไลน์",
+    "statusImageVisible": true,
+    "statusImage": {
+      "width": 72,
+      "height": 72
+    },
+    "primary": {
+      "x": 16,
+      "y": 151,
+      "width": 388,
+      "height": 467.40625,
+      "bottom": 618.40625
+    },
+    "secondary": {
+      "x": 16,
+      "y": 638.40625,
+      "width": 388
+    },
+    "actionRoles": [
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      },
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      }
+    ],
+    "trackingSubmitHeight": 48
+  },
+  {
+    "viewport": {
+      "width": 421,
+      "height": 844
+    },
+    "clientWidth": 421,
+    "scrollWidth": 421,
+    "statusLabel": "เปิดจองและรับคิวออนไลน์",
+    "statusImageVisible": true,
+    "statusImage": {
+      "width": 72,
+      "height": 72
+    },
+    "primary": {
+      "x": 16,
+      "y": 151,
+      "width": 389,
+      "height": 467.40625,
+      "bottom": 618.40625
+    },
+    "secondary": {
+      "x": 16,
+      "y": 638.40625,
+      "width": 389
+    },
+    "actionRoles": [
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      },
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      }
+    ],
+    "trackingSubmitHeight": 48
+  },
+  {
+    "viewport": {
+      "width": 559,
+      "height": 900
+    },
+    "clientWidth": 559,
+    "scrollWidth": 559,
+    "statusLabel": "เปิดจองและรับคิวออนไลน์",
+    "statusImageVisible": true,
+    "statusImage": {
+      "width": 82,
+      "height": 82
+    },
+    "primary": {
+      "x": 16,
+      "y": 115,
+      "width": 527,
+      "height": 451.84375,
+      "bottom": 566.84375
+    },
+    "secondary": {
+      "x": 16,
+      "y": 586.84375,
+      "width": 527
+    },
+    "actionRoles": [
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      },
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      }
+    ],
+    "trackingSubmitHeight": 48
+  },
+  {
+    "viewport": {
+      "width": 560,
+      "height": 900
+    },
+    "clientWidth": 560,
+    "scrollWidth": 560,
+    "statusLabel": "เปิดจองและรับคิวออนไลน์",
+    "statusImageVisible": true,
+    "statusImage": {
+      "width": 82,
+      "height": 82
+    },
+    "primary": {
+      "x": 16,
+      "y": 115,
+      "width": 528,
+      "height": 451.84375,
+      "bottom": 566.84375
+    },
+    "secondary": {
+      "x": 16,
+      "y": 586.84375,
+      "width": 528
+    },
+    "actionRoles": [
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      },
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      }
+    ],
+    "trackingSubmitHeight": 48
+  },
+  {
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "clientWidth": 768,
+    "scrollWidth": 768,
+    "statusLabel": "เปิดจองและรับคิวออนไลน์",
+    "statusImageVisible": true,
+    "statusImage": {
+      "width": 82,
+      "height": 82
+    },
+    "primary": {
+      "x": 16,
+      "y": 131,
+      "width": 736,
+      "height": 451.84375,
+      "bottom": 582.84375
+    },
+    "secondary": {
+      "x": 16,
+      "y": 602.84375,
+      "width": 736
+    },
+    "actionRoles": [
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      },
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      }
+    ],
+    "trackingSubmitHeight": 48
+  },
+  {
+    "viewport": {
+      "width": 859,
+      "height": 900
+    },
+    "clientWidth": 859,
+    "scrollWidth": 859,
+    "statusLabel": "เปิดจองและรับคิวออนไลน์",
+    "statusImageVisible": true,
+    "statusImage": {
+      "width": 82,
+      "height": 82
+    },
+    "primary": {
+      "x": 16,
+      "y": 131,
+      "width": 827,
+      "height": 451.84375,
+      "bottom": 582.84375
+    },
+    "secondary": {
+      "x": 16,
+      "y": 602.84375,
+      "width": 827
+    },
+    "actionRoles": [
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      },
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      }
+    ],
+    "trackingSubmitHeight": 48
+  },
+  {
+    "viewport": {
+      "width": 860,
+      "height": 900
+    },
+    "clientWidth": 860,
+    "scrollWidth": 860,
+    "statusLabel": "เปิดจองและรับคิวออนไลน์",
+    "statusImageVisible": true,
+    "statusImage": {
+      "width": 82,
+      "height": 82
+    },
+    "primary": {
+      "x": 24,
+      "y": 123,
+      "width": 425.515625,
+      "height": 409.15625,
+      "bottom": 532.15625
+    },
+    "secondary": {
+      "x": 473.515625,
+      "y": 123,
+      "width": 362.484375
+    },
+    "actionRoles": [
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 96.75
+      },
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 96.75
+      }
+    ],
+    "trackingSubmitHeight": 48
+  },
+  {
+    "viewport": {
+      "width": 1024,
+      "height": 768
+    },
+    "clientWidth": 1024,
+    "scrollWidth": 1024,
+    "statusLabel": "เปิดจองและรับคิวออนไลน์",
+    "statusImageVisible": true,
+    "statusImage": {
+      "width": 82,
+      "height": 82
+    },
+    "primary": {
+      "x": 24,
+      "y": 123,
+      "width": 514.078125,
+      "height": 364.34375,
+      "bottom": 487.34375
+    },
+    "secondary": {
+      "x": 562.078125,
+      "y": 123,
+      "width": 437.921875
+    },
+    "actionRoles": [
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      },
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      }
+    ],
+    "trackingSubmitHeight": 48
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "statusLabel": "เปิดจองและรับคิวออนไลน์",
+    "statusImageVisible": true,
+    "statusImage": {
+      "width": 82,
+      "height": 82
+    },
+    "primary": {
+      "x": 176,
+      "y": 123,
+      "width": 574.546875,
+      "height": 364.34375,
+      "bottom": 487.34375
+    },
+    "secondary": {
+      "x": 774.546875,
+      "y": 123,
+      "width": 489.453125
+    },
+    "actionRoles": [
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      },
+      {
+        "tag": "A",
+        "disabled": false,
+        "height": 75.5
+      }
+    ],
+    "trackingSubmitHeight": 48
+  }
+]

@@ -356,16 +356,16 @@ https://liff.line.me/<liff-id>
 เมื่อสำเร็จ ระบบจะ redirect ไป:
 
 ```text
-/walk-in?lineUserId=...
+/walk-in
 ```
 
 หรือ:
 
 ```text
-/book?lineUserId=...
+/book
 ```
 
-จากนั้น form จะส่ง `lineUserId` เข้า queue creation อัตโนมัติ
+ก่อน redirect LIFF จะส่ง ID token ไปให้ server ตรวจสอบกับ LINE จากนั้นระบบเก็บ `lineUserId` ที่ยืนยันแล้วในคุกกี้ HttpOnly แบบลงลายเซ็น อายุไม่เกิน 10 นาที จึงไม่มี LINE user ID อยู่ใน URL หรือ hidden field
 
 ## Step 10: ทดสอบ end-to-end จริง
 
@@ -453,7 +453,7 @@ pnpm start
 
 แล้วใช้ tunnel ชี้ port 3000 ใหม่
 
-### เปิดแล้วไม่ redirect ไป `/walk-in?lineUserId=...`
+### เปิดแล้วไม่ redirect ไป `/walk-in` หรือ `/book`
 
 เช็ค:
 
@@ -462,6 +462,7 @@ pnpm start
 3. LIFF endpoint เป็น tunnel/domain ปัจจุบัน + `/line`
 4. เปิดจากในแอป LINE ไม่ใช่ browser ปกติ
 5. Scopes มี `openid` และ `profile`
+6. LIFF app อยู่ใน LINE Login channel เดียวกับ channel ID ที่เป็นส่วนหน้าของ `NEXT_PUBLIC_LINE_LIFF_ID`
 
 ### Webhook verify ไม่ผ่าน
 

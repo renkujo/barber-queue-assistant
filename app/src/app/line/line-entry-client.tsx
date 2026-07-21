@@ -4,6 +4,8 @@ import liff from "@line/liff";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Button, Icon, LineLogo } from "@/components/ui";
+import type { LineEntryIdentityPurpose } from "@/lib/line/line-entry-identity";
+import { storeLineEntryIdentityAction } from "./actions";
 
 type LineEntryClientProps = {
   liffId?: string;
@@ -26,21 +28,16 @@ const getTargetLabel = (targetPath: LineEntryClientProps["targetPath"]) => {
   return "รับบัตรคิวออนไลน์";
 };
 
-const buildTargetUrl = (targetPath: LineEntryClientProps["targetPath"], lineUserId: string) => {
-  if (targetPath === "/#queue-status") {
-    return targetPath;
+const getIdentityPurpose = (targetPath: LineEntryClientProps["targetPath"]): LineEntryIdentityPurpose => {
+  if (targetPath === "/book") {
+    return "book";
   }
 
   if (targetPath.startsWith("/line/owner")) {
-    const url = new URL(targetPath, window.location.origin);
-    url.searchParams.set("lineUserId", lineUserId);
-
-    return `${url.pathname}${url.search}${url.hash}`;
+    return "owner";
   }
 
-  const params = new URLSearchParams({ lineUserId });
-
-  return `${targetPath}?${params.toString()}`;
+  return "walk-in";
 };
 
 const lineEntryStateCopy = {
@@ -64,6 +61,7 @@ const lineEntryStateCopy = {
 export const LineEntryClient = ({ liffId, targetPath }: LineEntryClientProps) => {
   const [state, setState] = useState<"connecting" | "setup-missing" | "error">("connecting");
   const targetLabel = useMemo(() => getTargetLabel(targetPath), [targetPath]);
+  const ownerTarget = targetPath.startsWith("/line/owner");
   const stateCopy = lineEntryStateCopy[state];
 
   useEffect(() => {
@@ -88,11 +86,18 @@ export const LineEntryClient = ({ liffId, targetPath }: LineEntryClientProps) =>
           return;
         }
 
-        const profile = await liff.getProfile();
-        const targetUrl = buildTargetUrl(targetPath, profile.userId);
+        if (targetPath !== "/#queue-status") {
+          const idToken = liff.getIDToken();
+
+          if (!idToken) {
+            throw new Error("LINE ID token is unavailable.");
+          }
+
+          await storeLineEntryIdentityAction(idToken, getIdentityPurpose(targetPath));
+        }
 
         if (active) {
-          window.location.assign(targetUrl);
+          window.location.assign(targetPath);
         }
       } catch {
         if (active) {
@@ -110,7 +115,12 @@ export const LineEntryClient = ({ liffId, targetPath }: LineEntryClientProps) =>
 
   return (
     <div className="bqa-line-entry">
-      <section className={`bqa-line-entry-panel bqa-line-entry-panel--${state}`} aria-live="polite">
+      <section
+        className={`bqa-line-entry-panel bqa-line-entry-panel--${state}`}
+        aria-busy={state === "connecting"}
+        aria-live={state === "error" ? "assertive" : "polite"}
+        role={state === "error" ? "alert" : "status"}
+      >
         <div className="bqa-line-entry-icon" aria-hidden="true">
           {stateCopy.icon === "line" ? <LineLogo /> : <Icon icon={stateCopy.icon} />}
         </div>
@@ -121,10 +131,10 @@ export const LineEntryClient = ({ liffId, targetPath }: LineEntryClientProps) =>
       </section>
       <div className="bqa-button-pair">
         <Button asChild fullWidth>
-          <Link href={targetPath}>ไปต่อ: {targetLabel}</Link>
+          <Link href={ownerTarget ? "/owner/settings" : targetPath}>{ownerTarget ? "กลับหน้าตั้งค่า" : `ไปต่อ: ${targetLabel}`}</Link>
         </Button>
         <Button asChild variant="outline" fullWidth>
-          <Link href="/">กลับหน้าแรก</Link>
+          <Link href={ownerTarget ? "/owner" : "/"}>{ownerTarget ? "กลับคิววันนี้" : "กลับหน้าแรก"}</Link>
         </Button>
       </div>
     </div>

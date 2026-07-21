@@ -27,11 +27,11 @@ export const OwnerSideRail = ({
   waitingCount,
 }: OwnerSideRailProps) => (
   <aside className="bqa-owner-side-rail" aria-label="การทำงานเร็วและสรุปวันนี้">
-    <Card className="!rounded-[14px] !border-[var(--line-strong)] !bg-[color-mix(in_srgb,var(--surface)_84%,var(--paper))] !p-0 !shadow-none" aria-labelledby="quick-actions-title">
-      <CardHeader className="px-3.5 pt-3.5 pb-0">
-        <CardTitle id="quick-actions-title" className="!mb-0 !text-base !leading-tight">ควบคุมร้าน</CardTitle>
+    <Card className="bqa-owner-rail-card bqa-owner-rail-card--controls" aria-labelledby="quick-actions-title">
+      <CardHeader className="bqa-owner-rail-card-header">
+        <CardTitle id="quick-actions-title" className="bqa-owner-rail-card-title">ควบคุมร้าน</CardTitle>
       </CardHeader>
-      <CardContent className="px-3.5 pt-3 pb-3.5">
+      <CardContent className="bqa-owner-rail-card-content">
         <OwnerShopControlPanel
           breakAction={breakAction}
           intakeAction={intakeAction}
@@ -42,23 +42,23 @@ export const OwnerSideRail = ({
       </CardContent>
     </Card>
 
-    <Card className="!rounded-[14px] !border-[var(--line-strong)] !bg-[color-mix(in_srgb,var(--surface)_84%,var(--paper))] !p-0 !shadow-none" aria-labelledby="today-summary-title">
-      <CardHeader className="px-3.5 pt-3.5 pb-0">
-        <CardTitle id="today-summary-title" className="!mb-0 !text-base !leading-tight">สรุปวันนี้</CardTitle>
+    <Card className="bqa-owner-rail-card bqa-owner-rail-card--summary" aria-labelledby="today-summary-title">
+      <CardHeader className="bqa-owner-rail-card-header">
+        <CardTitle id="today-summary-title" className="bqa-owner-rail-card-title">สรุปวันนี้</CardTitle>
       </CardHeader>
-      <CardContent className="px-3.5 pt-1 pb-2">
-        <dl className="m-0 grid">
-          <div className="flex items-center justify-between gap-4 border-b border-[var(--line)] py-2">
-            <dt className="text-sm font-medium text-[var(--muted)]">คิวทั้งหมด</dt>
-            <dd className="m-0 text-lg font-medium tabular-nums text-[var(--ink)]">{totalCount}</dd>
+      <CardContent className="bqa-owner-rail-card-content bqa-owner-rail-card-content--summary">
+        <dl className="bqa-owner-rail-summary-list">
+          <div className="bqa-owner-rail-summary-row">
+            <dt>คิวทั้งหมด</dt>
+            <dd>{totalCount}</dd>
           </div>
-          <div className="flex items-center justify-between gap-4 border-b border-[var(--line)] py-2">
-            <dt className="text-sm font-medium text-[var(--muted)]">กำลังตัด</dt>
-            <dd className="m-0 text-lg font-medium tabular-nums text-[#4f8b59]">{currentCount}</dd>
+          <div className="bqa-owner-rail-summary-row">
+            <dt>กำลังตัด</dt>
+            <dd className="bqa-owner-rail-summary-value--positive">{currentCount}</dd>
           </div>
-          <div className="flex items-center justify-between gap-4 py-2">
-            <dt className="text-sm font-medium text-[var(--muted)]">รอคิว</dt>
-            <dd className="m-0 text-lg font-medium tabular-nums text-[var(--ink)]">{waitingCount}</dd>
+          <div className="bqa-owner-rail-summary-row">
+            <dt>รอคิว</dt>
+            <dd>{waitingCount}</dd>
           </div>
         </dl>
       </CardContent>
@@ -66,7 +66,7 @@ export const OwnerSideRail = ({
 
     <OwnerNotificationLogPanel logs={notificationLogs} />
 
-    <Card className="hidden justify-between gap-[18px] !rounded-[14px] !border-[var(--line-strong)] !bg-[color-mix(in_srgb,var(--surface-warm)_72%,var(--surface))] !p-3.5 !shadow-none" aria-labelledby="owner-tip-title">
+    <Card className="bqa-owner-rail-card bqa-owner-tip-card" aria-labelledby="owner-tip-title">
       <div>
         <CardTitle id="owner-tip-title" className="inline-flex items-center gap-2 !mb-2.5 !text-base !leading-tight">
           <Icon icon="lucide:star" aria-hidden="true" />ทิป

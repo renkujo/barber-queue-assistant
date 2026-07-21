@@ -31,6 +31,58 @@
 }
 
 :root {
+  /* Queue Workspace V2 semantic tokens. Legacy aliases remain unchanged until
+     each owning route is promoted through rendered QA and human review. */
+  --qw-color-canvas: #ffffff;
+  --qw-color-surface: #f7f7f5;
+  --qw-color-surface-soft: #f1f0ec;
+  --qw-color-ink-deep: #17120f;
+  --qw-color-ink: #2b2521;
+  --qw-color-text-secondary: #625b55;
+  --qw-color-text-muted: #736c66;
+  --qw-color-border: #e5e1dc;
+  --qw-color-border-soft: #f0ede9;
+  --qw-color-border-strong: #918981;
+  --qw-color-on-dark: #ffffff;
+  --qw-color-brand-yellow: #ffd84d;
+  --qw-color-brand-yellow-deep: #e7b928;
+  --qw-color-yellow-soft: #fff4b8;
+  --qw-color-brand-coral: #f29b82;
+  --qw-color-coral-soft: #ffe2d8;
+  --qw-color-brand-blue: #3d5fcc;
+  --qw-color-blue-pressed: #2947a4;
+  --qw-color-positive: #2f746b;
+  --qw-color-positive-soft: #edf5f3;
+  --qw-color-warning: #8a5a00;
+  --qw-color-warning-soft: #f6f2e8;
+  --qw-color-danger: #a24038;
+  --qw-color-danger-soft: #f7eceb;
+  --qw-color-error: #8c2f3d;
+  --qw-color-error-soft: #f7ecef;
+
+  --qw-space-1: 4px;
+  --qw-space-2: 8px;
+  --qw-space-3: 12px;
+  --qw-space-4: 16px;
+  --qw-space-5: 20px;
+  --qw-space-6: 24px;
+  --qw-space-8: 32px;
+  --qw-space-10: 40px;
+  --qw-space-12: 48px;
+  --qw-space-16: 64px;
+
+  --qw-radius-xs: 4px;
+  --qw-radius-sm: 6px;
+  --qw-radius-md: 10px;
+  --qw-radius-lg: 12px;
+  --qw-radius-xl: 16px;
+  --qw-radius-feature: 20px;
+  --qw-radius-full: 9999px;
+
+  --qw-elevation-1: 0 1px 2px rgba(23, 18, 15, 0.05);
+  --qw-elevation-2: 0 6px 18px rgba(23, 18, 15, 0.08);
+  --qw-elevation-3: 0 16px 44px rgba(23, 18, 15, 0.14);
+
   --paper: #fff8ee;
   --surface: #fffdf8;
   --surface-warm: #fff4e7;

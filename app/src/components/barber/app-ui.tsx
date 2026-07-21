@@ -4,9 +4,10 @@ import { type ComponentPropsWithoutRef, type ReactNode } from "react";
 import { Alert, Badge, Button, Card } from "@/components/ui";
 import { cn } from "@/lib/cn";
 
-type Tone = "neutral" | "warm" | "positive" | "warning";
+type Tone = "danger" | "neutral" | "warm" | "positive" | "warning";
 
 const toneClass: Record<Tone, string> = {
+  danger: "bqa-tone-danger",
   neutral: "bqa-tone-neutral",
   warm: "bqa-tone-warm",
   positive: "bqa-tone-positive",
@@ -17,11 +18,25 @@ export const ScreenShell = ({
   children,
   className,
   variant = "customer",
+  visualVersion = "legacy",
 }: {
   children: ReactNode;
   className?: string;
   variant?: "customer" | "center";
-}) => <main className={cn("bqa-screen-shell", variant === "center" && "bqa-screen-shell--center", className)}>{children}</main>;
+  visualVersion?: "legacy" | "v2";
+}) => (
+  <main
+    className={cn(
+      "bqa-screen-shell",
+      variant === "center" && "bqa-screen-shell--center",
+      visualVersion === "v2" && "bqa-queue-workspace-v2 bqa-customer-workspace-v2",
+      className,
+    )}
+    data-customer-visual={visualVersion}
+  >
+    {children}
+  </main>
+);
 
 export const AppCard = ({
   children,
@@ -200,12 +215,21 @@ export const Notice = ({
   children,
   tone = "warning",
   className,
+  role = "alert",
+  ariaLive,
 }: {
   children: ReactNode;
   tone?: "warning" | "warm";
   className?: string;
+  role?: "alert" | "status";
+  ariaLive?: "assertive" | "polite";
 }) => (
-  <Alert tone={tone === "warm" ? "warm" : "danger"} className={cn("bqa-notice", tone === "warm" ? "bqa-notice--warm" : "bqa-notice--warning", className)}>
+  <Alert
+    tone={tone === "warm" ? "warm" : "danger"}
+    className={cn("bqa-notice", tone === "warm" ? "bqa-notice--warm" : "bqa-notice--warning", className)}
+    role={role}
+    aria-live={ariaLive}
+  >
     <span className="bqa-notice-icon" aria-hidden="true">
       {tone === "warm" ? (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" aria-hidden="true">
@@ -263,7 +287,7 @@ export const ServiceRow = ({
   <div className="bqa-service-row">
     <span className="bqa-service-icon">{icon}</span>
     <div>
-      <strong>{name}</strong>
+      <strong title={name}>{name}</strong>
       <p>{price}</p>
     </div>
     <span>{duration}</span>
@@ -293,7 +317,7 @@ export const OwnerGrid = ({ children, className }: { children: ReactNode; classN
 );
 
 export const StatusBadge = ({ children, tone = "neutral" }: { children: ReactNode; tone?: Tone }) => {
-  const variant = tone === "positive" ? "positive" : tone === "warning" ? "warning" : tone === "warm" ? "warm" : "neutral";
+  const variant = tone === "danger" ? "danger" : tone === "positive" ? "positive" : tone === "warning" ? "warning" : tone === "warm" ? "warm" : "neutral";
 
   return <Badge variant={variant}>{children}</Badge>;
 };

@@ -118,7 +118,7 @@ export const OwnerQueueEditScheduleFields = ({
             <SelectTrigger id="serviceId">
               <SelectValue placeholder="เลือกบริการ" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="qw-v2-select-content">
               {services.map((service) => (
                 <SelectItem value={service.id} key={service.id}>
                   {service.name} · {service.durationMinutes} นาที · {service.priceLabel}
@@ -133,7 +133,7 @@ export const OwnerQueueEditScheduleFields = ({
             <SelectTrigger id="dateValue">
               <SelectValue placeholder="เลือกวัน" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="qw-v2-select-content">
               {dateOptions.map((option) => (
                 <SelectItem value={option.value} key={option.value}>
                   {option.label}
@@ -148,7 +148,7 @@ export const OwnerQueueEditScheduleFields = ({
             <SelectTrigger id="timeValue">
               <SelectValue placeholder="เลือกเวลา" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="qw-v2-select-content">
               <SelectItem value={noLockedTimeValue}>ไม่ล็อกเวลา / walk-in</SelectItem>
               {timeOptions.map((time) => (
                 <SelectItem value={time.value} key={time.value} disabled={time.disabled}>

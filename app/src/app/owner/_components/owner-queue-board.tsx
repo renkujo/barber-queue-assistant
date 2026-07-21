@@ -131,7 +131,7 @@ const QueueRowScheduleWarning = ({ item }: { item: OwnerQueueRowItem }) => {
   }
 
   return (
-    <span className="bqa-owner-schedule-warning">
+    <span className="bqa-owner-schedule-warning" title={item.scheduleWarning}>
       <Icon icon="lucide:calendar-clock" aria-hidden="true" />
       {item.scheduleWarning}
     </span>
@@ -142,8 +142,8 @@ const QueueRowNote = ({ item }: { item: OwnerQueueRowItem }) => {
   const ownerNote = item.ownerNote;
   const note = (
     <span className="bqa-owner-board-note-stack">
-      <span>{item.note}</span>
-      {ownerNote ? <span className="bqa-owner-private-note">โน้ต: {ownerNote}</span> : null}
+      <span className="bqa-owner-public-note" title={item.note}>{item.note}</span>
+      {ownerNote ? <span className="bqa-owner-private-note" title={`โน้ต: ${ownerNote}`}>โน้ต: {ownerNote}</span> : null}
       <QueueRowScheduleWarning item={item} />
     </span>
   );
@@ -176,10 +176,12 @@ const QueueRowTime = ({ item }: { item: QueueListItem }) => (
 
 const QueueRowIdentity = ({ canMutateQueue, item }: { canMutateQueue: boolean; item: OwnerQueueRowItem }) => (
   <div className="bqa-owner-queue-main">
-    <strong>
-      {item.code} {item.customerName}
-    </strong>
-    {canMutateQueue ? <QueueRowEditLink item={item} /> : null}
+    <div className="bqa-owner-queue-name-row">
+      <strong className="bqa-owner-queue-customer-name" title={`${item.code} ${item.customerName}`}>
+        {item.code} {item.customerName}
+      </strong>
+      {canMutateQueue ? <QueueRowEditLink item={item} /> : null}
+    </div>
     {canMutateQueue ? <QueueRowAccess item={item} /> : null}
     <p className="bqa-owner-queue-mobile-note">
       <QueueRowNote item={item} />

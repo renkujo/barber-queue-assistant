@@ -142,6 +142,23 @@ Fields:
 - `ownerLineUserId` optional owner LINE notification target
 
 
+## Entity: OwnerLineConnectToken
+
+Short-lived one-use state for connecting the owner notification destination through LIFF.
+
+Fields:
+
+- `nonce` random primary key carried inside the signed owner connection token
+- `expiresAt`
+- `consumedAt` nullable; atomically set during successful binding
+- `createdAt`
+
+Rules:
+
+- A valid signature and unexpired timestamp are not enough: the nonce must exist and remain unconsumed.
+- Binding and nonce consumption occur in one database transaction, so concurrent/replayed completion attempts cannot rebind the owner.
+- Expired records and old consumed records are cleaned when a new owner connection token is issued.
+
 ## Entity: ShopDateAvailability
 
 Per-date exception for public customer intake. If no row exists for a date, the app uses `ShopWeeklyAvailability`, then `ShopSettings` defaults.

@@ -34,7 +34,13 @@ const getStateSearchParams = (state?: string) => {
     return new URLSearchParams();
   }
 
-  const decodedState = decodeURIComponent(state);
+  let decodedState: string;
+
+  try {
+    decodedState = decodeURIComponent(state);
+  } catch {
+    return new URLSearchParams();
+  }
 
   if (decodedState.includes("#queue-status")) {
     return new URLSearchParams("target=queue-status");
@@ -61,7 +67,7 @@ const getTargetPath = (target: LineEntryTarget, token?: string) => {
       query.set("token", token);
     }
 
-    return `/line/owner?${query.toString()}` as const;
+    return `/line/owner/complete?${query.toString()}` as const;
   }
 
   return "/walk-in" as const;
@@ -81,7 +87,7 @@ const LineEntryPage = async ({ searchParams }: LineEntryPageProps) => {
   const targetPath = getTargetPath(target, token);
 
   return (
-    <ScreenShell className="bqa-book-shell bqa-line-shell">
+    <ScreenShell className="bqa-book-shell bqa-line-shell bqa-customer-line-v2" visualVersion="v2">
       <AppCard labelledBy="line-entry-title" className="bqa-book-card bqa-line-card">
         <PageHeader
           id="line-entry-title"

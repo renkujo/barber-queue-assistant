@@ -26,8 +26,8 @@ const OwnerWalkInPage = async ({ searchParams }: OwnerWalkInPageProps) => {
   const hasServices = services.length > 0;
 
   return (
-    <OwnerShell>
-      <div className="bqa-owner-board-content bqa-owner-form-content bqa-owner-form-content--compact bqa-owner-walkin-content">
+    <OwnerShell visualVersion="v2">
+      <div className="bqa-owner-board-content bqa-owner-form-content bqa-owner-form-content--compact bqa-owner-walkin-content bqa-owner-walkin-v2">
         <header className="bqa-owner-walkin-header">
           <div>
             <h1>เพิ่มคิว</h1>

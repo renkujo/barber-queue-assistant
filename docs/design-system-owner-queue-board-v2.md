@@ -1,8 +1,10 @@
-# Design System V2 - Owner Queue Board
+# Owner Route Contract V2 — Queue Board
+
+> Historical filename retained for existing links. Every planned owner route has now passed Queue Workspace V2 migration and human review. This document remains only the owner information-architecture, queue-priority, and behavior-preservation contract; its Pastel Paper visual tokens below are historical, not runtime authority. Current visual authority is [Global Design System V2 — Queue Workspace](./design-system-v2-queue-workspace.md). For owner-shell breakpoints and navigation ownership, the human-approved [`owner-responsive-shell-redesign-brief.md`](./owner-responsive-shell-redesign-brief.md) supersedes older breakpoint guidance below.
 
 ## Direction
 
-Owner Queue Board is the refined owner-side direction for Barber Queue Assistant. It keeps the Pastel Paper Queue foundation, but makes the owner dashboard more operational, list-first, and faster to scan on both mobile and desktop.
+Owner Queue Board defines the owner-side information architecture: operational, list-first, and fast to scan on mobile and desktop. Its original Pastel Paper presentation has been superseded by Operational Monochrome V2.
 
 The owner screen should feel like a calm daily work board for a one-owner barber shop. It should not look like a generic SaaS admin dashboard.
 
@@ -23,7 +25,7 @@ Primary reference:
 
 ## Visual Tokens
 
-Use the existing V1 tokens as the base. V2 tightens usage for the owner queue board.
+Historical reference only. Do not use these V1 tokens for current owner runtime work; use Queue Workspace V2 semantic tokens.
 
 ### Color
 

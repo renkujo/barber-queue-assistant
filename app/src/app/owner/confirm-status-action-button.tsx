@@ -81,7 +81,7 @@ export const ConfirmStatusActionButton = ({
           {icon}{label}
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="bqa-confirm-dialog">
+      <AlertDialogContent className={`bqa-confirm-dialog bqa-confirm-dialog--${tone}`}>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>

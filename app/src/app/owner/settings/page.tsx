@@ -7,17 +7,12 @@ import {
   Input,
   LineLogo,
   RouteToast,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from "@/components/ui";
 import { requireOwnerSession } from "@/lib/admin-auth";
-import { createOwnerLineConnectToken } from "@/lib/notifications/owner-line-binding";
 import { getOwnerShopSettingsSafe } from "@/lib/queue/repository";
 import { updateOwnerSettingsAction } from "../actions";
 import { OwnerShell } from "../_components/owner-shell";
+import { BooleanSettingField } from "./boolean-setting-field";
 
 export const dynamic = "force-dynamic";
 
@@ -45,55 +40,6 @@ const maskLineUserId = (lineUserId: string | null) => {
 
   return `${lineUserId.slice(0, 4)}••••${lineUserId.slice(-4)}`;
 };
-
-const getOwnerLineConnectHref = () => {
-  const token = createOwnerLineConnectToken();
-  const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID?.trim();
-  const params = new URLSearchParams({ target: "owner", token });
-
-  if (liffId) {
-    return `https://liff.line.me/${liffId}?${params.toString()}`;
-  }
-
-  return `/line/owner?${new URLSearchParams({ token }).toString()}`;
-};
-
-const booleanOptions = [
-  { label: "เปิด", value: "true" },
-  { label: "ปิด", value: "false" },
-];
-
-const getBooleanLabel = (value: boolean) => (value ? "เปิด" : "ปิด");
-
-const BooleanSettingField = ({
-  id,
-  label,
-  value,
-  hint,
-}: {
-  id: "queueIntakeEnabled" | "bookingEnabled" | "walkInEnabled";
-  label: string;
-  value: boolean;
-  hint: string;
-}) => (
-  <FormField id={id} label={label} description={hint}>
-    <div className="bqa-owner-settings-select-row">
-      <Select name={id} defaultValue={String(value)} required>
-        <SelectTrigger id={id}>
-          <SelectValue placeholder="เลือกสถานะ" />
-        </SelectTrigger>
-        <SelectContent>
-          {booleanOptions.map((option) => (
-            <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <span className={value ? "bqa-owner-settings-state bqa-owner-settings-state--on" : "bqa-owner-settings-state"}>
-        {getBooleanLabel(value)}
-      </span>
-    </div>
-  </FormField>
-);
 
 const SettingsHub = ({ settings, ownerLineConnectHref }: { settings: SettingsFormValues; ownerLineConnectHref: string }) => (
   <div className="bqa-owner-settings-hub" aria-label="ทางลัดตั้งค่าร้าน">
@@ -188,12 +134,12 @@ const OwnerSettingsPage = async ({ searchParams }: OwnerSettingsPageProps) => {
   await requireOwnerSession();
 
   const [params, settings] = await Promise.all([searchParams, getOwnerShopSettingsSafe()]);
-  const ownerLineConnectHref = getOwnerLineConnectHref();
+  const ownerLineConnectHref = "/owner/settings/line-connect";
   const errorMessage = params.error ? errorMessages[params.error] : null;
   const statusMessage = params.status ? statusMessages[params.status] : null;
 
   return (
-    <OwnerShell>
+    <OwnerShell visualVersion="v2">
       <div className="bqa-owner-board-content bqa-owner-form-content bqa-owner-form-content--compact bqa-owner-settings-page">
         <OwnerHeader
           title="ตั้งค่าร้าน"

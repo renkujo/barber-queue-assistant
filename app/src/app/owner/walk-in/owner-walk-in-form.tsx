@@ -51,7 +51,7 @@ export const OwnerWalkInForm = ({ action, services }: OwnerWalkInFormProps) => {
                 <SelectTrigger id="serviceId">
                   <SelectValue placeholder="เลือกบริการ" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="qw-v2-select-content">
                   {services.map((service) => (
                     <SelectItem value={service.id} key={service.id}>
                       {service.name} · {service.durationMinutes} นาที · {service.priceLabel}

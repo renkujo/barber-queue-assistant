@@ -3,10 +3,12 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { NotificationType } from "@/generated/prisma/enums";
+import { clearLineEntryIdentity, getLineEntryIdentity } from "@/lib/line/line-entry-identity";
 import { notifyQueueEventSafe } from "@/lib/notifications/queue-notifications";
 import { optionalPhoneSchema } from "@/lib/queue/input-validation";
 import { createBooking } from "@/lib/queue/repository";
 import { actionRateLimitPolicies, consumeRequestRateLimit } from "@/lib/security/rate-limit";
+import type { BookingActionState } from "./booking-contract";
 
 const bookingSchema = z.object({
   customerName: z.string().trim().min(1),
@@ -18,17 +20,18 @@ const bookingSchema = z.object({
   note: z.string().trim().optional(),
 });
 
-export const createBookingAction = async (formData: FormData) => {
+export const createBookingAction = async (_previousState: BookingActionState, formData: FormData): Promise<BookingActionState> => {
   const allowed = await consumeRequestRateLimit("public-booking", actionRateLimitPolicies.publicBooking).catch(() => false);
 
   if (!allowed) {
-    redirect("/book?error=rate-limited");
+    return { error: "rate-limited" };
   }
 
+  const lineUserId = await getLineEntryIdentity("book");
   const parsed = bookingSchema.safeParse({
     customerName: formData.get("customerName"),
     phone: formData.get("phone"),
-    lineUserId: String(formData.get("lineUserId") ?? ""),
+    lineUserId: lineUserId ?? "",
     serviceId: formData.get("serviceId"),
     dateValue: formData.get("dateValue"),
     timeValue: formData.get("timeValue"),
@@ -36,7 +39,7 @@ export const createBookingAction = async (formData: FormData) => {
   });
 
   if (!parsed.success) {
-    redirect("/book?error=invalid");
+    return { error: "invalid" };
   }
 
   let queueItemId: string;
@@ -47,16 +50,21 @@ export const createBookingAction = async (formData: FormData) => {
     queueItemId = queueItem.id;
     publicToken = queueItem.publicToken;
     await notifyQueueEventSafe(queueItemId, NotificationType.BOOKING_CONFIRMED);
+    await clearLineEntryIdentity("book").catch(() => undefined);
   } catch (error) {
     if (error instanceof Error && (error.message === "Queue intake is closed." || error.message === "Booking is closed.")) {
-      redirect("/book?error=closed");
+      return { error: "closed" };
     }
 
     if (error instanceof Error && error.message === "Booking slot is not available.") {
-      redirect("/book?error=slot-unavailable");
+      return { error: "slot-unavailable" };
     }
 
-    redirect("/book?error=database");
+    if (error instanceof Error && error.message === "Service is unavailable.") {
+      return { error: "invalid" };
+    }
+
+    return { error: "database" };
   }
 
   redirect(`/queue/${publicToken}`);

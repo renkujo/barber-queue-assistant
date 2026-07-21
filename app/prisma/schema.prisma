@@ -211,3 +211,13 @@ model RateLimitBucket {
 
   @@index([updatedAt])
 }
+
+model OwnerLineConnectToken {
+  nonce      String    @id
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([expiresAt])
+  @@index([consumedAt])
+}

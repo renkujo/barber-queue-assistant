@@ -6,6 +6,7 @@ test.describe("responsive UI rendering", () => {
   test("customer entry has visible icons and no horizontal overflow", async ({ page }) => {
     await page.goto("/");
 
+    await expect(page.locator("main[data-customer-visual='v2'].bqa-customer-home-v2")).toBeVisible();
     await expect(page.getByRole("heading", { name: "จองคิวตัดผม" })).toBeVisible();
     await expect(page.locator(".bqa-page-image")).toHaveAttribute("src", /(?:%2F|\/)icon\.png/);
     await expect(page.locator(".bqa-home-actions svg")).toHaveCount(2);
@@ -31,6 +32,7 @@ test.describe("responsive UI rendering", () => {
     await expect(timeSelect).not.toHaveText("");
 
     await serviceSelect.click();
+    await expect(page.locator(".qw-v2-select-content")).toBeVisible();
     await expect(page.getByRole("option").first()).toBeVisible();
   });
 
