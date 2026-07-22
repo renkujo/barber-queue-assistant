@@ -1,0 +1,2280 @@
+{
+  "generatedAt": "2026-07-22T17:21:04.451Z",
+  "contract": {
+    "normalSiblingMinimum": 12,
+    "majorLayoutMinimum": 16,
+    "compactActionOrStatMinimum": 8,
+    "intentionalConnectedGap": 0,
+    "viewports": [
+      360,
+      390,
+      768,
+      1024,
+      1440
+    ]
+  },
+  "coverage": {
+    "routes": [
+      {
+        "name": "customer-home",
+        "path": "/",
+        "auth": false
+      },
+      {
+        "name": "customer-book",
+        "path": "/book",
+        "auth": false
+      },
+      {
+        "name": "customer-walkin",
+        "path": "/walk-in",
+        "auth": false
+      },
+      {
+        "name": "customer-tracking",
+        "path": "/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+        "auth": false
+      },
+      {
+        "name": "customer-line",
+        "path": "/line",
+        "auth": false
+      },
+      {
+        "name": "owner-line-entry",
+        "path": "/line/owner",
+        "auth": false
+      },
+      {
+        "name": "privacy",
+        "path": "/privacy",
+        "auth": false
+      },
+      {
+        "name": "not-found",
+        "path": "/gap-audit-not-found",
+        "auth": false
+      },
+      {
+        "name": "owner-login",
+        "path": "/owner/login",
+        "auth": false
+      },
+      {
+        "name": "owner-dashboard",
+        "path": "/owner",
+        "auth": true
+      },
+      {
+        "name": "owner-walkin",
+        "path": "/owner/walk-in",
+        "auth": true
+      },
+      {
+        "name": "owner-settings",
+        "path": "/owner/settings",
+        "auth": true
+      },
+      {
+        "name": "owner-availability",
+        "path": "/owner/settings/availability",
+        "auth": true
+      },
+      {
+        "name": "owner-services",
+        "path": "/owner/settings/services",
+        "auth": true
+      },
+      {
+        "name": "owner-queue-edit",
+        "path": "/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+        "auth": true
+      }
+    ],
+    "renderCount": 75
+  },
+  "summary": {
+    "pageOverflowFailures": [],
+    "trueGapFailures": [],
+    "trueClippingFailures": [],
+    "overlapFailures": [],
+    "acceptedFindings": 26
+  },
+  "corrected": {
+    "ownerSettingsHubToFirstGroup": {
+      "widths": [
+        360,
+        390,
+        768,
+        1024
+      ],
+      "gap": 16
+    },
+    "privacyWarningToken": {
+      "widths": [
+        360,
+        390
+      ],
+      "overflowWrap": "anywhere",
+      "scrollWidthEqualsClientWidth": true
+    }
+  },
+  "results": [
+    {
+      "route": "customer-home",
+      "requestedPath": "/",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/",
+      "path": "/",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 1691
+      },
+      "cardCount": 14,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": 12
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-book",
+      "requestedPath": "/book",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/book",
+      "path": "/book",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 1302
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-walkin",
+      "requestedPath": "/walk-in",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/walk-in",
+      "path": "/walk-in",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 1316
+      },
+      "cardCount": 4,
+      "gapSummary": {
+        "minimumVertical": 99.39,
+        "minimumHorizontal": 8
+      },
+      "findings": [
+        {
+          "direction": "horizontal",
+          "a": "section.ui-card.bqa-stat-tile",
+          "b": "section.ui-card.bqa-stat-tile",
+          "gap": 8,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-compact-stat-grid-8px"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-tracking",
+      "requestedPath": "/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "path": "/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 800
+      },
+      "cardCount": 5,
+      "gapSummary": {
+        "minimumVertical": 32,
+        "minimumHorizontal": 8
+      },
+      "findings": [
+        {
+          "direction": "horizontal",
+          "a": "section.ui-card.bqa-stat-tile",
+          "b": "section.ui-card.bqa-stat-tile",
+          "gap": 8,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-compact-stat-grid-8px"
+        }
+      ],
+      "clipped": [
+        {
+          "selector": "section.bqa-ticket-panel.bqa-tracking-ticket",
+          "x": true,
+          "y": false,
+          "clientWidth": 294,
+          "scrollWidth": 299,
+          "clientHeight": 156,
+          "scrollHeight": 156,
+          "classification": "diagnostic-scrollwidth-only-child-bounds-contained"
+        }
+      ],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-line",
+      "requestedPath": "/line",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/line",
+      "path": "/line",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 800
+      },
+      "cardCount": 2,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-line-entry",
+      "requestedPath": "/line/owner",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/line/owner",
+      "path": "/line/owner",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 800
+      },
+      "cardCount": 2,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "privacy",
+      "requestedPath": "/privacy",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/privacy",
+      "path": "/privacy",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 1876
+      },
+      "cardCount": 7,
+      "gapSummary": {
+        "minimumVertical": 12,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "not-found",
+      "requestedPath": "/gap-audit-not-found",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 404,
+      "finalURL": "http://127.0.0.1:3000/gap-audit-not-found",
+      "path": "/gap-audit-not-found",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 800
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-login",
+      "requestedPath": "/owner/login",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/login",
+      "path": "/owner/login",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 800
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-dashboard",
+      "requestedPath": "/owner",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner",
+      "path": "/owner",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 804
+      },
+      "cardCount": 4,
+      "gapSummary": {
+        "minimumVertical": 0,
+        "minimumHorizontal": null
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "div.ui-card-header.bqa-owner-queue-heading",
+          "b": "div.ui-card-content.bqa-owner-queue-content",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-single-card-header-content-boundary"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-walkin",
+      "requestedPath": "/owner/walk-in",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/walk-in",
+      "path": "/owner/walk-in",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 1080
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-settings",
+      "requestedPath": "/owner/settings",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings",
+      "path": "/owner/settings",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 1863
+      },
+      "cardCount": 10,
+      "gapSummary": {
+        "minimumVertical": 12,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-availability",
+      "requestedPath": "/owner/settings/availability",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings/availability",
+      "path": "/owner/settings/availability",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 1467
+      },
+      "cardCount": 12,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-services",
+      "requestedPath": "/owner/settings/services",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings/services",
+      "path": "/owner/settings/services",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 1611
+      },
+      "cardCount": 10,
+      "gapSummary": {
+        "minimumVertical": 0,
+        "minimumHorizontal": null
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "section.ui-card.bqa-panel.bqa-tone-neutral.bqa-owner-services-create-mobile",
+          "b": "section.ui-card.bqa-panel.bqa-tone-neutral.bqa-owner-services-list-panel",
+          "gap": 12,
+          "threshold": 16,
+          "connected": false,
+          "fail": true,
+          "classification": "accepted-direct-card-gap-12px"
+        },
+        {
+          "direction": "vertical",
+          "a": "details.bqa-owner-service-disclosure",
+          "b": "details.bqa-owner-service-disclosure",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-connected-service-list"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-queue-edit",
+      "requestedPath": "/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "path": "/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "page": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "height": 2048
+      },
+      "cardCount": 2,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-home",
+      "requestedPath": "/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/",
+      "path": "/",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 1671
+      },
+      "cardCount": 14,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": 12
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-book",
+      "requestedPath": "/book",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/book",
+      "path": "/book",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 1281
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-walkin",
+      "requestedPath": "/walk-in",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/walk-in",
+      "path": "/walk-in",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 1276
+      },
+      "cardCount": 4,
+      "gapSummary": {
+        "minimumVertical": 99.39,
+        "minimumHorizontal": 8
+      },
+      "findings": [
+        {
+          "direction": "horizontal",
+          "a": "section.ui-card.bqa-stat-tile",
+          "b": "section.ui-card.bqa-stat-tile",
+          "gap": 8,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-compact-stat-grid-8px"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-tracking",
+      "requestedPath": "/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "path": "/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 844
+      },
+      "cardCount": 5,
+      "gapSummary": {
+        "minimumVertical": 32,
+        "minimumHorizontal": 8
+      },
+      "findings": [
+        {
+          "direction": "horizontal",
+          "a": "section.ui-card.bqa-stat-tile",
+          "b": "section.ui-card.bqa-stat-tile",
+          "gap": 8,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-compact-stat-grid-8px"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-line",
+      "requestedPath": "/line",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/line",
+      "path": "/line",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 844
+      },
+      "cardCount": 2,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-line-entry",
+      "requestedPath": "/line/owner",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/line/owner",
+      "path": "/line/owner",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 844
+      },
+      "cardCount": 2,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "privacy",
+      "requestedPath": "/privacy",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/privacy",
+      "path": "/privacy",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 1807
+      },
+      "cardCount": 7,
+      "gapSummary": {
+        "minimumVertical": 12,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "not-found",
+      "requestedPath": "/gap-audit-not-found",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 404,
+      "finalURL": "http://127.0.0.1:3000/gap-audit-not-found",
+      "path": "/gap-audit-not-found",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 844
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-login",
+      "requestedPath": "/owner/login",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/login",
+      "path": "/owner/login",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 844
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-dashboard",
+      "requestedPath": "/owner",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner",
+      "path": "/owner",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 844
+      },
+      "cardCount": 4,
+      "gapSummary": {
+        "minimumVertical": 0,
+        "minimumHorizontal": null
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "div.ui-card-header.bqa-owner-queue-heading",
+          "b": "div.ui-card-content.bqa-owner-queue-content",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-single-card-header-content-boundary"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-walkin",
+      "requestedPath": "/owner/walk-in",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/walk-in",
+      "path": "/owner/walk-in",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 1080
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-settings",
+      "requestedPath": "/owner/settings",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings",
+      "path": "/owner/settings",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 1863
+      },
+      "cardCount": 10,
+      "gapSummary": {
+        "minimumVertical": 12,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-availability",
+      "requestedPath": "/owner/settings/availability",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings/availability",
+      "path": "/owner/settings/availability",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 1467
+      },
+      "cardCount": 12,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-services",
+      "requestedPath": "/owner/settings/services",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings/services",
+      "path": "/owner/settings/services",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 1611
+      },
+      "cardCount": 10,
+      "gapSummary": {
+        "minimumVertical": 0,
+        "minimumHorizontal": null
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "section.ui-card.bqa-panel.bqa-tone-neutral.bqa-owner-services-create-mobile",
+          "b": "section.ui-card.bqa-panel.bqa-tone-neutral.bqa-owner-services-list-panel",
+          "gap": 12,
+          "threshold": 16,
+          "connected": false,
+          "fail": true,
+          "classification": "accepted-direct-card-gap-12px"
+        },
+        {
+          "direction": "vertical",
+          "a": "details.bqa-owner-service-disclosure",
+          "b": "details.bqa-owner-service-disclosure",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-connected-service-list"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-queue-edit",
+      "requestedPath": "/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "path": "/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "page": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "height": 2027
+      },
+      "cardCount": 2,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-home",
+      "requestedPath": "/",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/",
+      "path": "/",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1533
+      },
+      "cardCount": 14,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": 12
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-book",
+      "requestedPath": "/book",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/book",
+      "path": "/book",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1024
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-walkin",
+      "requestedPath": "/walk-in",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/walk-in",
+      "path": "/walk-in",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1024
+      },
+      "cardCount": 4,
+      "gapSummary": {
+        "minimumVertical": 8,
+        "minimumHorizontal": null
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "section.ui-card.bqa-stat-tile",
+          "b": "section.ui-card.bqa-stat-tile",
+          "gap": 8,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-compact-stat-grid-8px"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-tracking",
+      "requestedPath": "/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "path": "/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1024
+      },
+      "cardCount": 5,
+      "gapSummary": {
+        "minimumVertical": 8,
+        "minimumHorizontal": 20
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "section.ui-card.bqa-stat-tile",
+          "b": "section.ui-card.bqa-stat-tile",
+          "gap": 8,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-compact-stat-grid-8px"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-line",
+      "requestedPath": "/line",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/line",
+      "path": "/line",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1024
+      },
+      "cardCount": 2,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-line-entry",
+      "requestedPath": "/line/owner",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/line/owner",
+      "path": "/line/owner",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1024
+      },
+      "cardCount": 2,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "privacy",
+      "requestedPath": "/privacy",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/privacy",
+      "path": "/privacy",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1310
+      },
+      "cardCount": 7,
+      "gapSummary": {
+        "minimumVertical": 12,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "not-found",
+      "requestedPath": "/gap-audit-not-found",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 404,
+      "finalURL": "http://127.0.0.1:3000/gap-audit-not-found",
+      "path": "/gap-audit-not-found",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1024
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-login",
+      "requestedPath": "/owner/login",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/login",
+      "path": "/owner/login",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1024
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-dashboard",
+      "requestedPath": "/owner",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner",
+      "path": "/owner",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1024
+      },
+      "cardCount": 4,
+      "gapSummary": {
+        "minimumVertical": 0,
+        "minimumHorizontal": null
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "div.ui-card-header.bqa-owner-queue-heading",
+          "b": "div.ui-card-content.bqa-owner-queue-content",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-single-card-header-content-boundary"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-walkin",
+      "requestedPath": "/owner/walk-in",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/walk-in",
+      "path": "/owner/walk-in",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1149
+      },
+      "cardCount": 3,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-settings",
+      "requestedPath": "/owner/settings",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings",
+      "path": "/owner/settings",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1445
+      },
+      "cardCount": 10,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": 12
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-availability",
+      "requestedPath": "/owner/settings/availability",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings/availability",
+      "path": "/owner/settings/availability",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1294
+      },
+      "cardCount": 12,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-services",
+      "requestedPath": "/owner/settings/services",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings/services",
+      "path": "/owner/settings/services",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 1799
+      },
+      "cardCount": 9,
+      "gapSummary": {
+        "minimumVertical": 0,
+        "minimumHorizontal": null
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "details.bqa-owner-service-disclosure",
+          "b": "details.bqa-owner-service-disclosure",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-connected-service-list"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-queue-edit",
+      "requestedPath": "/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "path": "/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "page": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "height": 2021
+      },
+      "cardCount": 7,
+      "gapSummary": {
+        "minimumVertical": 32,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-home",
+      "requestedPath": "/",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/",
+      "path": "/",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 967
+      },
+      "cardCount": 14,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": 12
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-book",
+      "requestedPath": "/book",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/book",
+      "path": "/book",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 985
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-walkin",
+      "requestedPath": "/walk-in",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/walk-in",
+      "path": "/walk-in",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 962
+      },
+      "cardCount": 4,
+      "gapSummary": {
+        "minimumVertical": 8,
+        "minimumHorizontal": null
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "section.ui-card.bqa-stat-tile",
+          "b": "section.ui-card.bqa-stat-tile",
+          "gap": 8,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-compact-stat-grid-8px"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-tracking",
+      "requestedPath": "/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "path": "/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 768
+      },
+      "cardCount": 5,
+      "gapSummary": {
+        "minimumVertical": 8,
+        "minimumHorizontal": 20
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "section.ui-card.bqa-stat-tile",
+          "b": "section.ui-card.bqa-stat-tile",
+          "gap": 8,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-compact-stat-grid-8px"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-line",
+      "requestedPath": "/line",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/line",
+      "path": "/line",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 768
+      },
+      "cardCount": 2,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-line-entry",
+      "requestedPath": "/line/owner",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/line/owner",
+      "path": "/line/owner",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 768
+      },
+      "cardCount": 2,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "privacy",
+      "requestedPath": "/privacy",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/privacy",
+      "path": "/privacy",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 1265
+      },
+      "cardCount": 7,
+      "gapSummary": {
+        "minimumVertical": 12,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "not-found",
+      "requestedPath": "/gap-audit-not-found",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 404,
+      "finalURL": "http://127.0.0.1:3000/gap-audit-not-found",
+      "path": "/gap-audit-not-found",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 768
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-login",
+      "requestedPath": "/owner/login",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/login",
+      "path": "/owner/login",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 768
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-dashboard",
+      "requestedPath": "/owner",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner",
+      "path": "/owner",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 768
+      },
+      "cardCount": 4,
+      "gapSummary": {
+        "minimumVertical": 0,
+        "minimumHorizontal": null
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "div.ui-card-header.bqa-owner-queue-heading",
+          "b": "div.ui-card-content.bqa-owner-queue-content",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-single-card-header-content-boundary"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-walkin",
+      "requestedPath": "/owner/walk-in",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/walk-in",
+      "path": "/owner/walk-in",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 1030
+      },
+      "cardCount": 3,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-settings",
+      "requestedPath": "/owner/settings",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings",
+      "path": "/owner/settings",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 1340
+      },
+      "cardCount": 10,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": 12
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-availability",
+      "requestedPath": "/owner/settings/availability",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings/availability",
+      "path": "/owner/settings/availability",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 1189
+      },
+      "cardCount": 12,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-services",
+      "requestedPath": "/owner/settings/services",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings/services",
+      "path": "/owner/settings/services",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 1693
+      },
+      "cardCount": 9,
+      "gapSummary": {
+        "minimumVertical": 0,
+        "minimumHorizontal": null
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "details.bqa-owner-service-disclosure",
+          "b": "details.bqa-owner-service-disclosure",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-connected-service-list"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-queue-edit",
+      "requestedPath": "/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "path": "/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "page": {
+        "clientWidth": 1024,
+        "scrollWidth": 1024,
+        "height": 1916
+      },
+      "cardCount": 7,
+      "gapSummary": {
+        "minimumVertical": 32,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-home",
+      "requestedPath": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/",
+      "path": "/",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1000
+      },
+      "cardCount": 14,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": 12
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-book",
+      "requestedPath": "/book",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/book",
+      "path": "/book",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1000
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-walkin",
+      "requestedPath": "/walk-in",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/walk-in",
+      "path": "/walk-in",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1000
+      },
+      "cardCount": 4,
+      "gapSummary": {
+        "minimumVertical": 8,
+        "minimumHorizontal": null
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "section.ui-card.bqa-stat-tile",
+          "b": "section.ui-card.bqa-stat-tile",
+          "gap": 8,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-compact-stat-grid-8px"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-tracking",
+      "requestedPath": "/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "path": "/queue/0f0c8397-d672-49d8-aa8e-7ec140ab5be1",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1000
+      },
+      "cardCount": 5,
+      "gapSummary": {
+        "minimumVertical": 8,
+        "minimumHorizontal": 20
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "section.ui-card.bqa-stat-tile",
+          "b": "section.ui-card.bqa-stat-tile",
+          "gap": 8,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-compact-stat-grid-8px"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "customer-line",
+      "requestedPath": "/line",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/line",
+      "path": "/line",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1000
+      },
+      "cardCount": 2,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-line-entry",
+      "requestedPath": "/line/owner",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/line/owner",
+      "path": "/line/owner",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1000
+      },
+      "cardCount": 2,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "privacy",
+      "requestedPath": "/privacy",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/privacy",
+      "path": "/privacy",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1265
+      },
+      "cardCount": 7,
+      "gapSummary": {
+        "minimumVertical": 12,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "not-found",
+      "requestedPath": "/gap-audit-not-found",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 404,
+      "finalURL": "http://127.0.0.1:3000/gap-audit-not-found",
+      "path": "/gap-audit-not-found",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1000
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-login",
+      "requestedPath": "/owner/login",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/login",
+      "path": "/owner/login",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1000
+      },
+      "cardCount": 1,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": null
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-dashboard",
+      "requestedPath": "/owner",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner",
+      "path": "/owner",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1327
+      },
+      "cardCount": 14,
+      "gapSummary": {
+        "minimumVertical": 0,
+        "minimumHorizontal": 16
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "div.ui-card-header.bqa-owner-queue-heading",
+          "b": "div.ui-card-content.bqa-owner-queue-content",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-single-card-header-content-boundary"
+        },
+        {
+          "direction": "vertical",
+          "a": "div.ui-card-header.bqa-owner-rail-card-header",
+          "b": "div.ui-card-content.bqa-owner-rail-card-content",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-single-card-header-content-boundary"
+        },
+        {
+          "direction": "vertical",
+          "a": "div.ui-card-header.bqa-owner-rail-card-header",
+          "b": "div.ui-card-content.bqa-owner-rail-card-content.bqa-owner-rail-card-content--summary",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-single-card-header-content-boundary"
+        },
+        {
+          "direction": "vertical",
+          "a": "div.ui-card-header.bqa-owner-notification-header",
+          "b": "div.ui-card-content.p-0",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-single-card-header-content-boundary"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-walkin",
+      "requestedPath": "/owner/walk-in",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/walk-in",
+      "path": "/owner/walk-in",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1000
+      },
+      "cardCount": 3,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": 16
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-settings",
+      "requestedPath": "/owner/settings",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings",
+      "path": "/owner/settings",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1104
+      },
+      "cardCount": 11,
+      "gapSummary": {
+        "minimumVertical": 16,
+        "minimumHorizontal": 24
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-availability",
+      "requestedPath": "/owner/settings/availability",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings/availability",
+      "path": "/owner/settings/availability",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1000
+      },
+      "cardCount": 12,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": 16
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-services",
+      "requestedPath": "/owner/settings/services",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/settings/services",
+      "path": "/owner/settings/services",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1091
+      },
+      "cardCount": 9,
+      "gapSummary": {
+        "minimumVertical": 0,
+        "minimumHorizontal": 16
+      },
+      "findings": [
+        {
+          "direction": "vertical",
+          "a": "details.bqa-owner-service-disclosure",
+          "b": "details.bqa-owner-service-disclosure",
+          "gap": 0,
+          "threshold": 12,
+          "connected": false,
+          "fail": true,
+          "classification": "intentional-connected-service-list"
+        }
+      ],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    },
+    {
+      "route": "owner-queue-edit",
+      "requestedPath": "/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "finalURL": "http://127.0.0.1:3000/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "path": "/owner/queue/cmrwb8ucb0002pmdxq40sqm92/edit",
+      "page": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "height": 1320
+      },
+      "cardCount": 7,
+      "gapSummary": {
+        "minimumVertical": null,
+        "minimumHorizontal": 16
+      },
+      "findings": [],
+      "clipped": [],
+      "overlaps": [],
+      "removedSpecialDateVisible": false
+    }
+  ]
+}

@@ -1260,8 +1260,7 @@ body:has(.bqa-owner-dashboard-content) .bqa-confirm-dialog--danger .bqa-confirm-
 }
 
 .bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-weekly-schedule-panel,
-.bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-legend,
-.bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-exceptions {
+.bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-legend {
   border-color: var(--qw-color-border);
   border-radius: var(--qw-radius-lg);
   background: var(--qw-color-canvas);
@@ -1339,41 +1338,6 @@ body:has(.bqa-owner-dashboard-content) .bqa-confirm-dialog--danger .bqa-confirm-
 .bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-row .ui-button {
   min-height: 44px;
   border-radius: var(--qw-radius-md);
-}
-
-.bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-exceptions {
-  overflow: hidden;
-}
-
-.bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-exceptions > summary {
-  min-height: 64px;
-  background: var(--qw-color-canvas);
-}
-
-.bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-exceptions > summary:hover {
-  background: var(--qw-color-surface);
-}
-
-.bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-exceptions > summary strong {
-  color: var(--qw-color-ink-deep);
-  font-weight: 700;
-}
-
-.bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-exceptions > summary small,
-.bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-date span,
-.bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-date small {
-  color: var(--qw-color-text-secondary);
-  font-weight: 400;
-}
-
-.bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-date strong {
-  color: var(--qw-color-ink-deep);
-  font-weight: 700;
-}
-
-.bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-exceptions > .bqa-panel {
-  border-color: var(--qw-color-border);
-  background: var(--qw-color-canvas);
 }
 
 .bqa-queue-workspace-v2 .bqa-owner-availability-v2 .bqa-owner-availability-legend {
@@ -1968,6 +1932,10 @@ body:has(.bqa-owner-dashboard-content) .bqa-confirm-dialog--danger .bqa-confirm-
 
 .bqa-queue-workspace-v2 .bqa-owner-settings-hub {
   gap: var(--qw-space-3);
+}
+
+.bqa-queue-workspace-v2 .bqa-owner-form-content--compact .bqa-owner-settings-form-panel > .bqa-owner-settings-hub {
+  margin-bottom: var(--qw-space-4);
 }
 
 .bqa-queue-workspace-v2 .bqa-owner-settings-hub-row {

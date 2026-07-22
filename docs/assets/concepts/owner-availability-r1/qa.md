@@ -1,6 +1,6 @@
 # Owner Availability R1 — Image QA
 
-Status: staged for human review only. Implementation remains unauthorized.
+Status: historical visual QA. The special-date disclosure shown here was removed from the owner route on 2026-07-22 and must not be treated as current UI authority.
 
 ## Provenance
 

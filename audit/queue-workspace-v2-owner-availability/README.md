@@ -1,6 +1,8 @@
 # Queue Workspace V2 — Owner Availability Review
 
-Status: technical QA passed; human-approved.
+Status: historical technical QA; weekly schedule remains approved, special-date evidence was superseded on 2026-07-22.
+
+Current note: `/owner/settings/availability` no longer renders or manages the 14-day special-date disclosure. The exception screenshots below remain historical evidence only.
 
 ## Scope
 

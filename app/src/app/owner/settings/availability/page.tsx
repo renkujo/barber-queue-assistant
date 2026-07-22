@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FormGrid, FormStack, Notice, OwnerGrid, OwnerHeader, Panel, SectionHeader } from "@/components/barber/app-ui";
+import { FormGrid, Notice, OwnerGrid, OwnerHeader, Panel, SectionHeader } from "@/components/barber/app-ui";
 import { cn } from "@/lib/cn";
 import {
   Button,
@@ -15,13 +15,11 @@ import {
 } from "@/components/ui";
 import { requireOwnerSession } from "@/lib/admin-auth";
 import {
-  getOwnerDateAvailabilityItemsSafe,
   getOwnerWeeklyAvailabilityItemsSafe,
   type DateAvailabilityMode,
 } from "@/lib/queue/repository";
 import {
   applyOwnerWeeklyAvailabilityPresetAction,
-  updateOwnerDateAvailabilityAction,
   updateOwnerWeeklyAvailabilityAction,
 } from "../../actions";
 import { OwnerShell } from "../../_components/owner-shell";
@@ -39,7 +37,6 @@ const errorMessages: Record<string, string> = {
 };
 
 const statusMessages: Record<string, string> = {
-  "availability-updated": "บันทึกวันพิเศษแล้ว",
   "weekly-availability-updated": "บันทึกตารางประจำสัปดาห์แล้ว",
   "weekly-preset-applied": "ตั้งค่าจันทร์–ศุกร์ออนไลน์ และเสาร์–อาทิตย์หน้าร้านแล้ว",
 };
@@ -55,21 +52,15 @@ const weeklyModeOptions: Array<{ value: DateAvailabilityMode; label: string }> =
   ...availabilityModes.map(({ value, label }) => ({ value, label })),
 ];
 
-const dateModeOptions: Array<{ value: DateAvailabilityMode; label: string }> = [
-  { value: "default", label: "ใช้ตารางประจำสัปดาห์" },
-  ...availabilityModes.map(({ value, label }) => ({ value, label })),
-];
-
 const getModeLabel = (mode: DateAvailabilityMode, fallbackLabel: string) =>
   availabilityModes.find((option) => option.value === mode)?.label ?? fallbackLabel;
 
 const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProps) => {
   await requireOwnerSession();
 
-  const [params, weeklyItems, dateItems] = await Promise.all([
+  const [params, weeklyItems] = await Promise.all([
     searchParams,
     getOwnerWeeklyAvailabilityItemsSafe(),
-    getOwnerDateAvailabilityItemsSafe(),
   ]);
   const errorMessage = params.error ? errorMessages[params.error] : null;
   const statusMessage = params.status ? statusMessages[params.status] : null;
@@ -173,52 +164,6 @@ const OwnerAvailabilityPage = async ({ searchParams }: OwnerAvailabilityPageProp
               </OwnerAvailabilityResponsiveSchedule>
             </Panel>
 
-            <details className="bqa-owner-availability-exceptions">
-              <summary>
-                <span>
-                  <strong>วันพิเศษ 14 วันข้างหน้า</strong>
-                  <small>ใช้เฉพาะวันหยุด ช่างลา หรือวันที่ต้องการ override ตารางประจำสัปดาห์</small>
-                </span>
-                <Icon icon="lucide:chevron-down" aria-hidden="true" />
-              </summary>
-
-              <Panel>
-                <FormStack>
-                  {dateItems.map((item) => (
-                    <form action={updateOwnerDateAvailabilityAction} key={item.dateValue} className="bqa-owner-availability-row">
-                      <input name="dateValue" type="hidden" value={item.dateValue} />
-                      <div className="bqa-owner-availability-date">
-                        <strong>{item.label}</strong>
-                        <span>{item.dateValue}</span>
-                        <small>{item.hasOverride ? getModeLabel(item.mode, "ใช้ตารางประจำสัปดาห์") : "ใช้ตารางประจำสัปดาห์"}</small>
-                      </div>
-
-                      <FormGrid>
-                        <FormField id={`mode-${item.dateValue}`} label="สถานะวันนั้น">
-                          <Select name="mode" defaultValue={item.mode} required>
-                            <SelectTrigger id={`mode-${item.dateValue}`}>
-                              <SelectValue placeholder="เลือกสถานะ" />
-                            </SelectTrigger>
-                            <SelectContent className="qw-v2-select-content">
-                              {dateModeOptions.map((option) => (
-                                <SelectItem value={option.value} key={option.value}>{option.label}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormField>
-                        <FormField id={`reason-${item.dateValue}`} label="หมายเหตุ" description="ไม่บังคับ">
-                          <Input id={`reason-${item.dateValue}`} name="reason" defaultValue={item.reason} placeholder="เช่น วันหยุด / ช่างลา" />
-                        </FormField>
-                      </FormGrid>
-
-                      <Button type="submit" variant={item.hasOverride ? "outline" : "default"} size="md" fullWidth>
-                        <Icon icon="lucide:save" aria-hidden="true" />บันทึกวันนี้
-                      </Button>
-                    </form>
-                  ))}
-                </FormStack>
-              </Panel>
-            </details>
           </div>
 
           <Panel tone="warm" className="bqa-owner-availability-legend">

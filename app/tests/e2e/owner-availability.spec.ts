@@ -29,7 +29,7 @@ test.describe("owner availability schedule", () => {
     const saveButtons = page.locator(".bqa-owner-weekly-row .ui-button[type='submit']");
     await expect(saveButtons).toHaveCount(7);
     await expect(saveButtons.first()).toHaveCSS("min-height", "48px");
-    await expect(page.getByText("วันพิเศษ 14 วันข้างหน้า")).toBeVisible();
+    await expect(page.getByText("วันพิเศษ 14 วันข้างหน้า")).toHaveCount(0);
 
     const viewport = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,

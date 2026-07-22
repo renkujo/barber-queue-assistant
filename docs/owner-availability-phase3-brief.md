@@ -1,21 +1,23 @@
 # Owner Availability Phase 3 Brief
 
-Status: `PASS` — Phase 3 implementation human-approved  
+Status: `SUPERSEDED IN PART` — weekly schedule remains approved; special-date owner UI was removed on 2026-07-22  
 Route: `/owner/settings/availability`
+
+Current override: the route now exposes only the recurring Monday–Sunday schedule and legend. Stored date-override precedence remains a data/runtime rule, but the owner-facing `วันพิเศษ 14 วันข้างหน้า` disclosure, forms, and write action are no longer part of this page.
 
 ## Current Reality
 
 - The owner configures a recurring Monday–Sunday customer-intake mode and optional note per day.
 - Existing modes are authoritative: use shop default, online booking + online queue, in-store only, and shop closed.
 - A preset applies weekday-online/weekend-in-store settings.
-- A separate disclosure owns special-date overrides for the next 14 days; date overrides beat the weekly schedule.
+- Stored date overrides still beat the weekly schedule, but this page no longer exposes a special-date editor.
 - Current Mobile repeats a full form card for every day, creating a long scroll. Current Desktop is readable but repeats nested cards/labels and seven individual save buttons with weak week-level comparison.
 
 ## Direction
 
 - **Taste thesis:** weekly availability should read like one calm operating schedule, so the owner can compare the whole week quickly and edit one day confidently without interpreting seven separate forms.
 - **Mode:** preserve behavior and brand; targeted recomposition only.
-- **Must preserve:** route, seven independent forms/actions, all mode values/semantics, notes, preset action, special-date forms, validation/toasts, owner shell, and per-date precedence.
+- **Must preserve:** route, seven independent weekly forms/actions, all weekly mode values/semantics, notes, preset action, validation/toasts, owner shell, and stored per-date precedence.
 - **Not approved:** bulk-save behavior, new hours fields, calendar engine, staff schedules, automatic holiday data, or changed availability semantics.
 
 ## Desktop Workbench — 1440×1000
@@ -25,7 +27,7 @@ Route: `/owner/settings/availability`
 - Present Monday–Sunday as one connected schedule table/list with aligned day, current mode, note, and save action columns.
 - Use restrained row dividers rather than seven outer cards.
 - Keep a quiet right-side legend explaining the three concrete intake outcomes.
-- Special dates remain a secondary collapsed section below the week.
+- No special-date owner section is rendered below the week.
 
 ## Mobile Schedule App — 390×844
 
@@ -33,7 +35,7 @@ Route: `/owner/settings/availability`
 - Compact task header; preset becomes a quiet secondary action.
 - Show one expanded day editor and the remaining days as compact summary rows/disclosures.
 - Each day remains independently saved; do not imply one bulk save.
-- Special dates stay collapsed and clearly secondary.
+- No special-date owner section is rendered on mobile.
 - Touch targets at least 44px; no horizontal table scrolling.
 
 ## Verification After Implementation

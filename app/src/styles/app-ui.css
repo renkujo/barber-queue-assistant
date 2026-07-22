@@ -442,6 +442,7 @@
 .bqa-notice-copy {
   min-width: 0;
   padding-top: 3px;
+  overflow-wrap: anywhere;
 }
 
 .bqa-notice--warm {

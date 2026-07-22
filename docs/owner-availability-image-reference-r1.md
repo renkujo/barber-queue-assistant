@@ -1,7 +1,9 @@
 # Owner Availability Image Reference R1
 
-Status: `PASS` — human owner approved visual direction  
-Lifecycle: approved Phase 3 implementation reference
+Status: `HISTORICAL` — the weekly composition remains useful; special-date UI references were superseded on 2026-07-22  
+Lifecycle: historical Phase 3 implementation reference
+
+Do not reintroduce the `วันพิเศษ 14 วันข้างหน้า` disclosure from these images; the current owner route intentionally omits that section.
 
 Generate exactly:
 

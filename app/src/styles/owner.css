@@ -1901,33 +1901,6 @@
   background: rgba(255, 253, 248, 0.68);
 }
 
-.bqa-owner-availability-date {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 2px 8px;
-  align-items: baseline;
-}
-
-.bqa-owner-availability-date strong {
-  color: var(--bqa-cocoa);
-  font-size: 0.94rem;
-  font-weight: 620;
-}
-
-.bqa-owner-availability-date span {
-  color: var(--bqa-muted);
-  font-size: 0.76rem;
-  font-weight: 450;
-  text-align: right;
-}
-
-.bqa-owner-availability-date small {
-  grid-column: 1 / -1;
-  color: var(--bqa-muted);
-  font-size: 0.76rem;
-  font-weight: 450;
-}
-
 .bqa-owner-availability-row .bqa-form-grid {
   gap: 8px;
 }
@@ -2001,62 +1974,6 @@
   line-height: 1.35;
 }
 
-.bqa-owner-availability-exceptions {
-  overflow: clip;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface);
-}
-
-.bqa-owner-availability-exceptions > summary {
-  display: flex;
-  min-height: 62px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  cursor: pointer;
-  list-style: none;
-}
-
-.bqa-owner-availability-exceptions > summary::-webkit-details-marker {
-  display: none;
-}
-
-.bqa-owner-availability-exceptions > summary span,
-.bqa-owner-availability-exceptions > summary strong,
-.bqa-owner-availability-exceptions > summary small {
-  display: block;
-}
-
-.bqa-owner-availability-exceptions > summary strong {
-  color: var(--ink);
-  font-size: 15px;
-  font-weight: 650;
-}
-
-.bqa-owner-availability-exceptions > summary small {
-  margin-top: 3px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.4;
-}
-
-.bqa-owner-availability-exceptions > summary > svg {
-  flex: 0 0 auto;
-  transition: transform 150ms ease;
-}
-
-.bqa-owner-availability-exceptions[open] > summary > svg {
-  transform: rotate(180deg);
-}
-
-.bqa-owner-availability-exceptions > .bqa-panel {
-  margin: 0;
-  border-width: 1px 0 0;
-  border-radius: 0;
-}
-
 @media (min-width: 760px) {
   .bqa-owner-availability-row {
     gap: 12px;
@@ -2072,16 +1989,6 @@
   .bqa-owner-availability-row {
     grid-template-columns: minmax(8rem, 0.44fr) minmax(0, 1fr) auto;
     align-items: end;
-  }
-
-  .bqa-owner-availability-date {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 3px;
-  }
-
-  .bqa-owner-availability-date span {
-    text-align: left;
   }
 
   .bqa-owner-availability-row .ui-button {
@@ -2254,9 +2161,6 @@
     display: none;
   }
 
-  .bqa-owner-availability-exceptions {
-    background: color-mix(in srgb, var(--surface) 88%, var(--surface-warm));
-  }
 }
 
 @media (min-width: 760px) {

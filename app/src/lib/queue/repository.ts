@@ -120,17 +120,6 @@ export type OwnerShopSettings = {
 
 export type DateAvailabilityMode = "default" | "booking-and-walk-in" | "in-store-only" | "closed";
 
-export type OwnerDateAvailabilityItem = {
-  dateValue: string;
-  label: string;
-  bookingEnabled: boolean;
-  walkInEnabled: boolean;
-  inStoreOnly: boolean;
-  mode: DateAvailabilityMode;
-  reason: string;
-  hasOverride: boolean;
-};
-
 export type OwnerWeeklyAvailabilityItem = {
   dayOfWeek: number;
   label: string;
@@ -428,30 +417,6 @@ const getIsOpenNow = (businessHours: { open: string; close: string }, now = new 
 };
 
 const getOpenLabel = (businessHours: { open: string; close: string }) => `เปิด ${businessHours.open} - ${businessHours.close} น.`;
-
-const addDaysToDateValue = (dateValue: string, days: number) => {
-  const { start } = getDayBounds(dateValue);
-  const nextDate = new Date(start);
-  nextDate.setDate(nextDate.getDate() + days);
-
-  return toDateValue(nextDate);
-};
-
-const formatOwnerDateAvailabilityLabel = (dateValue: string, index: number) => {
-  if (index === 0) {
-    return "วันนี้";
-  }
-
-  if (index === 1) {
-    return "พรุ่งนี้";
-  }
-
-  return new Intl.DateTimeFormat("th-TH", {
-    day: "numeric",
-    month: "short",
-    timeZone: "Asia/Bangkok",
-  }).format(getDayBounds(dateValue).start);
-};
 
 const weeklyAvailabilityDays = [
   { dayOfWeek: 1, label: "วันจันทร์", shortLabel: "จ." },
@@ -1106,57 +1071,6 @@ export const applyOwnerWeeklyAvailabilityPreset = async () => {
       });
     }),
   );
-};
-
-export const getOwnerDateAvailabilityItems = async (days = 14): Promise<OwnerDateAvailabilityItem[]> => {
-  const startDateValue = getTodayValue();
-  const dateValues = Array.from({ length: days }, (_, index) => addDaysToDateValue(startDateValue, index));
-  const bounds = dateValues.map((dateValue) => getDayBounds(dateValue).start);
-  const rules = await prisma.shopDateAvailability.findMany({
-    where: {
-      date: {
-        in: bounds,
-      },
-    },
-  });
-  const ruleByDateValue = new Map(rules.map((rule) => [toDateValue(rule.date), rule]));
-
-  return dateValues.map((dateValue, index) => {
-    const rule = ruleByDateValue.get(dateValue);
-    const availability = rule
-      ? { bookingEnabled: rule.bookingEnabled, walkInEnabled: rule.walkInEnabled, inStoreOnly: rule.inStoreOnly }
-      : { bookingEnabled: true, walkInEnabled: true, inStoreOnly: false };
-
-    return {
-      dateValue,
-      label: formatOwnerDateAvailabilityLabel(dateValue, index),
-      bookingEnabled: availability.bookingEnabled,
-      walkInEnabled: availability.walkInEnabled,
-      inStoreOnly: availability.inStoreOnly,
-      mode: rule ? getDateAvailabilityMode(availability) : "default",
-      reason: rule?.reason ?? "",
-      hasOverride: Boolean(rule),
-    };
-  });
-};
-
-export const getOwnerDateAvailabilityItemsSafe = async () => {
-  try {
-    return await getOwnerDateAvailabilityItems();
-  } catch {
-    const startDateValue = getTodayValue();
-
-    return Array.from({ length: 7 }, (_, index) => ({
-      dateValue: addDaysToDateValue(startDateValue, index),
-      label: formatOwnerDateAvailabilityLabel(addDaysToDateValue(startDateValue, index), index),
-      bookingEnabled: true,
-      walkInEnabled: true,
-      inStoreOnly: false,
-      mode: "default" as DateAvailabilityMode,
-      reason: "",
-      hasOverride: false,
-    }));
-  }
 };
 
 export const updateOwnerDateAvailability = async (input: UpdateOwnerDateAvailabilityInput) => {
