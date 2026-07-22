@@ -8,7 +8,11 @@ Local Slices A–F validation evidence is recorded in [`evidence/pilot-instrumen
 
 Synthetic operational validation—including portable restore ownership reconciliation and the bounded-role lifecycle—is recorded in [`evidence/pilot-precollection-operational-r1.md`](./evidence/pilot-precollection-operational-r1.md). Real production/R2/external-storage items remain unchecked.
 
+The proportional first-shop trial is defined by [`lean-pilot-pack-r1.md`](./lean-pilot-pack-r1.md) and its one-page [owner quick card](./operations/barber-owner-pilot-quick-card-r1.md). These documents prepare the trial but do not authorize customer invitation or filled records.
+
 ## P0 — Must pass before inviting customers
+
+For the first lean trial, pilot measurement instrumentation remains disabled. Cohort/report/operator-role items below are therefore not blockers for that lean lane; they become mandatory only before a later measurement-enabled run. Safety, privacy, backup, owner agreement, fallback, production smoke, and explicit Pilot Execution approval still apply.
 
 - [ ] Deploy the latest migrations and confirm every `QueueItem` has a unique `publicToken`.
 - [ ] Deploy outside operating hours with no real active queue. Pre-hardening `/queue/<database-id>` links are intentionally not accepted after deployment; clear smoke rows or reissue tracking links before reopening intake.
@@ -30,7 +34,7 @@ Synthetic operational validation—including portable restore ownership reconcil
 - [x] Approve and create the empty encrypted location in [`operations/pilot-daily-close-storage-proposal-r1.md`](./operations/pilot-daily-close-storage-proposal-r1.md); filled records remain blocked.
 - [ ] Validate the reconciliation/trustworthy-day fixture and owner/operator-only aggregate report without PII.
 - [ ] Complete prune, hold, correction, customer-deletion, multi-cohort expiry, backup-expiry, isolated-restore/re-prune, and old-image rollback proof.
-- [ ] Obtain separate measurement enablement approval and separate owner agreement/pilot-execution approval.
+- [ ] Obtain owner agreement and separate Pilot Execution approval. Obtain measurement enablement approval only if a later run will turn instrumentation on.
 
 ## Pilot rollout
 
