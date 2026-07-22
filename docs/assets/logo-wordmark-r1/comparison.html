@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Barber Queue — Wordmark Sketch Comparison R1</title>
+  <style>
+    :root {
+      --cocoa: #3a2d25;
+      --apricot: #e7a77c;
+      --cream: #f7f1eb;
+      --paper: #fffaf6;
+      --dark: #271f1a;
+      --line: #d9cec5;
+      --muted: #76685e;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 1120px; background: #ded6cf; color: var(--cocoa); }
+    body { font-family: Arial, Helvetica, sans-serif; }
+    img { display: block; max-width: 100%; }
+
+    .board {
+      width: min(1520px, calc(100% - 64px));
+      margin: 32px auto;
+      padding: 32px;
+      background: var(--cream);
+      border: 1px solid #cfc3ba;
+    }
+
+    .eyebrow,
+    .micro {
+      margin: 0;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    .eyebrow { color: #9a5e3d; }
+    .micro { color: var(--muted); }
+
+    .board-header {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 32px;
+      padding: 24px 24px 30px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      max-width: 760px;
+      margin: 10px 0 14px;
+      font-size: 46px;
+      line-height: .98;
+      letter-spacing: -.045em;
+      font-weight: 700;
+    }
+
+    .lede {
+      max-width: 720px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .reference-note {
+      align-self: end;
+      padding: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+    }
+
+    .reference-note p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .candidate {
+      margin-top: 24px;
+      padding: 24px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+    }
+
+    .candidate-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 18px;
+    }
+
+    .candidate-title {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+
+    .candidate-letter {
+      color: var(--apricot);
+      font-size: 42px;
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 29px;
+      line-height: 1;
+      letter-spacing: -.025em;
+    }
+
+    .status {
+      padding: 7px 9px 6px;
+      color: #80513a;
+      background: #f4dfd0;
+      border: 1px solid #e6bea2;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .source-view {
+      height: 196px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 70px;
+      overflow: hidden;
+      background: var(--cream);
+      border: 1px solid #e3d8cf;
+    }
+
+    .source-view img { width: min(940px, 88%); height: auto; max-height: 132px; }
+
+    .proof-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.25fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .proof,
+    .scale-proof {
+      min-height: 104px;
+      padding: 14px;
+      border: 1px solid var(--line);
+    }
+
+    .proof {
+      display: grid;
+      align-content: space-between;
+      gap: 12px;
+      background: #f9f4ef;
+    }
+
+    .proof.dark { background: var(--dark); border-color: var(--dark); color: white; }
+    .proof img { height: 34px; width: auto; max-width: 100%; }
+    .mono img { filter: brightness(0); }
+    .reverse img { filter: brightness(0) invert(1); }
+
+    .scale-proof { background: white; }
+    .scale-row {
+      height: 65px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 8px;
+    }
+
+    .exact-sample {
+      min-width: 120px;
+      display: grid;
+      justify-items: start;
+      gap: 6px;
+    }
+
+    .exact-sample span { color: var(--muted); font-size: 10px; font-weight: 700; }
+    .exact-sample img { width: auto; max-width: none; }
+    .sample-18 { height: 18px; }
+    .sample-24 { height: 24px; }
+    .sample-32 { height: 32px; }
+    .sample-48 { height: 48px; }
+
+    .application-grid {
+      display: grid;
+      grid-template-columns: 1.25fr .9fr .8fr .75fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .context {
+      height: 164px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .context-label {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      z-index: 2;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .customer-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 44px 18px 18px;
+      background: white;
+    }
+
+    .customer-header img { width: 164px; height: auto; }
+    .customer-header .nav { margin-left: auto; display: flex; gap: 8px; }
+    .customer-header .nav i { display: block; width: 38px; height: 8px; border-radius: 8px; background: #e9dfd7; }
+
+    .owner-sidebar { padding: 38px 18px 18px; background: var(--dark); }
+    .owner-sidebar .context-label { color: #b9aaa0; }
+    .light-backing {
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 12px 14px;
+      background: var(--cream);
+      border-radius: 12px;
+    }
+    .light-backing img { width: 155px; height: auto; }
+    .sidebar-lines { display: grid; gap: 9px; margin-top: 18px; }
+    .sidebar-lines i { display: block; height: 7px; border-radius: 8px; background: #493c34; }
+    .sidebar-lines i:nth-child(1) { width: 72%; }
+    .sidebar-lines i:nth-child(2) { width: 55%; }
+
+    .owner-mobile { display: grid; place-items: center; padding-top: 24px; background: #eee5de; }
+    .phone {
+      width: 84%;
+      height: 112px;
+      padding: 14px 12px;
+      background: white;
+      border: 1px solid #d8cbc1;
+      border-radius: 18px 18px 0 0;
+    }
+    .phone img { height: 18px; width: auto; }
+    .mobile-card { height: 48px; margin-top: 13px; border-radius: 9px; background: var(--cream); border: 1px solid #eaded5; }
+
+    .diagnostic {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 34px 14px 14px;
+      background: #f7f1eb;
+    }
+    .diagnostic-box {
+      width: 72px;
+      height: 72px;
+      display: grid;
+      place-items: center;
+      color: #9b8b80;
+      border: 1px dashed #a99a90;
+      font-size: 8px;
+      font-weight: 700;
+      line-height: 1.35;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .diagnostic-copy strong { display: block; font-size: 11px; line-height: 1.3; }
+    .diagnostic-copy p { margin: 5px 0 0; color: var(--muted); font-size: 10px; line-height: 1.4; }
+
+    .candidate-note {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      margin-top: 13px;
+      padding-top: 12px;
+      border-top: 1px solid #e6ddd6;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .board-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 28px 24px 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <main class="board">
+    <header class="board-header">
+      <div>
+        <p class="eyebrow">Queue Word Rhythm · vector sketch gate</p>
+        <h1>Three related ways to make the name carry the turn.</h1>
+        <p class="lede">Exact lowercase “barber queue,” outlined from verified LINE Seed Sans TH sources. Cocoa leads; apricot appears only as an attached next-turn state. Candidate sketches only—no runtime mark or derived glyph is approved.</p>
+      </div>
+      <aside class="reference-note">
+        <p class="micro">Abstract discipline only</p>
+        <p>Booksy: wordmark-first restraint. Gusto: owned letter rhythm. Square: application-role discipline after approval. No reference assets, exact geometry, spacing, palette, or lockups were fetched or copied.</p>
+      </aside>
+    </header>
+
+    <section class="candidate" data-candidate="A">
+      <div class="candidate-head">
+        <div class="candidate-title"><span class="candidate-letter">A</span><h2>Quiet Rhythm</h2></div>
+        <span class="status">Candidate · human review only</span>
+      </div>
+      <div class="source-view"><img class="wordmark" src="quiet-rhythm.svg" alt="Candidate A Quiet Rhythm: barber queue"></div>
+      <div class="proof-grid">
+        <div class="proof mono"><span class="micro">One-color proof</span><img class="wordmark" src="quiet-rhythm.svg" alt="Quiet Rhythm monochrome proof"></div>
+        <div class="proof dark reverse"><span class="micro">Reversed proof</span><img class="wordmark" src="quiet-rhythm.svg" alt="Quiet Rhythm reversed proof"></div>
+        <div class="scale-proof">
+          <span class="micro">Exact rendered wordmark heights</span>
+          <div class="scale-row">
+            <div class="exact-sample"><img class="wordmark sample-18" data-expected-height="18" src="quiet-rhythm.svg" alt="Quiet Rhythm at 18 pixels"><span>18 px</span></div>
+            <div class="exact-sample"><img class="wordmark sample-24" data-expected-height="24" src="quiet-rhythm.svg" alt="Quiet Rhythm at 24 pixels"><span>24 px</span></div>
+            <div class="exact-sample"><img class="wordmark sample-32" data-expected-height="32" src="quiet-rhythm.svg" alt="Quiet Rhythm at 32 pixels"><span>32 px</span></div>
+            <div class="exact-sample"><img class="wordmark sample-48" data-expected-height="48" src="quiet-rhythm.svg" alt="Quiet Rhythm at 48 pixels"><span>48 px</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="application-grid">
+        <div class="context customer-header"><span class="context-label">Customer header · 24 px</span><img class="wordmark" src="quiet-rhythm.svg" alt="Quiet Rhythm in customer header"><div class="nav"><i></i><i></i><i></i></div></div>
+        <div class="context owner-sidebar"><span class="context-label">Owner sidebar · light backing</span><div class="light-backing"><img class="wordmark" src="quiet-rhythm.svg" alt="Quiet Rhythm in owner sidebar"></div><div class="sidebar-lines"><i></i><i></i></div></div>
+        <div class="context owner-mobile"><span class="context-label">Compact owner mobile · 18 px</span><div class="phone"><img class="wordmark" src="quiet-rhythm.svg" alt="Quiet Rhythm in compact owner mobile"><div class="mobile-card"></div></div></div>
+        <div class="context diagnostic"><span class="context-label">Future glyph-source potential · diagnostic only</span><div class="diagnostic-box">No glyph<br>drawn</div><div class="diagnostic-copy"><strong>Final-e terminal</strong><p>Potential source zone only. Not an icon candidate.</p></div></div>
+      </div>
+      <div class="candidate-note"><span>Bold throughout · tight, calm cadence · one attached apricot final-e terminal.</span><span>Primary aim: clearest category restraint.</span></div>
+    </section>
+
+    <section class="candidate" data-candidate="B">
+      <div class="candidate-head">
+        <div class="candidate-title"><span class="candidate-letter">B</span><h2>Measured Slots</h2></div>
+        <span class="status">Candidate · human review only</span>
+      </div>
+      <div class="source-view"><img class="wordmark" src="measured-slots.svg" alt="Candidate B Measured Slots: barber queue"></div>
+      <div class="proof-grid">
+        <div class="proof mono"><span class="micro">One-color proof</span><img class="wordmark" src="measured-slots.svg" alt="Measured Slots monochrome proof"></div>
+        <div class="proof dark reverse"><span class="micro">Reversed proof</span><img class="wordmark" src="measured-slots.svg" alt="Measured Slots reversed proof"></div>
+        <div class="scale-proof">
+          <span class="micro">Exact rendered wordmark heights</span>
+          <div class="scale-row">
+            <div class="exact-sample"><img class="wordmark sample-18" data-expected-height="18" src="measured-slots.svg" alt="Measured Slots at 18 pixels"><span>18 px</span></div>
+            <div class="exact-sample"><img class="wordmark sample-24" data-expected-height="24" src="measured-slots.svg" alt="Measured Slots at 24 pixels"><span>24 px</span></div>
+            <div class="exact-sample"><img class="wordmark sample-32" data-expected-height="32" src="measured-slots.svg" alt="Measured Slots at 32 pixels"><span>32 px</span></div>
+            <div class="exact-sample"><img class="wordmark sample-48" data-expected-height="48" src="measured-slots.svg" alt="Measured Slots at 48 pixels"><span>48 px</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="application-grid">
+        <div class="context customer-header"><span class="context-label">Customer header · 24 px</span><img class="wordmark" src="measured-slots.svg" alt="Measured Slots in customer header"><div class="nav"><i></i><i></i><i></i></div></div>
+        <div class="context owner-sidebar"><span class="context-label">Owner sidebar · light backing</span><div class="light-backing"><img class="wordmark" src="measured-slots.svg" alt="Measured Slots in owner sidebar"></div><div class="sidebar-lines"><i></i><i></i></div></div>
+        <div class="context owner-mobile"><span class="context-label">Compact owner mobile · 18 px</span><div class="phone"><img class="wordmark" src="measured-slots.svg" alt="Measured Slots in compact owner mobile"><div class="mobile-card"></div></div></div>
+        <div class="context diagnostic"><span class="context-label">Future glyph-source potential · diagnostic only</span><div class="diagnostic-box">No glyph<br>drawn</div><div class="diagnostic-copy"><strong>ueue cadence</strong><p>Potential module source only. Not an icon candidate.</p></div></div>
+      </div>
+      <div class="candidate-note"><span>Regular “barber” + ExtraBold “queue” · equal 600-unit queue origins · one transparent final-e notch.</span><span>Primary aim: strongest product-action reading.</span></div>
+    </section>
+
+    <section class="candidate" data-candidate="C">
+      <div class="candidate-head">
+        <div class="candidate-title"><span class="candidate-letter">C</span><h2>Open Turn</h2></div>
+        <span class="status">Candidate · human review only</span>
+      </div>
+      <div class="source-view"><img class="wordmark" src="open-turn.svg" alt="Candidate C Open Turn: barber queue"></div>
+      <div class="proof-grid">
+        <div class="proof mono"><span class="micro">One-color proof</span><img class="wordmark" src="open-turn.svg" alt="Open Turn monochrome proof"></div>
+        <div class="proof dark reverse"><span class="micro">Reversed proof</span><img class="wordmark" src="open-turn.svg" alt="Open Turn reversed proof"></div>
+        <div class="scale-proof">
+          <span class="micro">Exact rendered wordmark heights</span>
+          <div class="scale-row">
+            <div class="exact-sample"><img class="wordmark sample-18" data-expected-height="18" src="open-turn.svg" alt="Open Turn at 18 pixels"><span>18 px</span></div>
+            <div class="exact-sample"><img class="wordmark sample-24" data-expected-height="24" src="open-turn.svg" alt="Open Turn at 24 pixels"><span>24 px</span></div>
+            <div class="exact-sample"><img class="wordmark sample-32" data-expected-height="32" src="open-turn.svg" alt="Open Turn at 32 pixels"><span>32 px</span></div>
+            <div class="exact-sample"><img class="wordmark sample-48" data-expected-height="48" src="open-turn.svg" alt="Open Turn at 48 pixels"><span>48 px</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="application-grid">
+        <div class="context customer-header"><span class="context-label">Customer header · 24 px</span><img class="wordmark" src="open-turn.svg" alt="Open Turn in customer header"><div class="nav"><i></i><i></i><i></i></div></div>
+        <div class="context owner-sidebar"><span class="context-label">Owner sidebar · light backing</span><div class="light-backing"><img class="wordmark" src="open-turn.svg" alt="Open Turn in owner sidebar"></div><div class="sidebar-lines"><i></i><i></i></div></div>
+        <div class="context owner-mobile"><span class="context-label">Compact owner mobile · 18 px</span><div class="phone"><img class="wordmark" src="open-turn.svg" alt="Open Turn in compact owner mobile"><div class="mobile-card"></div></div></div>
+        <div class="context diagnostic"><span class="context-label">Future glyph-source potential · diagnostic only</span><div class="diagnostic-box">No glyph<br>drawn</div><div class="diagnostic-copy"><strong>q descender + terminal</strong><p>Potential source relationship only. Not an icon candidate.</p></div></div>
+      </div>
+      <div class="candidate-note"><span>ExtraBold throughout · continuous attached q foot · one attached apricot final-e terminal.</span><span>Primary aim: most ownable source lettering.</span></div>
+    </section>
+
+    <footer class="board-footer">
+      <span>All wordmarks are external SVG files; no candidate geometry is duplicated inline in this board.</span>
+      <span>Gate: HUMAN_REVIEW_BARBER_QUEUE_WORDMARK_R1</span>
+    </footer>
+    <pre id="qa-json" hidden></pre>
+  </main>
+  <script>
+    window.addEventListener('load', () => {
+      const images = [...document.querySelectorAll('img.wordmark')];
+      const samples = [...document.querySelectorAll('[data-expected-height]')].map((img) => ({
+        candidate: img.closest('.candidate').dataset.candidate,
+        expected: Number(img.dataset.expectedHeight),
+        actual: img.getBoundingClientRect().height,
+        width: img.getBoundingClientRect().width
+      }));
+      const qa = {
+        viewportWidth: window.innerWidth,
+        documentWidth: document.documentElement.scrollWidth,
+        noHorizontalOverflow: document.documentElement.scrollWidth <= window.innerWidth,
+        allExternalSvgImagesLoaded: images.every((img) => img.complete && img.naturalWidth > 0 && img.naturalHeight > 0),
+        imageCount: images.length,
+        images: images.map((img) => ({
+          file: img.getAttribute('src'),
+          complete: img.complete,
+          naturalWidth: img.naturalWidth,
+          naturalHeight: img.naturalHeight
+        })),
+        sampleBoxes: samples,
+        exactSampleHeights: samples.every((sample) => Math.abs(sample.actual - sample.expected) < 0.01)
+      };
+      window.__WORDMARK_QA__ = qa;
+      document.getElementById('qa-json').textContent = JSON.stringify(qa);
+    });
+  </script>
+</body>
+</html>

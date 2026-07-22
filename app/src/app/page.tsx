@@ -20,7 +20,7 @@ import { parseQueueEntrySource, withQueueEntrySource } from "@/lib/pilot/entry-s
 import { getQueueStatusSnapshotSafe, getServicesWithSourceSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
 import { lookupQueueAction } from "./actions";
 
-const brandMarkPath = "/icon.png";
+const brandMarkPath = "/icons/joined-tail-q-r1-ui-512.png";
 const statusMascotPath = "/assets/mascot/queue-ticket-mascot-v1.png";
 
 type HomePageProps = {

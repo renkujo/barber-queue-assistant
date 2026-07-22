@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Barber Queue — Joined Tail Q SVG R1</title>
+  <style>
+    :root {
+      --cream:#fff8ee;
+      --paper:#eee4d6;
+      --cocoa:#3a2d25;
+      --ink:#171411;
+      --muted:#786b62;
+      --line:#d9cbbb;
+      --sage:#89a382;
+      --dark:#241d19;
+    }
+    * { box-sizing:border-box; }
+    html, body { margin:0; min-width:1600px; background:var(--paper); color:var(--cocoa); font-family:Arial, Helvetica, sans-serif; }
+    body { overflow-x:hidden; }
+    .board { width:1600px; margin:0 auto; background:var(--cream); }
+    .page-header { display:flex; align-items:flex-end; justify-content:space-between; padding:44px 54px 40px; border-bottom:1px solid var(--line); }
+    .eyebrow, .label, .status, .size-label { font-size:11px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; }
+    .eyebrow, .label, .size-label { color:var(--muted); }
+    h1 { margin:9px 0 0; font-size:50px; line-height:.98; letter-spacing:-.05em; }
+    h2 { margin:8px 0 0; font-size:32px; line-height:1.05; letter-spacing:-.035em; }
+    h3 { margin:8px 0 0; font-size:20px; line-height:1.15; letter-spacing:-.02em; }
+    p { margin:0; color:var(--muted); font-size:14px; line-height:1.55; }
+    .status { padding:10px 12px; border:1px solid var(--cocoa); color:var(--cocoa); }
+    .section-head { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; padding:36px 54px 22px; }
+    .section-head p { max-width:650px; text-align:right; }
+    .source-grid { display:grid; grid-template-columns:1fr 1fr; margin:0 54px 48px; border:1px solid var(--line); }
+    .source-card { min-width:0; background:#fffaf4; }
+    .source-card + .source-card { border-left:1px solid var(--line); }
+    .source-visual { height:590px; display:flex; align-items:center; justify-content:center; padding:28px; }
+    .source-visual.raw { padding:0; background:#fff; }
+    .source-visual.raw img { width:100%; height:100%; object-fit:contain; display:block; }
+    .source-visual.redraw { color:var(--cocoa); }
+    .source-visual.redraw .mark { width:500px; height:500px; }
+    .source-copy { min-height:136px; padding:22px 26px 24px; border-top:1px solid var(--line); }
+    .source-copy p { margin-top:9px; }
+    .mark { display:block; width:100%; height:100%; object-fit:contain; }
+    .proof-stage.black .mark { filter:brightness(0); }
+    .proof-stage.reverse .mark { filter:brightness(0) invert(1); }
+    .proof-grid { display:grid; grid-template-columns:repeat(4, 1fr); margin:0 54px 48px; border:1px solid var(--line); }
+    .proof { min-height:360px; display:flex; flex-direction:column; }
+    .proof + .proof { border-left:1px solid var(--line); }
+    .proof-stage { flex:1; display:flex; align-items:center; justify-content:center; padding:45px; }
+    .proof-stage .mark { width:220px; height:220px; }
+    .proof-stage.cocoa { color:var(--cocoa); }
+    .proof-stage.black { color:#000; background:#fff; }
+    .proof-stage.reverse { color:#fff; background:var(--dark); }
+    .proof-stage.checker {
+      color:var(--cocoa);
+      background-color:#fff;
+      background-image:linear-gradient(45deg,#ddd 25%,transparent 25%),linear-gradient(-45deg,#ddd 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ddd 75%),linear-gradient(-45deg,transparent 75%,#ddd 75%);
+      background-position:0 0,0 8px,8px -8px,-8px 0;
+      background-size:16px 16px;
+    }
+    .proof-copy { padding:18px 20px 20px; border-top:1px solid var(--line); background:var(--cream); }
+    .proof-copy p { margin-top:7px; }
+    .size-layout { display:grid; grid-template-columns:560px 1fr; gap:42px; margin:0 54px 52px; padding:34px; border:1px solid var(--line); background:#fffaf4; }
+    .hero-size { display:flex; align-items:center; justify-content:center; width:512px; height:512px; color:var(--cocoa); background:#fff; outline:1px solid var(--line); }
+    .hero-size .mark { width:512px; height:512px; }
+    .small-sizes { display:flex; flex-direction:column; justify-content:space-between; min-width:0; }
+    .size-row { display:flex; align-items:flex-end; gap:28px; min-height:150px; padding:24px 0 32px; border-bottom:1px solid var(--line); }
+    .size-row:last-of-type { border-bottom:0; }
+    .size-sample { display:flex; flex-direction:column; align-items:center; gap:13px; }
+    .exact-box { display:flex; align-items:center; justify-content:center; color:var(--cocoa); background:#fff; outline:1px solid #cdbdad; flex:0 0 auto; }
+    .exact-box .mark { width:100%; height:100%; }
+    .size-16 { width:16px; height:16px; }
+    .size-24 { width:24px; height:24px; }
+    .size-32 { width:32px; height:32px; }
+    .size-40 { width:40px; height:40px; }
+    .size-44 { width:44px; height:44px; }
+    .size-180 { width:180px; height:180px; }
+    .size-192 { width:192px; height:192px; }
+    .size-512 { width:512px; height:512px; }
+    .pixel-note { padding:20px 22px; border-left:4px solid var(--sage); background:#f2f6f0; }
+    .pixel-note strong { display:block; margin-bottom:7px; font-size:14px; }
+    .context-grid { display:grid; grid-template-columns:1fr 440px; gap:24px; margin:0 54px 52px; }
+    .context-stack { display:grid; gap:24px; }
+    .mock { border:1px solid var(--line); background:#fff; }
+    .mock-title { padding:16px 18px; border-bottom:1px solid var(--line); background:var(--cream); }
+    .customer-header { height:116px; padding:0 26px; display:flex; align-items:center; justify-content:space-between; }
+    .brand-lockup { display:flex; align-items:center; gap:14px; }
+    .brand-lockup .mark { width:44px; height:44px; color:var(--cocoa); }
+    .brand-name { font-size:20px; font-weight:700; letter-spacing:-.025em; }
+    .nav-chips { display:flex; gap:10px; }
+    .chip { padding:9px 12px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font-size:12px; }
+    .mobile-shell { width:100%; height:170px; padding:18px; background:#f7eee2; }
+    .mobile-bar { height:64px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--line); border-radius:14px; background:#fff; box-shadow:0 8px 24px rgba(58,45,37,.08); }
+    .mobile-bar .mark { width:40px; height:40px; color:var(--cocoa); }
+    .avatar { width:32px; height:32px; border-radius:50%; background:#d5c4b5; }
+    .sidebar-shell { height:398px; padding:24px; background:var(--dark); }
+    .sidebar { width:255px; height:100%; padding:20px; border:1px solid rgba(255,255,255,.08); background:#1b1714; }
+    .sidebar-brand { display:flex; align-items:center; gap:13px; padding-bottom:22px; border-bottom:1px solid rgba(255,255,255,.1); color:#fff; }
+    .light-backing { width:48px; height:48px; padding:5px; border-radius:12px; background:var(--cream); color:var(--cocoa); }
+    .light-backing .mark { width:38px; height:38px; }
+    .sidebar-lines { display:grid; gap:12px; margin-top:26px; }
+    .sidebar-line { height:11px; border-radius:999px; background:rgba(255,255,255,.12); }
+    .sidebar-line.active { width:72%; background:var(--sage); }
+    .sidebar-line.short { width:54%; }
+    .application-grid { display:grid; grid-template-columns:1fr 1fr 1.55fr; gap:24px; margin:0 54px 52px; }
+    .application-card { border:1px solid var(--line); background:#fffaf4; }
+    .application-stage { min-height:590px; display:flex; align-items:center; justify-content:center; padding:30px; }
+    .app-icon { display:flex; align-items:center; justify-content:center; color:var(--cocoa); background:var(--cream); box-shadow:0 18px 42px rgba(58,45,37,.13); }
+    .app-icon.apple { width:180px; height:180px; padding:24px; border-radius:40px; }
+    .app-icon.pwa { width:192px; height:192px; padding:26px; border-radius:32px; }
+    .maskable { position:relative; width:512px; height:512px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:var(--cream); color:var(--cocoa); }
+    .maskable .mark { width:312px; height:312px; }
+    .safe-circle { position:absolute; left:51.2px; top:51.2px; width:409.6px; height:409.6px; border:2px dashed rgba(58,45,37,.42); border-radius:50%; pointer-events:none; }
+    .application-copy { padding:20px 22px 22px; border-top:1px solid var(--line); background:var(--cream); }
+    .preview-only { display:inline-block; margin-bottom:9px; padding:5px 7px; border:1px solid #b26e52; color:#8a4e37; font-size:10px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; }
+    .qa-band { display:grid; grid-template-columns:repeat(4, 1fr); margin:0 54px 52px; border:1px solid var(--line); }
+    .qa-item { min-height:140px; padding:22px; }
+    .qa-item + .qa-item { border-left:1px solid var(--line); }
+    .qa-item strong { display:block; margin:9px 0 7px; font-size:15px; }
+    .external-load-proof { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+    footer { display:flex; align-items:flex-start; justify-content:space-between; gap:40px; padding:34px 54px 38px; background:var(--cocoa); color:#fff; }
+    footer p { max-width:850px; color:#d9d0ca; }
+    footer .status { border-color:rgba(255,255,255,.5); color:#fff; white-space:nowrap; }
+  </style>
+</head>
+<body>
+  <main class="board">
+    <header class="page-header">
+      <div>
+        <div class="eyebrow">Selected-source SVG redraw candidate / R1</div>
+        <h1>C — Joined Tail Q</h1>
+      </div>
+      <div class="status">Structure preserved · runtime blocked</div>
+    </header>
+
+    <section>
+      <div class="section-head">
+        <div><div class="label">01 / Source fidelity</div><h2>Raw structure → flat owned geometry</h2></div>
+        <p>The raw is shown full and uncropped. Shading is excluded; the rounded-rectangle bowl, vertical counter, internal tail origin, and single junction slot remain.</p>
+      </div>
+      <div class="source-grid">
+        <article class="source-card">
+          <div class="source-visual raw"><img src="../logo-q-imagegen-r3/direction-c-joined-tail/raw-imagegen.png" alt="Full uncropped selected Direction C Joined Tail Q raw source"></div>
+          <div class="source-copy"><div class="label">Selected raw / reference only</div><h3>Provider raster, 1254 × 1254</h3><p>Uncropped and untouched. Tonal shading and softened raster edges are not production authority.</p></div>
+        </article>
+        <article class="source-card">
+          <div class="source-visual redraw"><img class="mark" src="joined-tail-q-r1.svg" alt="Flat Joined Tail Q redraw"></div>
+          <div class="source-copy"><div class="label">Candidate redraw / external SVG</div><h3>Flat, deterministic, path-only</h3><p>Optically centered mass, friendlier outer corners, compact blunt tail, and a protected transparent junction slot.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><div class="label">02 / One-color proofs</div><h2>One geometry, four grounds</h2></div>
+        <p>The external SVG supplies every mark. Cocoa is its default <code>currentColor</code>; black and reversed are board-only CSS filters, while the checker exposes true transparency.</p>
+      </div>
+      <div class="proof-grid">
+        <article class="proof"><div class="proof-stage cocoa"><img class="mark" src="joined-tail-q-r1.svg" alt="Cocoa proof"></div><div class="proof-copy"><div class="label">Cocoa / warm cream</div><p>#3A2D25 on #FFF8EE</p></div></article>
+        <article class="proof"><div class="proof-stage black"><img class="mark" src="joined-tail-q-r1.svg" alt="Black monochrome proof"></div><div class="proof-copy"><div class="label">Black monochrome</div><p>Meaning does not depend on brand color.</p></div></article>
+        <article class="proof"><div class="proof-stage reverse"><img class="mark" src="joined-tail-q-r1.svg" alt="Reversed white proof"></div><div class="proof-copy"><div class="label">Reversed white</div><p>One-color reversal on cocoa-dark.</p></div></article>
+        <article class="proof"><div class="proof-stage checker"><img class="mark" src="joined-tail-q-r1.svg" alt="Transparency checker proof"></div><div class="proof-copy"><div class="label">Transparency checker</div><p>Counter and slot are genuine negative space.</p></div></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><div class="label">03 / Exact boxes</div><h2>16 through 512 CSS pixels</h2></div>
+        <p>Outlines mark the exact sample boxes. The source viewBox remains 0 0 120 120 with no geometry beyond its bounds.</p>
+      </div>
+      <div class="size-layout">
+        <div>
+          <div class="hero-size exact-box size-512" data-size="512"><img class="mark" src="joined-tail-q-r1.svg" alt="512 pixel exact sample"></div>
+          <div class="size-label" style="margin-top:14px">512 × 512 exact source box</div>
+        </div>
+        <div class="small-sizes">
+          <div class="size-row">
+            <div class="size-sample"><div class="exact-box size-16" data-size="16"><img class="mark" src="joined-tail-q-r1.svg" alt="16 pixel exact sample"></div><div class="size-label">16</div></div>
+            <div class="size-sample"><div class="exact-box size-24" data-size="24"><img class="mark" src="joined-tail-q-r1.svg" alt="24 pixel exact sample"></div><div class="size-label">24</div></div>
+            <div class="size-sample"><div class="exact-box size-32" data-size="32"><img class="mark" src="joined-tail-q-r1.svg" alt="32 pixel exact sample"></div><div class="size-label">32</div></div>
+            <div class="size-sample"><div class="exact-box size-40" data-size="40"><img class="mark" src="joined-tail-q-r1.svg" alt="40 pixel exact sample"></div><div class="size-label">40</div></div>
+            <div class="size-sample"><div class="exact-box size-44" data-size="44"><img class="mark" src="joined-tail-q-r1.svg" alt="44 pixel exact sample"></div><div class="size-label">44</div></div>
+          </div>
+          <div class="size-row">
+            <div class="size-sample"><div class="exact-box size-180" data-size="180"><img class="mark" src="joined-tail-q-r1.svg" alt="180 pixel exact sample"></div><div class="size-label">180</div></div>
+            <div class="size-sample"><div class="exact-box size-192" data-size="192"><img class="mark" src="joined-tail-q-r1.svg" alt="192 pixel exact sample"></div><div class="size-label">192</div></div>
+          </div>
+          <div class="pixel-note"><strong>Small-size read</strong><p>The tail begins visibly inside the lower counter, the single diagonal slot remains open, and the rounded blunt exit avoids an arrow tip.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><div class="label">04 / Product contexts</div><h2>Customer and owner surfaces</h2></div>
+        <p>Context-only simulations. The dark owner sidebar keeps the one-color mark on a deliberate light backing.</p>
+      </div>
+      <div class="context-grid">
+        <div class="context-stack">
+          <article class="mock"><div class="mock-title"><div class="label">Customer header / context only</div></div><div class="customer-header"><div class="brand-lockup"><img class="mark" src="joined-tail-q-r1.svg" alt="Barber Queue mark"><div class="brand-name">Barber Queue</div></div><div class="nav-chips"><div class="chip">Find a barber</div><div class="chip">Join queue</div></div></div></article>
+          <article class="mock"><div class="mock-title"><div class="label">Owner mobile / context only</div></div><div class="mobile-shell"><div class="mobile-bar"><div class="brand-lockup"><img class="mark" src="joined-tail-q-r1.svg" alt="Barber Queue mark"><div><div class="label">Owner</div><div class="brand-name" style="font-size:17px">Today’s queue</div></div></div><div class="avatar"></div></div></div></article>
+        </div>
+        <article class="mock"><div class="mock-title"><div class="label">Owner dark sidebar / light backing</div></div><div class="sidebar-shell"><div class="sidebar"><div class="sidebar-brand"><div class="light-backing"><img class="mark" src="joined-tail-q-r1.svg" alt="Barber Queue mark"></div><strong>Barber Queue</strong></div><div class="sidebar-lines"><div class="sidebar-line active"></div><div class="sidebar-line"></div><div class="sidebar-line short"></div><div class="sidebar-line"></div></div></div></div></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><div class="label">05 / Application simulations</div><h2>Preview-only icon behavior</h2></div>
+        <p>These are CSS review simulations, not delivered Apple, PWA, maskable, favicon, or runtime derivatives.</p>
+      </div>
+      <div class="application-grid">
+        <article class="application-card"><div class="application-stage"><div class="app-icon apple"><img class="mark" src="joined-tail-q-r1.svg" alt="Apple preview application"></div></div><div class="application-copy"><span class="preview-only">Preview only</span><div class="label">Apple 180 simulation</div><p>180px warm-cream application with 24px inset; no file exported.</p></div></article>
+        <article class="application-card"><div class="application-stage"><div class="app-icon pwa"><img class="mark" src="joined-tail-q-r1.svg" alt="PWA preview application"></div></div><div class="application-copy"><span class="preview-only">Preview only</span><div class="label">PWA 192 simulation</div><p>192px standard application with 26px inset; no file exported.</p></div></article>
+        <article class="application-card"><div class="application-stage"><div class="maskable"><img class="mark" src="joined-tail-q-r1.svg" alt="Maskable preview application"><div class="safe-circle"></div></div></div><div class="application-copy"><span class="preview-only">Preview only</span><div class="label">Maskable 512 / central 80%</div><p>The dashed 409.6px circle marks the central 80% safe region around a 312px mark. No derivative is created.</p></div></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head"><div><div class="label">06 / Human review criteria</div><h2>What this board asks you to judge</h2></div></div>
+      <div class="qa-band">
+        <div class="qa-item"><div class="label">Recognition</div><strong>Capital Q first</strong><p>Not a magnifier, circle-plus-handle, lowercase q, or generic font Q.</p></div>
+        <div class="qa-item"><div class="label">Fidelity</div><strong>Direction C remains</strong><p>Rectilinear bowl, vertical counter, joined diagonal tail, one slot.</p></div>
+        <div class="qa-item"><div class="label">Character</div><strong>Friendly, not corporate</strong><p>Soft corners and compact terminal offset the strong geometric mass.</p></div>
+        <div class="qa-item"><div class="label">Small size</div><strong>Slot survives at 16</strong><p>Junction reads as ordered crossing; tail stays fused and blunt.</p></div>
+      </div>
+    </section>
+
+    <img class="external-load-proof" src="joined-tail-q-r1.svg" alt="External SVG image-load proof">
+    <footer>
+      <div><strong>Technical candidate only</strong><p>Browser QA can verify geometry, loading, boxes, transparency, and clipping. Only a human may approve any later runtime plan or derivative asset work.</p></div>
+      <div class="status">HUMAN_REVIEW_BARBER_QUEUE_JOINED_TAIL_Q_SVG_R1</div>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Barber Queue — Standalone Q R3</title>
+  <style>
+    :root { --cream:#fff8ee; --paper:#f2e7d8; --cocoa:#3a2d25; --muted:#80736a; --line:#d9ccbd; --sage:#8eaa87; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; background:var(--paper); color:var(--cocoa); font-family:Arial,sans-serif; }
+    body { padding:42px; }
+    main { width:1516px; margin:0 auto; background:var(--cream); border:1px solid var(--line); }
+    header { display:flex; justify-content:space-between; align-items:flex-end; padding:42px 48px; border-bottom:1px solid var(--line); }
+    h1 { margin:8px 0 0; font-size:46px; line-height:1; letter-spacing:-.045em; }
+    .eyebrow,.tag,.index { color:var(--muted); font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
+    .tag { padding:8px 10px; border:1px solid var(--line); color:var(--cocoa); }
+    .direction { display:grid; grid-template-columns:880px 1fr; min-height:780px; border-bottom:1px solid var(--line); }
+    .visual { padding:34px; border-right:1px solid var(--line); background:#fffaf3; display:flex; align-items:center; justify-content:center; }
+    .visual img { display:block; width:100%; height:708px; object-fit:contain; }
+    .copy { padding:42px 38px; display:flex; flex-direction:column; gap:24px; }
+    h2 { margin:8px 0 0; font-size:34px; line-height:1.05; letter-spacing:-.035em; }
+    p { margin:0; color:var(--muted); font-size:15px; line-height:1.65; }
+    .metric { padding-top:18px; border-top:1px solid var(--line); }
+    .metric strong { display:block; margin-bottom:8px; font-size:14px; }
+    .verdict { margin-top:auto; padding:20px; border:1px solid var(--line); background:#fff; }
+    .recommended .verdict { border-color:var(--sage); background:#f3f7f1; }
+    footer { display:flex; justify-content:space-between; gap:32px; padding:30px 48px; background:var(--cocoa); color:#fff; }
+    footer p { color:#d9d0ca; max-width:840px; }
+    footer strong,footer .tag { color:#fff; }
+    footer .tag { border-color:rgba(255,255,255,.42); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div><div class="eyebrow">Real Image Gen source comparison / R3</div><h1>One Q, three new constructions</h1></div>
+      <div class="tag">Raw provider images · no crop · no cleanup</div>
+    </header>
+
+    <section class="direction recommended">
+      <div class="visual"><img src="direction-a-carved-counter/raw-imagegen.png" alt="Untouched Carved Counter Q Image Gen source"></div>
+      <div class="copy">
+        <div><div class="index">A / Carved Counter Q</div><h2>Architectural, recognizable, not a magnifier</h2></div>
+        <p>A softened non-circular slab carries the counter and an internal tail in one substantial mass.</p>
+        <div class="metric"><strong>Strongest quality</strong><p>Most genuinely new silhouette; low magnifier risk and immediate capital-Q recognition.</p></div>
+        <div class="metric"><strong>Refinement need</strong><p>Simplify the calligraphic flare at the lower-right and rebalance the counter for a cleaner 16px redraw.</p></div>
+        <div class="metric"><strong>Raw limitation</strong><p>Provider shading and cream variation are source-render drift, not production colors.</p></div>
+        <div class="verdict"><strong>Recommended source direction</strong><p>Select structure only, then redraw as a flat source-owned SVG rather than tracing provider pixels literally.</p></div>
+      </div>
+    </section>
+
+    <section class="direction">
+      <div class="visual"><img src="direction-b-soft-turn/raw-imagegen.png" alt="Untouched Soft Turn Q Image Gen source"></div>
+      <div class="copy">
+        <div><div class="index">B / Soft Turn Q</div><h2>Friendly, but too familiar</h2></div>
+        <p>A broad rounded stroke produces the warmest and most human Q in the round.</p>
+        <div class="metric"><strong>Strongest quality</strong><p>Friendly weight, open counter, and fused tail with no detached punctuation.</p></div>
+        <div class="metric"><strong>Main risk</strong><p>Reads like a conventional softened typeface Q; moderate-to-high generic-Q risk.</p></div>
+        <div class="metric"><strong>Raw limitation</strong><p>Soft tonal shading and a round-bowl grammar still approach generic handle territory.</p></div>
+        <div class="verdict"><strong>Assessment: clear, not ownable enough</strong><p>Useful warmth reference, weaker as the primary source construction.</p></div>
+      </div>
+    </section>
+
+    <section class="direction">
+      <div class="visual"><img src="direction-c-joined-tail/raw-imagegen.png" alt="Untouched Joined Tail Q Image Gen source"></div>
+      <div class="copy">
+        <div><div class="index">C / Joined Tail Q</div><h2>Strong junction, corporate weight</h2></div>
+        <p>A rounded-rectangle bowl and internal crossing slot make the tail order explicit.</p>
+        <div class="metric"><strong>Strongest quality</strong><p>Most geometric, strongest small-size construction potential, and clear joined-tail logic.</p></div>
+        <div class="metric"><strong>Main risk</strong><p>Long diagonal and rigid mass feel corporate/fintech; the tail can still become a handle at small scale.</p></div>
+        <div class="metric"><strong>Raw limitation</strong><p>Provider shading weakens the intended flat geometry.</p></div>
+        <div class="verdict"><strong>Assessment: disciplined, less friendly</strong><p>Useful construction boundary; less aligned with the desired neighborhood-service tone.</p></div>
+      </div>
+    </section>
+
+    <footer>
+      <div><strong>Human decision required</strong><p>Selecting one Q approves source structure only. Raw raster use, literal tracing, vector redraw, icon production, runtime assets, commit, push, and deployment remain blocked.</p></div>
+      <div class="tag">HUMAN_REVIEW_BARBER_QUEUE_STANDALONE_Q_R3</div>
+    </footer>
+  </main>
+</body>
+</html>

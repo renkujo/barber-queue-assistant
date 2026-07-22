@@ -71,7 +71,7 @@ export const OwnerNavigation = ({ logoutAction }: OwnerNavigationProps) => {
       <aside className="bqa-owner-desktop-sidebar" aria-label="เมนูเจ้าของร้าน">
         <Link href="/owner" className="bqa-owner-sidebar-brand">
           <span className="bqa-owner-sidebar-mark" aria-hidden="true">
-            <Image src="/icon.png" alt="" width={44} height={44} priority />
+            <Image src="/icons/joined-tail-q-r1-ui-512.png" alt="" width={44} height={44} priority />
           </span>
           <span>
             <strong>Barber Queue</strong>
@@ -102,7 +102,7 @@ export const OwnerNavigation = ({ logoutAction }: OwnerNavigationProps) => {
       <header className="bqa-owner-mobile-topbar">
         <Link href="/owner" className="bqa-owner-mobile-brand">
           <span className="bqa-owner-mobile-mark" aria-hidden="true">
-            <Image src="/icon.png" alt="" width={40} height={40} priority />
+            <Image src="/icons/joined-tail-q-r1-ui-512.png" alt="" width={40} height={40} priority />
           </span>
           <span>
             <strong>Barber Queue</strong>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="q-path-r2-title q-path-r2-desc" data-status="selected-concept/refinement-candidate">
+  <title id="q-path-r2-title">Q Path R2 refinement candidate</title>
+  <desc id="q-path-r2-desc">An open circular queue route with a precise cut and a substantial aligned diagonal continuation, forming an abstract Q.</desc>
+  <path d="M85 75A40 40 0 1 0 75 85" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="butt"/>
+  <path d="M91 91L112 112" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="butt"/>
+</svg>

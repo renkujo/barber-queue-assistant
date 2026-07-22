@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="q-path-title q-path-desc" color="#3A2D25">
+  <title id="q-path-title">Q Path logo candidate</title>
+  <desc id="q-path-desc">An open circular queue path with a precisely separated diagonal exit, forming an abstract letter Q.</desc>
+  <path d="M85 75A40 40 0 1 0 75 85" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="butt"/>
+  <path d="m91 91 9-9 11 11-9 9Z" fill="currentColor"/>
+</svg>

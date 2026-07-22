@@ -14,19 +14,19 @@ const manifest = (): MetadataRoute.Manifest => ({
   categories: ["business", "productivity"],
   icons: [
     {
-      src: "/icons/icon-192.png",
+      src: "/icons/joined-tail-q-r1-any-192.png",
       sizes: "192x192",
       type: "image/png",
       purpose: "any",
     },
     {
-      src: "/icon.png",
+      src: "/icons/joined-tail-q-r1-any-512.png",
       sizes: "512x512",
       type: "image/png",
       purpose: "any",
     },
     {
-      src: "/icons/icon-maskable-512.png",
+      src: "/icons/joined-tail-q-r1-maskable-512.png",
       sizes: "512x512",
       type: "image/png",
       purpose: "maskable",
@@ -38,21 +38,21 @@ const manifest = (): MetadataRoute.Manifest => ({
       short_name: "คิววันนี้",
       description: "เปิด owner queue board",
       url: "/owner",
-      icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+      icons: [{ src: "/icons/joined-tail-q-r1-any-192.png", sizes: "192x192", type: "image/png" }],
     },
     {
       name: "เพิ่ม walk-in",
       short_name: "Walk-in",
       description: "เพิ่มคิว walk-in จากหน้า owner",
       url: "/owner/walk-in",
-      icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+      icons: [{ src: "/icons/joined-tail-q-r1-any-192.png", sizes: "192x192", type: "image/png" }],
     },
     {
       name: "ตั้งค่าร้าน",
       short_name: "ตั้งค่า",
       description: "เปิดหน้าตั้งค่าร้าน",
       url: "/owner/settings",
-      icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+      icons: [{ src: "/icons/joined-tail-q-r1-any-192.png", sizes: "192x192", type: "image/png" }],
     },
   ],
 });

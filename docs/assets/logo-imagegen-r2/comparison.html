@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Barber Queue — Category-Anchored Logo R2</title>
+  <style>
+    :root { --cream:#fff8ee; --paper:#f2e7d8; --cocoa:#3a2d25; --muted:#80736a; --line:#d9ccbd; --fail:#9a5748; }
+    * { box-sizing: border-box; }
+    html,body { margin:0; background:var(--paper); color:var(--cocoa); font-family:Arial,sans-serif; }
+    body { padding:42px; }
+    main { width:1516px; margin:0 auto; background:var(--cream); border:1px solid var(--line); }
+    header { display:flex; justify-content:space-between; align-items:flex-end; padding:42px 48px; border-bottom:1px solid var(--line); }
+    h1 { margin:8px 0 0; font-size:46px; line-height:1; letter-spacing:-.045em; }
+    .eyebrow,.tag,.index { color:var(--muted); font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
+    .tag { padding:8px 10px; border:1px solid var(--line); color:var(--cocoa); }
+    .direction { display:grid; grid-template-columns:880px 1fr; min-height:780px; border-bottom:1px solid var(--line); }
+    .visual { padding:34px; border-right:1px solid var(--line); background:#fffaf3; display:flex; align-items:center; justify-content:center; }
+    .visual img { display:block; width:100%; height:708px; object-fit:contain; }
+    .copy { padding:42px 38px; display:flex; flex-direction:column; gap:24px; }
+    h2 { margin:8px 0 0; font-size:34px; line-height:1.05; letter-spacing:-.035em; }
+    p { margin:0; color:var(--muted); font-size:15px; line-height:1.65; }
+    .metric { padding-top:18px; border-top:1px solid var(--line); }
+    .metric strong { display:block; margin-bottom:8px; font-size:14px; }
+    .verdict { margin-top:auto; padding:20px; border:1px solid #d6b0a7; background:#fff7f5; }
+    .verdict strong { color:var(--fail); }
+    footer { display:flex; justify-content:space-between; gap:32px; padding:30px 48px; background:var(--cocoa); color:#fff; }
+    footer p { color:#d9d0ca; max-width:840px; }
+    footer strong, footer .tag { color:#fff; }
+    footer .tag { border-color:rgba(255,255,255,.42); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div><div class="eyebrow">Real Image Gen source comparison / R2</div><h1>Category anchors: clearer, still not ownable</h1></div>
+      <div class="tag">Raw provider images · 3 calls · 0 retries</div>
+    </header>
+
+    <section class="direction">
+      <div class="visual"><img src="direction-a-bq-craft-monogram/raw-imagegen.png" alt="Untouched BQ Craft Monogram Image Gen source"></div>
+      <div class="copy">
+        <div><div class="index">A / BQ Craft Monogram</div><h2>Literal overlap, weak ownership</h2></div>
+        <p>The letters are immediately recognizable, but the construction is essentially a bold B and Q placed over each other.</p>
+        <div class="metric"><strong>What improved</strong><p>Compact, readable, simple enough for a later small-size redraw.</p></div>
+        <div class="metric"><strong>Why it misses</strong><p>Generic font-derived monogram; pointed cut and Q tail lean corporate/fintech rather than neighborhood barber.</p></div>
+        <div class="metric"><strong>Provider drift</strong><p>Soft tonal variation and edge softness remain despite the flat-color contract.</p></div>
+        <div class="verdict"><strong>HOLD — comparison only</strong><p>Least structurally broken, but not distinctive enough to advance automatically.</p></div>
+      </div>
+    </section>
+
+    <section class="direction">
+      <div class="visual"><img src="direction-b-comb-queue-rhythm/raw-imagegen.png" alt="Untouched Comb Queue Rhythm Image Gen source"></div>
+      <div class="copy">
+        <div><div class="index">B / Comb Queue Rhythm</div><h2>Category cue became clipart</h2></div>
+        <p>The repeated slots and one bottom opening are readable, but the result is simply a comb silhouette.</p>
+        <div class="metric"><strong>What improved</strong><p>Immediate barber recognition and strong compact silhouette.</p></div>
+        <div class="metric"><strong>Why it misses</strong><p>Literal comb/fence/barcode reading; generic teeth do not communicate a unique queue system.</p></div>
+        <div class="metric"><strong>Provider drift</strong><p>Rounded clipart teeth plus soft lighting and non-flat cream.</p></div>
+        <div class="verdict"><strong>REJECT</strong><p>Fails the contract's own literal-comb and fence boundaries.</p></div>
+      </div>
+    </section>
+
+    <section class="direction">
+      <div class="visual"><img src="direction-c-next-chair-geometry/raw-imagegen.png" alt="Untouched Next Chair Geometry Image Gen source"></div>
+      <div class="copy">
+        <div><div class="index">C / Next Chair Geometry</div><h2>Literal chair, not a brand mark</h2></div>
+        <p>The category and second-place cue are visible, but the output reads as an office/salon chair illustration with another chair outline.</p>
+        <div class="metric"><strong>What improved</strong><p>Clear “seat” recognition and friendly cocoa/apricot color relationship.</p></div>
+        <div class="metric"><strong>Why it misses</strong><p>Literal furniture/salon clipart, accessibility-icon proximity, and too much pedestal/arm/back detail for 16px.</p></div>
+        <div class="metric"><strong>Provider drift</strong><p>Soft gradients, vignette background, and disconnected secondary outline.</p></div>
+        <div class="verdict"><strong>REJECT</strong><p>Category recognition is not enough to make the symbol ownable.</p></div>
+      </div>
+    </section>
+
+    <footer>
+      <div><strong>Recommendation: do not spend another blind prompt round</strong><p>R1 proved pure abstraction becomes generic; R2 proved direct category anchors become clipart. The next useful move is a reference-led art-direction brief or deliberate human vector sketching—not more unanchored Image Gen calls.</p></div>
+      <div class="tag">HUMAN_REVIEW_BARBER_QUEUE_IMAGEGEN_LOGO_R2</div>
+    </footer>
+  </main>
+</body>
+</html>

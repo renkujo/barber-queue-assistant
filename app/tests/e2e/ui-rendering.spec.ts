@@ -8,7 +8,10 @@ test.describe("responsive UI rendering", () => {
 
     await expect(page.locator("main[data-customer-visual='v2'].bqa-customer-home-v2")).toBeVisible();
     await expect(page.getByRole("heading", { name: "จองคิวตัดผม" })).toBeVisible();
-    await expect(page.locator(".bqa-page-image")).toHaveAttribute("src", /(?:%2F|\/)icon\.png/);
+    await expect(page.locator(".bqa-page-image")).toHaveAttribute(
+      "src",
+      /(?:%2F|\/)icons(?:%2F|\/)joined-tail-q-r1-ui-512\.png/,
+    );
     await expect(page.locator(".bqa-home-actions svg")).toHaveCount(2);
     await expect(page.getByRole("button", { name: "เช็คสถานะคิว" })).toHaveCSS("min-height", "48px");
 
@@ -48,12 +51,20 @@ test.describe("responsive UI rendering", () => {
 
     const manifest = await manifestResponse.json();
     expect(manifest.icons).toEqual(expect.arrayContaining([
-      expect.objectContaining({ src: "/icons/icon-192.png", sizes: "192x192", purpose: "any" }),
-      expect.objectContaining({ src: "/icon.png", sizes: "512x512", purpose: "any" }),
-      expect.objectContaining({ src: "/icons/icon-maskable-512.png", sizes: "512x512", purpose: "maskable" }),
+      expect.objectContaining({ src: "/icons/joined-tail-q-r1-any-192.png", sizes: "192x192", purpose: "any" }),
+      expect.objectContaining({ src: "/icons/joined-tail-q-r1-any-512.png", sizes: "512x512", purpose: "any" }),
+      expect.objectContaining({ src: "/icons/joined-tail-q-r1-maskable-512.png", sizes: "512x512", purpose: "maskable" }),
     ]));
 
-    for (const iconPath of ["/favicon.ico", "/apple-icon.png", "/icons/icon-192.png", "/icon.png", "/icons/icon-maskable-512.png"]) {
+    for (const iconPath of [
+      "/favicon.ico",
+      "/apple-icon.png",
+      "/icon.png",
+      "/icons/joined-tail-q-r1-ui-512.png",
+      "/icons/joined-tail-q-r1-any-192.png",
+      "/icons/joined-tail-q-r1-any-512.png",
+      "/icons/joined-tail-q-r1-maskable-512.png",
+    ]) {
       const response = await request.get(iconPath);
       expect(response.ok(), `${iconPath} should load`).toBe(true);
       expect(response.headers()["content-type"]).toMatch(/^image\//);

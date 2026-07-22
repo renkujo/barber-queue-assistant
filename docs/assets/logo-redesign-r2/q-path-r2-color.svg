@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="q-path-r2-color-title q-path-r2-color-desc" data-status="selected-concept/refinement-candidate">
+  <title id="q-path-r2-color-title">Q Path R2 two-color refinement candidate</title>
+  <desc id="q-path-r2-color-desc">The shared Q Path R2 geometry with a cocoa circular route and an apricot forward continuation.</desc>
+  <path d="M85 75A40 40 0 1 0 75 85" fill="none" stroke="#3A2D25" stroke-width="18" stroke-linecap="butt"/>
+  <path d="M91 91L112 112" fill="none" stroke="#E7A77C" stroke-width="18" stroke-linecap="butt"/>
+</svg>

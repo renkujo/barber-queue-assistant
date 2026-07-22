@@ -27,7 +27,7 @@ const OwnerLoginPage = async ({ searchParams }: LoginPageProps) => {
           id="login-title"
           title="เข้าหน้าเจ้าของร้าน"
           subtitle="Owner mode"
-          imageSrc="/icon.png"
+          imageSrc="/icons/joined-tail-q-r1-ui-512.png"
           largeImage
         />
         <p className="bqa-copy bqa-owner-login-copy">สำหรับดูคิววันนี้ เพิ่ม walk-in และจัดการ no-show อย่างรวดเร็ว</p>

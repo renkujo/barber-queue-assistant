@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="q-path-r2-app-title q-path-r2-app-desc" data-status="selected-concept/refinement-candidate">
+  <title id="q-path-r2-app-title">Q Path R2 app icon refinement candidate</title>
+  <desc id="q-path-r2-app-desc">A warm-cream app icon carrying the shared cocoa and apricot Q Path R2 geometry with generous platform-safe placement.</desc>
+  <rect width="512" height="512" fill="#FFF8EE"/>
+  <g transform="translate(76 76) scale(3)">
+    <path d="M85 75A40 40 0 1 0 75 85" fill="none" stroke="#3A2D25" stroke-width="18" stroke-linecap="butt"/>
+    <path d="M91 91L112 112" fill="none" stroke="#E7A77C" stroke-width="18" stroke-linecap="butt"/>
+  </g>
+</svg>

@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Barber Queue — Logo Redesign R1</title>
+  <style>
+    :root {
+      --cocoa: #3a2d25;
+      --apricot: #e7a77c;
+      --sage: #8eaa87;
+      --cream: #fff8ee;
+      --paper: #f5eadc;
+      --line: rgba(58, 45, 37, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--paper);
+      color: var(--cocoa);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      width: 1600px;
+      padding: 56px;
+    }
+
+    .board {
+      width: 1488px;
+      background: var(--cream);
+      border: 1px solid var(--line);
+    }
+
+    .board-head {
+      min-height: 176px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 48px;
+      padding: 42px 48px 38px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow,
+    .status,
+    .panel-label,
+    .size-label,
+    .index {
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: 0.14em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .eyebrow { margin-bottom: 18px; color: rgba(58, 45, 37, 0.6); }
+
+    h1 {
+      margin: 0;
+      font-size: 48px;
+      line-height: 0.96;
+      letter-spacing: -0.045em;
+      font-weight: 720;
+    }
+
+    .status {
+      padding-bottom: 5px;
+      color: rgba(58, 45, 37, 0.62);
+    }
+
+    .candidate {
+      --tone: var(--cocoa);
+      --asset: url("q-path.svg");
+      display: grid;
+      grid-template-columns: 244px minmax(0, 1fr);
+      min-height: 592px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .candidate:last-child { border-bottom: 0; }
+    .candidate.queue-fold { --tone: var(--sage); --asset: url("queue-fold.svg"); }
+    .candidate.bq-motion { --tone: var(--apricot); --asset: url("bq-motion.svg"); }
+
+    .candidate-meta {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 36px 34px;
+      border-right: 1px solid var(--line);
+    }
+
+    .index { color: rgba(58, 45, 37, 0.46); }
+
+    .candidate-name {
+      margin: auto 0 0;
+      font-size: 32px;
+      line-height: 0.96;
+      letter-spacing: -0.04em;
+      font-weight: 720;
+    }
+
+    .candidate-role {
+      margin-top: 14px;
+      font-size: 13px;
+      line-height: 1.4;
+      color: rgba(58, 45, 37, 0.62);
+    }
+
+    .candidate-content {
+      display: grid;
+      grid-template-columns: minmax(360px, 1.12fr) minmax(360px, 0.88fr);
+      grid-template-rows: 332px 260px;
+    }
+
+    .panel {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel-label {
+      position: absolute;
+      top: 24px;
+      left: 26px;
+      color: rgba(58, 45, 37, 0.52);
+    }
+
+    .hero {
+      display: grid;
+      place-items: center;
+      background: var(--cream);
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .reverse {
+      display: grid;
+      place-items: center;
+      background: var(--cocoa);
+      border-bottom: 1px solid rgba(255, 248, 238, 0.18);
+    }
+
+    .reverse .panel-label { color: rgba(255, 255, 255, 0.56); }
+
+    .applications {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+    }
+
+    .sizes {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 44px;
+      padding: 28px 28px 16px;
+      border-right: 1px solid var(--line);
+    }
+
+    .size-sample {
+      min-width: 72px;
+      display: grid;
+      justify-items: center;
+      align-items: end;
+      gap: 13px;
+    }
+
+    .sample-well {
+      min-width: 48px;
+      height: 128px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .size-sample.is-192 .sample-well { width: 192px; height: 192px; }
+    .size-label { color: rgba(58, 45, 37, 0.48); }
+
+    .lockup {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: rgba(231, 167, 124, 0.11);
+    }
+
+    .lockup-text {
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      white-space: nowrap;
+    }
+
+    .mark {
+      width: var(--size);
+      height: var(--size);
+      flex: 0 0 auto;
+      color: var(--mark-color, var(--tone));
+    }
+
+    .hero .mark { --size: 226px; }
+    .reverse .mark { --size: 150px; --mark-color: #fff; }
+    .lockup .mark { --size: 40px; --mark-color: var(--cocoa); }
+    .s16 { --size: 16px; --mark-color: var(--cocoa); }
+    .s40 { --size: 40px; --mark-color: var(--cocoa); }
+    .s192 { --size: 192px; }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden">
+    <symbol id="q-path-shape" viewBox="0 0 120 120">
+      <path d="M85 75A40 40 0 1 0 75 85" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="butt"/>
+      <path d="m91 91 9-9 11 11-9 9Z" fill="currentColor"/>
+    </symbol>
+    <symbol id="queue-fold-shape" viewBox="0 0 120 120">
+      <path d="M20 28h61c11 0 18 7 18 17s-7 17-18 17H39c-10 0-17 6-17 15s7 15 17 15h61" fill="none" stroke="currentColor" stroke-width="17" stroke-linecap="butt" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="bq-motion-shape" viewBox="0 0 120 120">
+      <path fill="currentColor" fill-rule="evenodd" d="M20 15h38c18 0 30 9 30 24 0 9-5 16-14 20 12 4 19 12 19 24 0 16-13 25-34 25H20V15Zm20 18v17h16c8 0 13-3 13-9s-5-8-13-8H40Zm1 45a17 12 0 1 0 34 0 17 12 0 1 0-34 0Z"/>
+      <path d="m59 80 9-10 40 31-10 10Z" fill="currentColor"/>
+    </symbol>
+  </svg>
+  <main class="board">
+    <header class="board-head">
+      <div>
+        <div class="eyebrow">Logo redesign / R1</div>
+        <h1>Barber Queue</h1>
+      </div>
+      <div class="status">Candidate / reference</div>
+    </header>
+
+    <section class="candidate q-path" aria-labelledby="q-path-name">
+      <header class="candidate-meta">
+        <div class="index">01 / Lead</div>
+        <div>
+          <h2 class="candidate-name" id="q-path-name">Q<br>Path</h2>
+          <div class="candidate-role">candidate/reference</div>
+        </div>
+      </header>
+      <div class="candidate-content">
+        <div class="panel hero"><span class="panel-label">Warm cream</span><svg class="mark" aria-hidden="true"><use href="#q-path-shape"/></svg></div>
+        <div class="panel reverse"><span class="panel-label">Reversed / white</span><svg class="mark" aria-hidden="true"><use href="#q-path-shape"/></svg></div>
+        <div class="applications">
+          <div class="sizes">
+            <span class="panel-label">Actual size</span>
+            <div class="size-sample"><div class="sample-well"><svg class="mark s16"><use href="#q-path-shape"/></svg></div><span class="size-label">16 px</span></div>
+            <div class="size-sample"><div class="sample-well"><svg class="mark s40"><use href="#q-path-shape"/></svg></div><span class="size-label">40 px</span></div>
+            <div class="size-sample is-192"><div class="sample-well"><svg class="mark s192"><use href="#q-path-shape"/></svg></div><span class="size-label">192 px</span></div>
+          </div>
+          <div class="lockup"><span class="panel-label">Header lockup</span><svg class="mark"><use href="#q-path-shape"/></svg><span class="lockup-text">Barber Queue</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="candidate queue-fold" aria-labelledby="queue-fold-name">
+      <header class="candidate-meta">
+        <div class="index">02 / Route</div>
+        <div>
+          <h2 class="candidate-name" id="queue-fold-name">Queue<br>Fold</h2>
+          <div class="candidate-role">candidate/reference</div>
+        </div>
+      </header>
+      <div class="candidate-content">
+        <div class="panel hero"><span class="panel-label">Warm cream</span><svg class="mark" aria-hidden="true"><use href="#queue-fold-shape"/></svg></div>
+        <div class="panel reverse"><span class="panel-label">Reversed / white</span><svg class="mark" aria-hidden="true"><use href="#queue-fold-shape"/></svg></div>
+        <div class="applications">
+          <div class="sizes">
+            <span class="panel-label">Actual size</span>
+            <div class="size-sample"><div class="sample-well"><svg class="mark s16"><use href="#queue-fold-shape"/></svg></div><span class="size-label">16 px</span></div>
+            <div class="size-sample"><div class="sample-well"><svg class="mark s40"><use href="#queue-fold-shape"/></svg></div><span class="size-label">40 px</span></div>
+            <div class="size-sample is-192"><div class="sample-well"><svg class="mark s192"><use href="#queue-fold-shape"/></svg></div><span class="size-label">192 px</span></div>
+          </div>
+          <div class="lockup"><span class="panel-label">Header lockup</span><svg class="mark"><use href="#queue-fold-shape"/></svg><span class="lockup-text">Barber Queue</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="candidate bq-motion" aria-labelledby="bq-motion-name">
+      <header class="candidate-meta">
+        <div class="index">03 / Handoff</div>
+        <div>
+          <h2 class="candidate-name" id="bq-motion-name">BQ<br>Motion</h2>
+          <div class="candidate-role">candidate/reference</div>
+        </div>
+      </header>
+      <div class="candidate-content">
+        <div class="panel hero"><span class="panel-label">Warm cream</span><svg class="mark" aria-hidden="true"><use href="#bq-motion-shape"/></svg></div>
+        <div class="panel reverse"><span class="panel-label">Reversed / white</span><svg class="mark" aria-hidden="true"><use href="#bq-motion-shape"/></svg></div>
+        <div class="applications">
+          <div class="sizes">
+            <span class="panel-label">Actual size</span>
+            <div class="size-sample"><div class="sample-well"><svg class="mark s16"><use href="#bq-motion-shape"/></svg></div><span class="size-label">16 px</span></div>
+            <div class="size-sample"><div class="sample-well"><svg class="mark s40"><use href="#bq-motion-shape"/></svg></div><span class="size-label">40 px</span></div>
+            <div class="size-sample is-192"><div class="sample-well"><svg class="mark s192"><use href="#bq-motion-shape"/></svg></div><span class="size-label">192 px</span></div>
+          </div>
+          <div class="lockup"><span class="panel-label">Header lockup</span><svg class="mark"><use href="#bq-motion-shape"/></svg><span class="lockup-text">Barber Queue</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
