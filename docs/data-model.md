@@ -220,3 +220,15 @@ Fields:
 - `updatedAt`
 
 Raw IP addresses are not stored in this table. Buckets older than 30 days are removed by the retention job.
+
+## Pilot instrumentation entities
+
+Pilot measurement is disabled by default and remains single-shop. `PilotCohort` records the approved pilot-end date, shop timezone, approval reference, and immutable expiry calculated as local end-of-day exactly 90 days after pilot end. `QueueMutationOperation` is a UUID operation ledger that prevents duplicate enabled-mode mutations. `QueueEvent` stores typed, PII-negative facts transactionally; database triggers reject updates/deletes outside reviewed maintenance and require corrections to lock and remain in the original queue/cohort.
+
+`QueueItem` gains fixed `entrySource`, immutable walk-in quote fields, pilot classification, cohort, and release segment. Existing/pre-enable rows stay `UNKNOWN` / `PRE_PILOT` with null cohort/quote data. `PilotClassificationAudit` records every operator classification change with reason/operator; restoring to `REAL` requires reviewed-restore approval.
+
+`NotificationLog` gains nullable pilot-only audience, skip reason, business-event key, attempt number, cohort, and operation fields. They remain null while measurement is disabled. Enabled LINE attempts use an at-most-once application-send contract: old `PENDING` means outcome unknown, not confirmed delivery.
+
+`EvidenceHold` protects all PII and event/notification evidence linked to its queue for at most 30 days unless fresh approval creates a new hold. Customer subject deletion locks and processes every queue linked to the verified customer in one transaction. Retention removes unheld eligible evidence independently, including eligible rows inside a shared operation, and deletes the shared operation only after all event/notification evidence is gone.
+
+Operator login roles have no direct table privileges. They receive only database `CONNECT`, application-schema `USAGE`, and `EXECUTE` on reviewed versioned `SECURITY DEFINER` functions owned by a non-login role with a fixed search path and PUBLIC execute revoked.

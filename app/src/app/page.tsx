@@ -16,6 +16,7 @@ import {
 } from "@/components/barber/app-ui";
 import { Button, FormField, Icon, Input } from "@/components/ui";
 import { RouteToast } from "@/components/ui";
+import { parseQueueEntrySource, withQueueEntrySource } from "@/lib/pilot/entry-source";
 import { getQueueStatusSnapshotSafe, getServicesWithSourceSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
 import { lookupQueueAction } from "./actions";
 
@@ -23,7 +24,7 @@ const brandMarkPath = "/icon.png";
 const statusMascotPath = "/assets/mascot/queue-ticket-mascot-v1.png";
 
 type HomePageProps = {
-  searchParams: Promise<{ error?: string; queueCode?: string }>;
+  searchParams: Promise<{ error?: string; queueCode?: string; source?: string }>;
 };
 
 const trackingErrorMessages: Record<string, string> = {
@@ -40,6 +41,7 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
     getShopIntakeSettingsSafe(),
   ]);
   const services = serviceResult.services;
+  const entrySource = parseQueueEntrySource(params.source);
   const shopStatus = snapshot.shop;
   const trackingError = params.error ? trackingErrorMessages[params.error] : null;
   const statusUnavailable = snapshot.source !== "database" || intakeSettings.source !== "database";
@@ -129,7 +131,7 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
 
             <section className="bqa-action-list bqa-home-actions" aria-label="customer actions">
               {bookingOpen ? (
-                <ActionCard href="/book" icon={<Icon icon="lucide:calendar" aria-hidden="true" />} title="จองล่วงหน้า" description="เลือกวันที่และเวลาที่เปิดจอง" />
+                <ActionCard href={withQueueEntrySource("/book", entrySource)} icon={<Icon icon="lucide:calendar" aria-hidden="true" />} title="จองล่วงหน้า" description="เลือกวันที่และเวลาที่เปิดจอง" />
               ) : (
                 <Button type="button" disabled className="bqa-action-card bqa-tone-neutral">
                   <span className="bqa-action-icon"><Icon icon="lucide:calendar" aria-hidden="true" /></span>
@@ -140,7 +142,7 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
                 </Button>
               )}
               {walkInOpen ? (
-                <ActionCard href="/walk-in" icon={<Icon icon="lucide:users" aria-hidden="true" />} title="รับบัตรคิวออนไลน์" description="รับบัตรคิวก่อนมาที่ร้าน" tone="warm" />
+                <ActionCard href={withQueueEntrySource("/walk-in", entrySource)} icon={<Icon icon="lucide:users" aria-hidden="true" />} title="รับบัตรคิวออนไลน์" description="รับบัตรคิวก่อนมาที่ร้าน" tone="warm" />
               ) : (
                 <Button type="button" disabled className="bqa-action-card bqa-tone-warm">
                   <span className="bqa-action-icon"><Icon icon="lucide:users" aria-hidden="true" /></span>

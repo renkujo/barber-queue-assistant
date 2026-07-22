@@ -42,7 +42,8 @@
 
 ## Phase 3 — App smoke
 
-- [ ] `GET /api/health` returns success.
+- [ ] `GET /api/health` returns success and reports `pilotMeasurement: disabled` before enablement.
+- [ ] An enabled-but-incomplete pilot configuration returns HTTP `503` without exposing secrets.
 - [ ] Health response reports `database: reachable`; database failure returns HTTP `503`.
 - [ ] `GET /api/queue/status` contains no queue/customer detail fields.
 - [ ] `/` renders.
@@ -66,9 +67,15 @@
 - [ ] Run `scripts/backup-database.sh` and store backup/checksum off-host.
 - [ ] Enable the Compose `backup` sidecar and confirm a `.dump` + `.sha256` pair exists in the private R2 bucket.
 - [ ] Add a 14-day R2 lifecycle rule for the backup prefix.
-- [ ] Complete one restore rehearsal in a disposable/staging Compose project.
+- [ ] Verify automated backups expire at 14 days and every manual pilot dump/checksum expires within 7 days.
+- [ ] Complete one isolated restore rehearsal with no public route/notification credentials/production write path; verify checksum, apply current migrations, run `reconcile-pilot-function-owner.sql`, provision fresh bounded roles, re-run retention and subject-deletion reconciliation, verify postconditions, then destroy the restore.
+- [ ] Provision the three exact login roles against the exact database/application role; run `verify-pilot-role-grants.sql`, prove only CONNECT/USAGE/approved EXECUTE, test password rotation, and test `disable-pilot-roles.sql` plus re-provisioning.
+- [ ] Validate hold-wide PII/evidence preservation, unrelated shared-operation pruning, multi-cohort idempotency, all-customer-queue deletion, append-only corrections, and reviewed REAL restore.
+- [ ] Validate the owner/operator-only aggregate report definitions, customer-only notification truth, invalid/missing denominators, classifications, and corrected-event truth. Confirm it says `shareSafe: false`.
+- [ ] Run `pnpm pilot:daily-close:validate`; review the data dictionary. Keep external location and collection blocked until its owner/viewers/MFA/deletion/hold/incident/proof-of-deletion decision is approved.
 - [ ] Configure external uptime monitoring for `/api/health` including HTTP `503` alerts.
 - [ ] Review `docs/pilot-readiness-plan.md` and `docs/operations/pilot-operations-runbook.md` with the shop owner.
+- [ ] Keep `PILOT_MEASUREMENT_ENABLED=false`; external Daily Close location and customer invitation remain blocked pending separate approvals.
 
 ## Phase 4 — LINE smoke, after public HTTPS domain exists
 

@@ -19,6 +19,16 @@ LINE_CHANNEL_SECRET=<LINE-Messaging-API-channel-secret>
 LINE_CHANNEL_ACCESS_TOKEN=<LINE-Messaging-API-access-token>
 NEXT_PUBLIC_LINE_LIFF_ID=<LIFF-ID>
 
+# Deploy disabled. Enabling requires separate approval and a pre-created matching cohort.
+PILOT_MEASUREMENT_ENABLED=false
+PILOT_COHORT_ID=
+PILOT_RELEASE_SEGMENT=
+PILOT_EVIDENCE_DELETE_AFTER=
+
+# One-off pilot operations process only; do not inject bounded role URLs into the web service.
+PILOT_EXPECTED_DATABASE=barber_queue_assistant
+PILOT_EXPECTED_HOST=postgres
+
 R2_BACKUP_ENABLED=false
 R2_BACKUP_INTERVAL_HOURS=24
 R2_BACKUP_RETRY_MINUTES=15
@@ -49,3 +59,5 @@ openssl rand -hex 32
 `BARBER_ADMIN_SESSION_SECRET` and `RATE_LIMIT_HASH_SECRET` must not share a value. Keep `POSTGRES_PASSWORD` synchronized with the password embedded in `DATABASE_URL`.
 
 Keep `R2_BACKUP_ENABLED=false` until all R2 values are configured. Follow [`operations/cloudflare-r2-backup.md`](./operations/cloudflare-r2-backup.md) to enable and verify the first remote backup without exposing credentials.
+
+Keep `PILOT_MEASUREMENT_ENABLED=false` through deployment and technical validation. Operator/report/retention database URLs are injected only into short-lived private-network commands and are never loaded from app `.env`; never add them to the long-running web service, this file with real values, or git. Each URL must identify its exact bounded role/database and must match the separately reviewed `PILOT_EXPECTED_DATABASE`/`PILOT_EXPECTED_HOST` inventory; `PILOT_NETWORK_SCOPE=private` is required (otherwise `sslmode=verify-full`), and production also requires `PILOT_DATABASE_ENV=production` plus `--confirm-production`. Follow [`pilot-instrumentation-implementation-plan-r1.md`](./pilot-instrumentation-implementation-plan-r1.md) and obtain separate approval for Daily Close location, measurement enablement, and customer pilot execution.

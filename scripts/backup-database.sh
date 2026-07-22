@@ -1,6 +1,7 @@
 #!/bin/sh
 
 set -eu
+umask 077
 
 PROJECT_NAME="${1:-${COMPOSE_PROJECT_NAME:-}}"
 OUTPUT_DIR="${2:-./backups}"
@@ -25,10 +26,12 @@ if [ ! -s "$BACKUP_FILE" ]; then
   exit 1
 fi
 
+BACKUP_NAME="$(basename "$BACKUP_FILE")"
+
 if command -v shasum >/dev/null 2>&1; then
-  shasum -a 256 "$BACKUP_FILE" > "$BACKUP_FILE.sha256"
+  (cd "$OUTPUT_DIR" && shasum -a 256 "$BACKUP_NAME" > "$BACKUP_NAME.sha256")
 else
-  sha256sum "$BACKUP_FILE" > "$BACKUP_FILE.sha256"
+  (cd "$OUTPUT_DIR" && sha256sum "$BACKUP_NAME" > "$BACKUP_NAME.sha256")
 fi
 
 echo "Backup written: $BACKUP_FILE"

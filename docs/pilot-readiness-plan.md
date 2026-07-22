@@ -2,6 +2,12 @@
 
 Pilot boundary: **one real barber shop**, one owner/barber, and a small invited customer group. This repository is still single-shop; do not onboard a second shop without a tenant-isolation design and migration.
 
+Measurement definitions, baseline, reporting cadence, and commercial-learning gates are specified in [`pilot-measurement-plan-r1.md`](./pilot-measurement-plan-r1.md). That document is a planning contract and does not by itself authorize instrumentation or schema changes.
+
+Local Slices A–F validation evidence is recorded in [`evidence/pilot-instrumentation-r1-validation.md`](./evidence/pilot-instrumentation-r1-validation.md). It does not replace the unchecked production, external-storage, backup-lifecycle, human pre-collection, enablement, or pilot-execution gates below.
+
+Synthetic operational validation—including portable restore ownership reconciliation and the bounded-role lifecycle—is recorded in [`evidence/pilot-precollection-operational-r1.md`](./evidence/pilot-precollection-operational-r1.md). Real production/R2/external-storage items remain unchecked.
+
 ## P0 — Must pass before inviting customers
 
 - [ ] Deploy the latest migrations and confirm every `QueueItem` has a unique `publicToken`.
@@ -14,9 +20,17 @@ Pilot boundary: **one real barber shop**, one owner/barber, and a small invited 
 - [ ] Set `RATE_LIMIT_HASH_SECRET` to a random value different from the owner passcode/session secret.
 - [ ] Set `NEXT_PUBLIC_PRIVACY_CONTACT` to the shop's real LINE URL, email, or phone contact.
 - [ ] Open `/privacy` on mobile and verify the contact route works.
-- [ ] Take a database backup and complete one restore rehearsal in a disposable/staging Compose project.
+- [ ] Take a database backup and complete one isolated restore/current-migration/re-prune/subject-reconciliation rehearsal, then destroy the disposable project.
 - [ ] Add an external uptime check for `https://<domain>/api/health`; it must alert on HTTP `503` as well as connection failure.
 - [ ] Complete the production and LINE smoke checks in `docs/deployment-checklist.md`.
+- [ ] Deploy instrumentation with `PILOT_MEASUREMENT_ENABLED=false` and prove source/quote/cohort/operation/event/notification pilot fields remain uncollected.
+- [ ] Review and publish the revised Thai privacy disclosure before any enablement.
+- [ ] Provision and revoke-test the exact bounded operator roles from a one-off private-network process; prove only CONNECT/USAGE/approved EXECUTE and preserve explicit application-role schema access. Operator credentials must not reach the web service or app `.env`.
+- [x] Run the Daily Close schema validator, review its data dictionary, and approve the private empty-storage owner/viewer/access/deletion/hold/incident controls.
+- [x] Approve and create the empty encrypted location in [`operations/pilot-daily-close-storage-proposal-r1.md`](./operations/pilot-daily-close-storage-proposal-r1.md); filled records remain blocked.
+- [ ] Validate the reconciliation/trustworthy-day fixture and owner/operator-only aggregate report without PII.
+- [ ] Complete prune, hold, correction, customer-deletion, multi-cohort expiry, backup-expiry, isolated-restore/re-prune, and old-image rollback proof.
+- [ ] Obtain separate measurement enablement approval and separate owner agreement/pilot-execution approval.
 
 ## Pilot rollout
 
@@ -26,7 +40,7 @@ Pilot boundary: **one real barber shop**, one owner/barber, and a small invited 
 4. At closing each day, record:
    - failed or duplicate booking/walk-in attempts;
    - difference between estimated and actual waiting time;
-   - LINE `SENT`, `FAILED`, and `SKIPPED` counts;
+   - LINE `SENT`, `FAILED`, aged `PENDING`, and `SKIPPED` counts;
    - owner corrections, reorders, cancellations, and fallback events;
    - customer confusion or support questions.
 5. Stop online intake immediately if customer identity is exposed, a booking disappears, duplicate fixed slots are accepted, or the owner cannot recover the day's queue.

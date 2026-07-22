@@ -24,6 +24,7 @@ type OwnerWalkInService = {
 
 type OwnerWalkInFormProps = {
   action: (formData: FormData) => Promise<void>;
+  operationId: string;
   services: OwnerWalkInService[];
 };
 
@@ -34,7 +35,7 @@ const FieldLabel = ({ children, optional = false }: { children: string; optional
   </span>
 );
 
-export const OwnerWalkInForm = ({ action, services }: OwnerWalkInFormProps) => {
+export const OwnerWalkInForm = ({ action, operationId, services }: OwnerWalkInFormProps) => {
   const defaultServiceId = services[0]?.id;
   const [selectedServiceId, setSelectedServiceId] = useState(defaultServiceId);
   const selectedService = services.find((service) => service.id === selectedServiceId) ?? services[0];
@@ -45,6 +46,7 @@ export const OwnerWalkInForm = ({ action, services }: OwnerWalkInFormProps) => {
       <Panel className="bqa-owner-walkin-panel" aria-labelledby="owner-walk-in-form-title">
         <SectionHeader id="owner-walk-in-form-title" title="ข้อมูลลูกค้า" note="กรอกเฉพาะข้อมูลที่ใช้จัดคิววันนี้" />
         <form action={action} className="bqa-owner-walkin-form">
+          <input name="operationId" type="hidden" value={operationId} />
           <FormStack>
             <FormField id="serviceId" label={<FieldLabel>บริการ</FieldLabel>}>
               <Select name="serviceId" value={selectedServiceId} onValueChange={setSelectedServiceId} required>

@@ -12,6 +12,8 @@ import { bookingErrorMessages, initialBookingActionState } from "./booking-contr
 type BookingFormProps = BookingDateTimeFieldsProps & {
   bookingClosed: boolean;
   canChooseBooking: boolean;
+  entrySource: string;
+  operationId: string;
 };
 
 export const BookingForm = ({
@@ -19,6 +21,8 @@ export const BookingForm = ({
   bookingClosed,
   canChooseBooking,
   defaultServiceId,
+  entrySource,
+  operationId,
   services,
   slotsByServiceId,
   todayValue,
@@ -40,6 +44,8 @@ export const BookingForm = ({
 
   return (
     <form action={formAction} className="bqa-book-form">
+      <input name="operationId" type="hidden" value={operationId} />
+      <input name="entrySource" type="hidden" value={entrySource} />
       <FormStack className="bqa-book-form-stack">
         {actionErrorMessage ? <Notice>{actionErrorMessage}</Notice> : null}
 

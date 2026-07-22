@@ -1,12 +1,14 @@
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { AppCard, Notice, PageHeader, ScreenShell, StatGrid, StatTile } from "@/components/barber/app-ui";
 import { Button, Icon } from "@/components/ui";
+import { parseQueueEntrySource } from "@/lib/pilot/entry-source";
 import { getQueueStatusSnapshotSafe, getServicesWithSourceSafe, getShopIntakeSettingsSafe } from "@/lib/queue/repository";
 import { walkInErrorMessages } from "./walk-in-contract";
 import { WalkInForm } from "./walk-in-form";
 
 type WalkInPageProps = {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; source?: string }>;
 };
 
 const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
@@ -17,6 +19,8 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
     getShopIntakeSettingsSafe(),
   ]);
   const services = serviceResult.services;
+  const entrySource = parseQueueEntrySource(params.source);
+  const operationId = randomUUID();
   const errorMessage = params.error && params.error in walkInErrorMessages
     ? walkInErrorMessages[params.error as keyof typeof walkInErrorMessages]
     : null;
@@ -83,6 +87,8 @@ const WalkInPage = async ({ searchParams }: WalkInPageProps) => {
         ) : (
           <WalkInForm
             canSubmit={canSubmit}
+            entrySource={entrySource}
+            operationId={operationId}
             defaultServiceId={defaultServiceId}
             services={servicesUnavailable ? [] : services}
           />

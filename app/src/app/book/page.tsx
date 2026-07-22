@@ -1,6 +1,8 @@
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { AppCard, Notice, PageHeader, ScreenShell } from "@/components/barber/app-ui";
 import { Button, Icon, RouteToast } from "@/components/ui";
+import { parseQueueEntrySource } from "@/lib/pilot/entry-source";
 import { getTomorrowValue, getTodayValue } from "@/lib/queue/date";
 import {
   getAvailableBookingSlotsSafe,
@@ -12,12 +14,14 @@ import { bookingErrorMessages } from "./booking-contract";
 import { BookingForm } from "./booking-form";
 
 type BookPageProps = {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; source?: string }>;
 };
 
 const BookPage = async ({ searchParams }: BookPageProps) => {
   const [params, serviceResult, intakeSettings] = await Promise.all([searchParams, getServicesWithSourceSafe(), getShopIntakeSettingsSafe()]);
   const services = serviceResult.services;
+  const entrySource = parseQueueEntrySource(params.source);
+  const operationId = randomUUID();
   const todayValue = getTodayValue();
   const tomorrowValue = getTomorrowValue();
   const errorMessage = params.error && params.error in bookingErrorMessages
@@ -76,6 +80,8 @@ const BookPage = async ({ searchParams }: BookPageProps) => {
           </aside>
 
           <BookingForm
+            entrySource={entrySource}
+            operationId={operationId}
             services={services}
             todayValue={todayValue}
             tomorrowValue={tomorrowValue}

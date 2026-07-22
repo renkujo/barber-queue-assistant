@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { type ReactNode } from "react";
 import { StatusBadge } from "@/components/barber/app-ui";
@@ -65,6 +66,7 @@ const StatusActionButton = ({
     <form action={updateQueueStatusAction}>
       <input name="queueItemId" type="hidden" value={itemId} />
       <input name="status" type="hidden" value={status} />
+      <input name="operationId" type="hidden" value={randomUUID()} />
       <Button variant={variant} type="submit" size={size} fullWidth className={className}>
         {children}
       </Button>
@@ -77,6 +79,7 @@ const getQueueCustomerLabel = (item?: QueueListItem) => (item ? `${item.code} ${
 const DoneConfirmButton = ({ item, disabled }: { item?: QueueListItem; disabled: boolean }) => (
   <ConfirmStatusActionButton
     itemId={item?.id}
+    operationId={randomUUID()}
     status={QueueItemStatus.DONE}
     label="เสร็จ"
     customerLabel={getQueueCustomerLabel(item)}
@@ -94,6 +97,7 @@ const DoneConfirmButton = ({ item, disabled }: { item?: QueueListItem; disabled:
 const CancelConfirmButton = ({ item, disabled }: { item: QueueListItem; disabled: boolean }) => (
   <ConfirmStatusActionButton
     itemId={item.id}
+    operationId={randomUUID()}
     status={QueueItemStatus.CANCELLED}
     label="ยกเลิก"
     customerLabel={getQueueCustomerLabel(item)}
@@ -111,6 +115,7 @@ const CancelConfirmButton = ({ item, disabled }: { item: QueueListItem; disabled
 const NoShowConfirmButton = ({ item, disabled }: { item: QueueListItem; disabled: boolean }) => (
   <ConfirmStatusActionButton
     itemId={item.id}
+    operationId={randomUUID()}
     status={QueueItemStatus.NO_SHOW}
     label="ไม่มา"
     customerLabel={getQueueCustomerLabel(item)}
@@ -224,6 +229,7 @@ const ReorderActionButton = ({
     <form action={updateQueueOrderAction}>
       <input name="queueItemId" type="hidden" value={itemId} />
       <input name="intent" type="hidden" value={intent} />
+      <input name="operationId" type="hidden" value={randomUUID()} />
       <Button variant="outline" type="submit" size="sm" fullWidth className="bqa-owner-reorder-button">
         {label}
       </Button>

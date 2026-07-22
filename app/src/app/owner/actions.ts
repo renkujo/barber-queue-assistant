@@ -38,11 +38,14 @@ const notificationTypeByStatus: Partial<Record<QueueItemStatus, NotificationType
   [QueueItemStatus.NO_SHOW]: NotificationType.NO_SHOW,
 };
 
+const operationIdSchema = z.string().uuid().optional();
+
 const ownerWalkInSchema = z.object({
   customerName: z.string().trim().min(1),
   phone: z.string().trim().optional(),
   serviceId: z.string().trim().min(1),
   note: z.string().trim().optional(),
+  operationId: operationIdSchema,
 });
 
 const queueItemEditSchema = z.object({
@@ -54,6 +57,7 @@ const queueItemEditSchema = z.object({
   timeValue: z.string().trim().optional(),
   note: z.string().trim().optional(),
   ownerNote: z.string().trim().optional(),
+  operationId: operationIdSchema,
 });
 
 const ownerSettingsSchema = z.object({
@@ -143,17 +147,18 @@ export const updateQueueStatusAction = async (formData: FormData) => {
 
   const queueItemId = String(formData.get("queueItemId") ?? "");
   const status = String(formData.get("status") ?? "");
+  const operationId = String(formData.get("operationId") ?? "") || undefined;
 
   if (!queueItemId || !allowedStatus.has(status)) {
     redirect("/owner?error=invalid-action");
   }
 
   try {
-    await updateQueueItemStatus(queueItemId, status as QueueItemStatus);
+    const mutation = await updateQueueItemStatus(queueItemId, status as QueueItemStatus, operationId);
     const notificationType = notificationTypeByStatus[status as QueueItemStatus];
 
     if (notificationType) {
-      await notifyQueueEventSafe(queueItemId, notificationType);
+      await notifyQueueEventSafe(queueItemId, notificationType, { operationId: "pilotOperationId" in mutation && typeof mutation.pilotOperationId === "string" ? mutation.pilotOperationId : undefined });
     }
   } catch {
     redirect("/owner?error=action-failed");
@@ -174,8 +179,10 @@ export const restoreQueueItemAction = async (formData: FormData) => {
     redirect("/owner?error=invalid-action");
   }
 
+  const operationId = String(formData.get("operationId") ?? "") || undefined;
+
   try {
-    await restoreClosedQueueItem(queueItemId);
+    await restoreClosedQueueItem(queueItemId, operationId);
   } catch {
     redirect("/owner?error=restore-failed");
   }
@@ -192,13 +199,14 @@ export const updateQueueOrderAction = async (formData: FormData) => {
 
   const queueItemId = String(formData.get("queueItemId") ?? "");
   const intent = String(formData.get("intent") ?? "") as QueueReorderIntent;
+  const operationId = String(formData.get("operationId") ?? "") || undefined;
 
   if (!queueItemId || !allowedReorderIntent.has(intent)) {
     redirect("/owner?error=invalid-action");
   }
 
   try {
-    await reorderQueueItem(queueItemId, intent);
+    await reorderQueueItem(queueItemId, intent, operationId);
   } catch {
     redirect("/owner?error=reorder-failed");
   }
@@ -221,6 +229,7 @@ export const updateQueueItemAction = async (formData: FormData) => {
     timeValue: formData.get("timeValue"),
     note: formData.get("note"),
     ownerNote: formData.get("ownerNote"),
+    operationId: formData.get("operationId") || undefined,
   });
 
   if (!parsed.success) {
@@ -244,6 +253,7 @@ export const updateQueueItemAction = async (formData: FormData) => {
       timeValue,
       note: parsed.data.note,
       ownerNote: parsed.data.ownerNote,
+      operationId: parsed.data.operationId,
     });
   } catch (error) {
     if (error instanceof Error && error.message === "Queue item time conflicts.") {
@@ -558,6 +568,7 @@ export const createOwnerWalkInAction = async (formData: FormData) => {
     phone: formData.get("phone"),
     serviceId: formData.get("serviceId"),
     note: formData.get("note"),
+    operationId: formData.get("operationId") || undefined,
   });
 
   if (!parsed.success) {
@@ -566,7 +577,7 @@ export const createOwnerWalkInAction = async (formData: FormData) => {
 
   try {
     const queueItem = await createOwnerWalkIn(parsed.data);
-    await notifyQueueEventSafe(queueItem.id, NotificationType.QUEUE_CREATED);
+    await notifyQueueEventSafe(queueItem.id, NotificationType.QUEUE_CREATED, { operationId: "pilotOperationId" in queueItem && typeof queueItem.pilotOperationId === "string" ? queueItem.pilotOperationId : undefined });
   } catch {
     redirect("/owner/walk-in?error=database");
   }

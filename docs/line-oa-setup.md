@@ -188,7 +188,7 @@ Logging rules:
 
 - no LINE identity → `channel=NONE`, `status=SKIPPED`
 - LINE identity exists but no access token → `channel=LINE`, `status=SKIPPED`
-- LINE push succeeds → `channel=LINE`, `status=SENT`
+- LINE push succeeds → `channel=LINE`, `status=SENT` (LINE API accepted; not confirmed delivery)
 - LINE push fails → `channel=LINE`, `status=FAILED`
 
 Notification failure must not block booking, walk-in, or owner status actions.

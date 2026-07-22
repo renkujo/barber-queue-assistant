@@ -32,6 +32,11 @@ LINE_CHANNEL_SECRET=""
 LINE_CHANNEL_ACCESS_TOKEN=""
 OWNER_LINE_USER_ID=""
 NEXT_PUBLIC_LINE_LIFF_ID=""
+
+PILOT_MEASUREMENT_ENABLED="false"
+PILOT_COHORT_ID=""
+PILOT_RELEASE_SEGMENT=""
+PILOT_EVIDENCE_DELETE_AFTER=""
 ```
 
 Rules:
@@ -40,6 +45,9 @@ Rules:
 - `BARBER_ADMIN_SESSION_SECRET` must be a long random secret and should not equal the owner passcode.
 - Leave LINE values empty only if LINE notifications/LIFF are not being tested yet.
 - Owner LINE alerts should normally be connected from `/owner/settings`; `OWNER_LINE_USER_ID` is only a fallback/manual override.
+- Keep pilot measurement disabled through migration, smoke, role, privacy, retention, and rollback validation. Enable only after separate approval.
+- Operator/report/retention credentials are injected one at a time into a short-lived process on the private Compose network; never configure them on the long-running `web` service or app `.env`. Provision the exact database/application role, verify CONNECT/USAGE/approved EXECUTE-only grants, require parsed/connected identity equality, and require explicit production confirmation.
+- External Daily Close storage, measurement enablement, and customer pilot execution remain separately blocked; deployment approval does not authorize them.
 
 ## Build/start behavior
 

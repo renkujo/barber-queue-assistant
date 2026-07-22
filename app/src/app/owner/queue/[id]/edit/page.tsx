@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FormGrid, FormStack, Notice, OwnerGrid, OwnerHeader, Panel, SectionHeader } from "@/components/barber/app-ui";
@@ -105,6 +106,7 @@ const OwnerQueueEditPage = async ({ params, searchParams }: OwnerQueueEditPagePr
             </div>
             <form action={updateQueueItemAction}>
               <input name="queueItemId" type="hidden" value={queueItem.id} />
+<input name="operationId" type="hidden" value={randomUUID()} />
               <FormStack className="bqa-owner-edit-form-stack">
                 <div className="bqa-owner-edit-section bqa-owner-edit-section--identity">
                   <div className="bqa-owner-edit-section-heading">

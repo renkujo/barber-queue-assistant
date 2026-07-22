@@ -53,7 +53,7 @@ const getStateSearchParams = (state?: string) => {
 
 const getTargetPath = (target: LineEntryTarget, token?: string) => {
   if (target === "book") {
-    return "/book" as const;
+    return "/book?source=line" as const;
   }
 
   if (target === "queue-status") {
@@ -70,7 +70,7 @@ const getTargetPath = (target: LineEntryTarget, token?: string) => {
     return `/line/owner/complete?${query.toString()}` as const;
   }
 
-  return "/walk-in" as const;
+  return "/walk-in?source=line" as const;
 };
 
 const getLineEntryTarget = (params: Awaited<LineEntryPageProps["searchParams"]>) => {

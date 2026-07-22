@@ -242,6 +242,9 @@ test.describe("customer booking V2 responsive ownership", () => {
         sameSite: "Lax",
       }]);
       await page.goto("/book");
+      await expect(page.getByRole("combobox", { name: "บริการ", exact: true })).toHaveText(/.+/);
+      await expect(page.getByRole("combobox", { name: "วัน", exact: true })).toHaveText(/.+/);
+      await expect(page.getByRole("combobox", { name: "เวลา", exact: true })).toHaveText(/.+/);
       const serviceBefore = await page.getByRole("combobox", { name: "บริการ", exact: true }).innerText();
       const dateBefore = await page.getByRole("combobox", { name: "วัน", exact: true }).innerText();
       const timeBefore = await page.getByRole("combobox", { name: "เวลา", exact: true }).innerText();

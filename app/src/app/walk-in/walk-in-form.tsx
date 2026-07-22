@@ -28,10 +28,12 @@ type WalkInService = {
 type WalkInFormProps = {
   canSubmit: boolean;
   defaultServiceId?: string;
+  entrySource: string;
+  operationId: string;
   services: WalkInService[];
 };
 
-export const WalkInForm = ({ canSubmit, defaultServiceId, services }: WalkInFormProps) => {
+export const WalkInForm = ({ canSubmit, defaultServiceId, entrySource, operationId, services }: WalkInFormProps) => {
   const [actionState, formAction, pending] = useActionState(createWalkInAction, initialWalkInActionState);
   const [serviceId, setServiceId] = useState(defaultServiceId ?? "");
   const [customerName, setCustomerName] = useState("");
@@ -41,6 +43,8 @@ export const WalkInForm = ({ canSubmit, defaultServiceId, services }: WalkInForm
 
   return (
     <form action={formAction} className="bqa-book-form">
+      <input name="operationId" type="hidden" value={operationId} />
+      <input name="entrySource" type="hidden" value={entrySource} />
       <FormStack className="bqa-book-form-stack">
         {actionErrorMessage ? <Notice>{actionErrorMessage}</Notice> : null}
 

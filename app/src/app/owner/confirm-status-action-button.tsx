@@ -21,6 +21,7 @@ type ConfirmTone = "complete" | "danger" | "warning";
 
 type ConfirmStatusActionButtonProps = {
   itemId?: string;
+  operationId: string;
   status: string;
   label: string;
   customerLabel: string;
@@ -52,6 +53,7 @@ const PendingConfirmButton = ({ children, variant }: { children: React.ReactNode
 
 export const ConfirmStatusActionButton = ({
   itemId,
+  operationId,
   status,
   label,
   customerLabel,
@@ -95,6 +97,7 @@ export const ConfirmStatusActionButton = ({
         <form action={updateQueueStatusAction} className="bqa-confirm-actions">
           <input name="queueItemId" type="hidden" value={itemId} />
           <input name="status" type="hidden" value={status} />
+          <input name="operationId" type="hidden" value={operationId} />
           <AlertDialogCancel asChild>
             <Button variant="outline" type="button" fullWidth>
               กลับไปก่อน

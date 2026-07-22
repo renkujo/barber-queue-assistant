@@ -5,6 +5,7 @@ import { z } from "zod";
 import { NotificationType } from "@/generated/prisma/enums";
 import { clearLineEntryIdentity, getLineEntryIdentity } from "@/lib/line/line-entry-identity";
 import { notifyQueueEventSafe } from "@/lib/notifications/queue-notifications";
+import { parseQueueEntrySource } from "@/lib/pilot/entry-source";
 import { optionalPhoneSchema } from "@/lib/queue/input-validation";
 import { createWalkIn } from "@/lib/queue/repository";
 import { actionRateLimitPolicies, consumeRequestRateLimit } from "@/lib/security/rate-limit";
@@ -16,6 +17,8 @@ const walkInSchema = z.object({
   lineUserId: z.string().trim().optional(),
   serviceId: z.string().trim().min(1),
   note: z.string().trim().optional(),
+  operationId: z.string().uuid().optional(),
+  entrySource: z.string().trim().optional(),
 });
 
 export const createWalkInAction = async (_previousState: WalkInActionState, formData: FormData): Promise<WalkInActionState> => {
@@ -32,6 +35,8 @@ export const createWalkInAction = async (_previousState: WalkInActionState, form
     lineUserId: lineUserId ?? "",
     serviceId: formData.get("serviceId"),
     note: formData.get("note"),
+    operationId: formData.get("operationId") || undefined,
+    entrySource: formData.get("entrySource"),
   });
 
   if (!parsed.success) {
@@ -42,10 +47,10 @@ export const createWalkInAction = async (_previousState: WalkInActionState, form
   let publicToken: string;
 
   try {
-    const queueItem = await createWalkIn(parsed.data);
+    const queueItem = await createWalkIn({ ...parsed.data, entrySource: parseQueueEntrySource(parsed.data.entrySource) });
     queueItemId = queueItem.id;
     publicToken = queueItem.publicToken;
-    await notifyQueueEventSafe(queueItemId, NotificationType.QUEUE_CREATED);
+    await notifyQueueEventSafe(queueItemId, NotificationType.QUEUE_CREATED, { operationId: "pilotOperationId" in queueItem && typeof queueItem.pilotOperationId === "string" ? queueItem.pilotOperationId : undefined });
     await clearLineEntryIdentity("walk-in").catch(() => undefined);
   } catch (error) {
     if (error instanceof Error && (error.message === "Queue intake is closed." || error.message === "Walk-in is closed.")) {

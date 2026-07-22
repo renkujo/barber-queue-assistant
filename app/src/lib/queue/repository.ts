@@ -1,13 +1,33 @@
+import { Prisma } from "@/generated/prisma/client";
 import {
   NotificationChannel,
   NotificationStatus,
   NotificationType,
+  PilotQueueClassification,
   QueueCreatedBy,
+  QueueEntrySource,
+  QueueEventActor,
+  QueueEventMutationSource,
+  QueueEventReason,
+  QueueEventRole,
+  QueueEventType,
   QueueItemStatus,
   QueueItemType,
+  QueueMutationOutcome,
+  QueueReorderIntent as QueueReorderIntentEnum,
   TimeBlockType,
 } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
+import { appendPilotQueueEvent } from "@/lib/pilot/events";
+import { requirePilotMeasurementConfig } from "@/lib/pilot/config";
+import {
+  acquirePilotDateLocks,
+  completePilotOperation,
+  lockPilotQueueItems,
+  type PilotTransactionClient,
+  requireOperationId,
+  reservePilotOperation,
+} from "@/lib/pilot/operations";
 import { services as fallbackServices, shopStatus, todayQueue } from "@/lib/queue-demo";
 import { getQueueAccessPin } from "@/lib/queue/access-pin";
 import { getQueueCode } from "@/lib/queue/code";
@@ -140,7 +160,12 @@ export type CustomerDateAvailability = {
 
 export type UpdateOwnerShopSettingsInput = Omit<OwnerShopSettings, "ownerLineUserId">;
 
-export type CreateBookingInput = {
+type PilotMutationInput = {
+  operationId?: string;
+  entrySource?: QueueEntrySource;
+};
+
+export type CreateBookingInput = PilotMutationInput & {
   customerName: string;
   phone?: string;
   lineUserId?: string;
@@ -150,7 +175,7 @@ export type CreateBookingInput = {
   note?: string;
 };
 
-export type CreateWalkInInput = {
+export type CreateWalkInInput = PilotMutationInput & {
   customerName: string;
   phone?: string;
   lineUserId?: string;
@@ -186,7 +211,7 @@ export type OwnerNotificationLogItem = {
   tone: "positive" | "warning" | "neutral";
 };
 
-export type UpdateQueueItemInput = {
+export type UpdateQueueItemInput = PilotMutationInput & {
   id: string;
   customerName: string;
   phone?: string;
@@ -198,6 +223,13 @@ export type UpdateQueueItemInput = {
 };
 
 export type QueueReorderIntent = "up" | "down" | "bottom";
+
+type QueueItemRecord = Prisma.QueueItemGetPayload<Record<string, never>>;
+
+export type PilotMutationResult<T> = T & {
+  pilotOperationId?: string;
+  pilotApplied?: boolean;
+};
 
 export type BookingSlot = {
   value: string;
@@ -461,11 +493,13 @@ const getDateAvailabilityMode = (availability?: { bookingEnabled: boolean; walkI
   return "booking-and-walk-in";
 };
 
-const getResolvedDateAvailability = async (dateValue: string) => {
+type AvailabilityReadClient = Pick<typeof prisma, "shopDateAvailability" | "shopWeeklyAvailability">;
+
+const getResolvedDateAvailability = async (dateValue: string, database: AvailabilityReadClient = prisma) => {
   const { start } = getDayBounds(dateValue);
   const [dateRule, weeklyRule] = await Promise.all([
-    prisma.shopDateAvailability.findUnique({ where: { date: start } }),
-    prisma.shopWeeklyAvailability.findUnique({ where: { dayOfWeek: getIsoDayOfWeek(dateValue) } }),
+    database.shopDateAvailability.findUnique({ where: { date: start } }),
+    database.shopWeeklyAvailability.findUnique({ where: { dayOfWeek: getIsoDayOfWeek(dateValue) } }),
   ]);
   const rule = dateRule ?? weeklyRule;
 
@@ -533,6 +567,7 @@ const findEarliestOpenSlot = (cursor: Date, durationMinutes: number, fixedBlocks
 };
 
 type QueueTimelineClient = Pick<typeof prisma, "queueItem" | "timeBlock">;
+type BookingAvailabilityClient = QueueTimelineClient & AvailabilityReadClient & ShopSettingsClient & Pick<typeof prisma, "service">;
 
 const getEstimatedWalkInStart = async (
   dateValue: string,
@@ -837,20 +872,35 @@ const mapOwnerShopSettings = (settings: {
   };
 };
 
-const getOrCreateShopSettings = async () => {
-  const existingSettings = await prisma.shopSettings.findFirst({ orderBy: { createdAt: "asc" } });
+type ShopSettingsClient = Pick<typeof prisma, "shopSettings">;
+
+const getOrCreateShopSettings = async (database: ShopSettingsClient = prisma) => {
+  const existingSettings = await database.shopSettings.findFirst({ orderBy: { createdAt: "asc" } });
 
   if (existingSettings) {
     return existingSettings;
   }
 
-  return prisma.shopSettings.create({
+  return database.shopSettings.create({
     data: defaultShopSettingsInput,
   });
 };
 
-const assertPublicQueueIntakeOpen = async (mode: "booking" | "walk-in") => {
-  const settings = await getShopIntakeSettings();
+const getShopIntakeSettingsWithClient = async (dateValue: string, database: AvailabilityReadClient & ShopSettingsClient) => {
+  const [settings, dateAvailability] = await Promise.all([
+    getOrCreateShopSettings(database),
+    getResolvedDateAvailability(dateValue, database),
+  ]);
+
+  return mapShopIntakeSettings(settings, dateAvailability);
+};
+
+const assertPublicQueueIntakeOpen = async (
+  mode: "booking" | "walk-in",
+  dateValue = getTodayValue(),
+  database: AvailabilityReadClient & ShopSettingsClient = prisma,
+) => {
+  const settings = await getShopIntakeSettingsWithClient(dateValue, database);
 
   if (!settings.queueIntakeEnabled) {
     throw new Error("Queue intake is closed.");
@@ -865,14 +915,8 @@ const assertPublicQueueIntakeOpen = async (mode: "booking" | "walk-in") => {
   }
 };
 
-export const getShopIntakeSettings = async (dateValue = getTodayValue()): Promise<ShopIntakeSettings> => {
-  const [settings, dateAvailability] = await Promise.all([
-    getOrCreateShopSettings(),
-    getResolvedDateAvailability(dateValue),
-  ]);
-
-  return mapShopIntakeSettings(settings, dateAvailability);
-};
+export const getShopIntakeSettings = async (dateValue = getTodayValue()): Promise<ShopIntakeSettings> =>
+  getShopIntakeSettingsWithClient(dateValue, prisma);
 
 export const getCustomerDateAvailability = async (dateValue: string): Promise<CustomerDateAvailability> => {
   const [settings, dateAvailability] = await Promise.all([
@@ -1118,25 +1162,26 @@ export const getOwnerDateAvailabilityItemsSafe = async () => {
 export const updateOwnerDateAvailability = async (input: UpdateOwnerDateAvailabilityInput) => {
   const { start } = getDayBounds(input.dateValue);
   const reason = input.reason?.trim() || null;
+  const availability = input.mode === "default" ? null : getDateAvailabilityBooleans(input.mode);
+  const write = async (database: Pick<typeof prisma, "shopDateAvailability">) => {
+    if (!availability) {
+      await database.shopDateAvailability.deleteMany({ where: { date: start } });
+      return null;
+    }
 
-  if (input.mode === "default") {
-    await prisma.shopDateAvailability.deleteMany({ where: { date: start } });
-    return null;
-  }
+    return database.shopDateAvailability.upsert({
+      where: { date: start },
+      update: { ...availability, reason },
+      create: { date: start, ...availability, reason },
+    });
+  };
+  const config = await requirePilotMeasurementConfig();
 
-  const availability = getDateAvailabilityBooleans(input.mode);
+  if (!config) return write(prisma);
 
-  return prisma.shopDateAvailability.upsert({
-    where: { date: start },
-    update: {
-      ...availability,
-      reason,
-    },
-    create: {
-      date: start,
-      ...availability,
-      reason,
-    },
+  return prisma.$transaction(async (tx) => {
+    await acquirePilotDateLocks(tx, [input.dateValue]);
+    return write(tx);
   });
 };
 
@@ -1399,124 +1444,196 @@ export const getOwnerRecentNotificationLogsSafe = async () => {
   }
 };
 
-export const restoreClosedQueueItem = async (id: string) => {
+export const restoreClosedQueueItem = async (id: string, operationId?: string, topologyAttempt = 0): Promise<PilotMutationResult<QueueItemRecord>> => {
+  const pilot = await getPilotMutationContext(operationId);
   const existingItem = await prisma.queueItem.findUnique({ where: { id } });
 
   if (!existingItem) {
     throw new Error("Queue item not found.");
   }
 
-  const { start, end } = getDayBounds(getTodayValue());
+  const todayValue = getTodayValue();
+  const { start, end } = getDayBounds(todayValue);
 
-  if (existingItem.date < start || existingItem.date >= end || !closedQueueStatuses.includes(existingItem.status)) {
-    throw new Error("Queue item cannot be restored.");
+  if (!pilot) {
+    if (existingItem.date < start || existingItem.date >= end || !closedQueueStatuses.includes(existingItem.status)) {
+      throw new Error("Queue item cannot be restored.");
+    }
+    const customerCounterUpdate = getCustomerCounterRestoreUpdate(existingItem.status);
+
+    return prisma.$transaction(async (tx) => {
+      if (existingItem.customerId && customerCounterUpdate) {
+        await tx.customer.update({ where: { id: existingItem.customerId }, data: customerCounterUpdate });
+      }
+
+      return tx.queueItem.update({
+        where: { id },
+        data: { status: QueueItemStatus.WAITING, startedAt: null, completedAt: null, cancelledAt: null, noShowAt: null },
+      });
+    });
   }
 
-  const customerCounterUpdate = getCustomerCounterRestoreUpdate(existingItem.status);
+  try {
+    return await prisma.$transaction(async (tx) => {
+      await reservePilotOperation(tx, { operationId: pilot.operationId, mutationSource: QueueEventMutationSource.OWNER_RESTORE_ACTION, primaryQueueItemId: id, config: pilot.config });
+      await acquirePilotDateLocks(tx, [toDateValue(existingItem.date)]);
+      await lockPilotQueueItems(tx, [id]);
+      const locked = await tx.queueItem.findUnique({ where: { id } });
 
-  return prisma.$transaction(async (tx) => {
-    if (existingItem.customerId && customerCounterUpdate) {
-      await tx.customer.update({
-        where: { id: existingItem.customerId },
-        data: customerCounterUpdate,
+      if (!locked) throw new Error("Queue item not found.");
+      if (toDateValue(locked.date) !== toDateValue(existingItem.date)) throw new Error("Queue topology changed during restore.");
+      if (locked.date < start || locked.date >= end || !closedQueueStatuses.includes(locked.status)) {
+        throw new Error("Queue item cannot be restored.");
+      }
+
+      const customerCounterUpdate = getCustomerCounterRestoreUpdate(locked.status);
+      if (locked.customerId && customerCounterUpdate) {
+        await tx.customer.update({ where: { id: locked.customerId }, data: customerCounterUpdate });
+      }
+
+      const updated = await tx.queueItem.update({
+        where: { id },
+        data: { status: QueueItemStatus.WAITING, startedAt: null, completedAt: null, cancelledAt: null, noShowAt: null },
       });
-    }
-
-    return tx.queueItem.update({
-      where: { id },
-      data: {
-        status: QueueItemStatus.WAITING,
-        startedAt: null,
-        completedAt: null,
-        cancelledAt: null,
-        noShowAt: null,
-      },
+      await appendPilotQueueEvent(tx, {
+        operationId: pilot.operationId,
+        eventOrdinal: 0,
+        queueItemId: id,
+        config: pilot.config,
+        facts: {
+          role: QueueEventRole.PRIMARY,
+          type: QueueEventType.QUEUE_RESTORED,
+          actor: QueueEventActor.OWNER,
+          mutationSource: QueueEventMutationSource.OWNER_RESTORE_ACTION,
+          reason: QueueEventReason.RESTORED,
+          effectiveAt: new Date(),
+          fromStatus: locked.status,
+          toStatus: updated.status,
+          fromStartedAt: locked.startedAt,
+          toStartedAt: updated.startedAt,
+          fromCompletedAt: locked.completedAt,
+          toCompletedAt: updated.completedAt,
+          fromCancelledAt: locked.cancelledAt,
+          toCancelledAt: updated.cancelledAt,
+          fromNoShowAt: locked.noShowAt,
+          toNoShowAt: updated.noShowAt,
+        },
+      });
+      await completePilotOperation(tx, pilot.operationId, { primaryQueueItemId: id, outcome: QueueMutationOutcome.APPLIED });
+      return { ...updated, pilotOperationId: pilot.operationId, pilotApplied: true };
     });
-  });
+  } catch (error) {
+    if (isPilotOperationConflict(error)) {
+      return resolveDuplicatePilotOperation(pilot.operationId, QueueEventMutationSource.OWNER_RESTORE_ACTION, id);
+    }
+    if (error instanceof Error && error.message.includes("topology changed") && topologyAttempt < 2) {
+      return restoreClosedQueueItem(id, operationId, topologyAttempt + 1);
+    }
+    throw error;
+  }
 };
 
-export const reorderQueueItem = async (id: string, intent: QueueReorderIntent) => {
+export const reorderQueueItem = async (id: string, intent: QueueReorderIntent, operationId?: string, topologyAttempt = 0): Promise<PilotMutationResult<QueueItemRecord>> => {
+  const pilot = await getPilotMutationContext(operationId);
   const existingItem = await prisma.queueItem.findUnique({ where: { id } });
 
-  if (!existingItem) {
-    throw new Error("Queue item not found.");
-  }
-
-  if (existingItem.status === QueueItemStatus.IN_PROGRESS || activeQueueStatusExclusions.includes(existingItem.status)) {
+  if (!existingItem) throw new Error("Queue item not found.");
+  if (!pilot && (existingItem.status === QueueItemStatus.IN_PROGRESS || activeQueueStatusExclusions.includes(existingItem.status))) {
     throw new Error("Queue item cannot be reordered.");
   }
 
-  const { start, end } = getDayBounds(toDateValue(existingItem.date));
+  const dateValue = toDateValue(existingItem.date);
+  const { start, end } = getDayBounds(dateValue);
 
-  return prisma.$transaction(async (tx) => {
+  const executeReorder = async (tx: PilotTransactionClient) => {
     const queueItems = await tx.queueItem.findMany({
-      where: {
-        date: {
-          gte: start,
-          lt: end,
-        },
-        status: {
-          notIn: activeQueueStatusExclusions,
-        },
-      },
+      where: { date: { gte: start, lt: end }, status: { notIn: activeQueueStatusExclusions } },
       orderBy: [{ sortOrder: "asc" }, { startAt: "asc" }, { estimatedAt: "asc" }, { createdAt: "asc" }],
       select: { id: true },
     });
     const currentIndex = queueItems.findIndex((item) => item.id === id);
-
-    if (currentIndex === -1) {
-      throw new Error("Queue item cannot be reordered.");
-    }
-
+    if (currentIndex === -1) throw new Error("Queue item cannot be reordered.");
     const reorderedItems = [...queueItems];
 
-    if (intent === "up" && currentIndex > 0) {
-      [reorderedItems[currentIndex - 1], reorderedItems[currentIndex]] = [reorderedItems[currentIndex], reorderedItems[currentIndex - 1]];
-    }
-
-    if (intent === "down" && currentIndex < reorderedItems.length - 1) {
-      [reorderedItems[currentIndex], reorderedItems[currentIndex + 1]] = [reorderedItems[currentIndex + 1], reorderedItems[currentIndex]];
-    }
-
+    if (intent === "up" && currentIndex > 0) [reorderedItems[currentIndex - 1], reorderedItems[currentIndex]] = [reorderedItems[currentIndex], reorderedItems[currentIndex - 1]];
+    if (intent === "down" && currentIndex < reorderedItems.length - 1) [reorderedItems[currentIndex], reorderedItems[currentIndex + 1]] = [reorderedItems[currentIndex + 1], reorderedItems[currentIndex]];
     if (intent === "bottom" && currentIndex < reorderedItems.length - 1) {
       const [selectedItem] = reorderedItems.splice(currentIndex, 1);
       reorderedItems.push(selectedItem);
     }
 
-    await Promise.all(
-      reorderedItems.map((item, index) =>
-        tx.queueItem.update({
-          where: { id: item.id },
-          data: { sortOrder: index + 1 },
-        }),
-      ),
-    );
+    const moved = reorderedItems.some((item, index) => item.id !== queueItems[index]?.id);
+    await Promise.all(reorderedItems.map((item, index) => tx.queueItem.update({ where: { id: item.id }, data: { sortOrder: index + 1 } })));
+    return { item: await tx.queueItem.findUniqueOrThrow({ where: { id } }), moved };
+  };
 
-    return tx.queueItem.findUniqueOrThrow({ where: { id } });
-  });
+  if (!pilot) return prisma.$transaction(async (tx) => (await executeReorder(tx)).item);
+
+  try {
+    return await prisma.$transaction(async (tx) => {
+      await reservePilotOperation(tx, { operationId: pilot.operationId, mutationSource: QueueEventMutationSource.OWNER_REORDER_ACTION, primaryQueueItemId: id, config: pilot.config });
+      await acquirePilotDateLocks(tx, [dateValue]);
+      await lockPilotQueueItems(tx, [id]);
+      const locked = await tx.queueItem.findUnique({ where: { id } });
+      if (!locked || toDateValue(locked.date) !== dateValue) throw new Error("Queue topology changed during reorder.");
+      if (locked.status === QueueItemStatus.IN_PROGRESS || activeQueueStatusExclusions.includes(locked.status)) {
+        throw new Error("Queue item cannot be reordered.");
+      }
+      const result = await executeReorder(tx);
+
+      if (result.moved) {
+        const reason = intent === "up" ? QueueEventReason.REORDER_UP : intent === "down" ? QueueEventReason.REORDER_DOWN : QueueEventReason.REORDER_BOTTOM;
+        const reorderIntent = intent === "up" ? QueueReorderIntentEnum.UP : intent === "down" ? QueueReorderIntentEnum.DOWN : QueueReorderIntentEnum.BOTTOM;
+        await appendPilotQueueEvent(tx, {
+          operationId: pilot.operationId,
+          eventOrdinal: 0,
+          queueItemId: id,
+          config: pilot.config,
+          facts: { role: QueueEventRole.PRIMARY, type: QueueEventType.QUEUE_REORDERED, actor: QueueEventActor.OWNER, mutationSource: QueueEventMutationSource.OWNER_REORDER_ACTION, reason, effectiveAt: new Date(), reorderIntent },
+        });
+      }
+
+      await completePilotOperation(tx, pilot.operationId, { primaryQueueItemId: id, outcome: result.moved ? QueueMutationOutcome.APPLIED : QueueMutationOutcome.NO_OP });
+      return { ...result.item, pilotOperationId: pilot.operationId, pilotApplied: result.moved };
+    });
+  } catch (error) {
+    if (isPilotOperationConflict(error)) return resolveDuplicatePilotOperation(pilot.operationId, QueueEventMutationSource.OWNER_REORDER_ACTION, id);
+    if (error instanceof Error && error.message.includes("topology changed") && topologyAttempt < 2) return reorderQueueItem(id, intent, operationId, topologyAttempt + 1);
+    throw error;
+  }
 };
 
 export const createBreakTimeBlock = async (durationMinutes = 30) => {
   const now = new Date();
-  const { start } = getDayBounds(getTodayValue());
+  const todayValue = getTodayValue();
+  const { start } = getDayBounds(todayValue);
+  const data = {
+    date: start,
+    startAt: now,
+    endAt: addMinutes(now, durationMinutes),
+    reason: `พัก ${durationMinutes} นาที`,
+    type: TimeBlockType.BREAK,
+  };
+  const config = await requirePilotMeasurementConfig();
 
-  return prisma.timeBlock.create({
-    data: {
-      date: start,
-      startAt: now,
-      endAt: addMinutes(now, durationMinutes),
-      reason: `พัก ${durationMinutes} นาที`,
-      type: TimeBlockType.BREAK,
-    },
+  if (!config) return prisma.timeBlock.create({ data });
+
+  return prisma.$transaction(async (tx) => {
+    await acquirePilotDateLocks(tx, [todayValue]);
+    return tx.timeBlock.create({ data });
   });
 };
 
-export const getAvailableBookingSlots = async (dateValue: string, serviceId?: string): Promise<BookingSlot[]> => {
-  const service = serviceId ? await findService(serviceId) : null;
+const getAvailableBookingSlotsWithClient = async (
+  dateValue: string,
+  serviceId: string | undefined,
+  database: BookingAvailabilityClient,
+): Promise<BookingSlot[]> => {
+  const service = serviceId ? await findService(serviceId, database) : null;
   const durationMinutes = service?.durationMinutes ?? fallbackServices[0]?.durationMinutes ?? 30;
   const [settings, dateAvailability] = await Promise.all([
-    getOrCreateShopSettings(),
-    getResolvedDateAvailability(dateValue),
+    getOrCreateShopSettings(database),
+    getResolvedDateAvailability(dateValue, database),
   ]);
   const businessHours = getBusinessHours(settings.businessHours);
   const bookingTimes = getBookingTimesForBusinessHours(businessHours, durationMinutes);
@@ -1527,7 +1644,7 @@ export const getAvailableBookingSlots = async (dateValue: string, serviceId?: st
 
   const { start, end } = getDayBounds(dateValue);
   const [queueItems, timeBlocks] = await Promise.all([
-    prisma.queueItem.findMany({
+    database.queueItem.findMany({
       where: {
         date: {
           gte: start,
@@ -1543,7 +1660,7 @@ export const getAvailableBookingSlots = async (dateValue: string, serviceId?: st
         serviceDurationMinutes: true,
       },
     }),
-    prisma.timeBlock.findMany({
+    database.timeBlock.findMany({
       where: {
         date: {
           gte: start,
@@ -1577,6 +1694,9 @@ export const getAvailableBookingSlots = async (dateValue: string, serviceId?: st
     };
   });
 };
+
+export const getAvailableBookingSlots = async (dateValue: string, serviceId?: string): Promise<BookingSlot[]> =>
+  getAvailableBookingSlotsWithClient(dateValue, serviceId, prisma);
 
 export const getAvailableBookingSlotsSafe = async (dateValue: string, serviceId?: string) => {
   try {
@@ -1640,6 +1760,7 @@ const getQueueItemWithIndexByPublicToken = async (publicToken: string) => {
 };
 
 type QueueWriteClient = Pick<typeof prisma, "customer" | "queueItem" | "service" | "timeBlock">;
+type ServiceWriteClient = Pick<typeof prisma, "service">;
 
 const findOrCreateCustomer = async (
   input: { name: string; phone?: string; lineUserId?: string },
@@ -1686,7 +1807,7 @@ const findOrCreateCustomer = async (
   });
 };
 
-const findService = async (serviceId: string, database: QueueWriteClient = prisma) => {
+const findService = async (serviceId: string, database: ServiceWriteClient = prisma) => {
   const service = await database.service.findUnique({ where: { id: serviceId } });
 
   if (service) {
@@ -1706,7 +1827,7 @@ const findService = async (serviceId: string, database: QueueWriteClient = prism
   });
 };
 
-const findActiveService = async (serviceId: string, database: QueueWriteClient = prisma) => {
+const findActiveService = async (serviceId: string, database: ServiceWriteClient = prisma) => {
   const service = await database.service.findFirst({
     where: {
       id: serviceId,
@@ -1740,42 +1861,238 @@ export const ensureDefaultServices = async () => {
   });
 };
 
-export const createBooking = async (input: CreateBookingInput) => {
-  await assertPublicQueueIntakeOpen("booking");
+const getPilotMutationContext = async (operationId?: string) => {
+  const config = await requirePilotMeasurementConfig();
 
-  const service = await findActiveService(input.serviceId);
-  const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId });
-  const startAt = createDateTime(input.dateValue, input.timeValue);
-  const { start } = getDayBounds(input.dateValue);
-  const slots = await getAvailableBookingSlots(input.dateValue, service.id);
-  const selectedSlot = slots.find((slot) => slot.value === input.timeValue);
-
-  if (!selectedSlot?.available) {
-    throw new Error("Booking slot is not available.");
+  if (!config) {
+    return null;
   }
 
-  return prisma.queueItem.create({
-    data: {
-      type: QueueItemType.BOOKING,
-      status: QueueItemStatus.CONFIRMED,
-      customerId: customer.id,
-      customerNameSnapshot: customer.name,
-      phoneSnapshot: input.phone || null,
-      lineUserIdSnapshot: customer.lineUserId,
-      serviceId: service.id,
-      serviceNameSnapshot: service.name,
-      serviceDurationMinutes: service.durationMinutes,
-      date: start,
-      startAt,
-      note: input.note,
-      createdBy: QueueCreatedBy.CUSTOMER,
-    },
+  return { config, operationId: requireOperationId(operationId) };
+};
+
+const resolveDuplicatePilotOperation = async (
+  operationId: string,
+  mutationSource: QueueEventMutationSource,
+  expectedQueueItemId?: string,
+) => {
+  const operation = await prisma.queueMutationOperation.findUnique({
+    where: { id: operationId },
+    include: { primaryQueueItem: true },
   });
+
+  if (!operation || operation.mutationSource !== mutationSource || !operation.primaryQueueItem) {
+    throw new Error("Pilot operation id was reused for a different or incomplete mutation.");
+  }
+
+  if (expectedQueueItemId && operation.primaryQueueItemId !== expectedQueueItemId) {
+    throw new Error("Pilot operation id was reused for a different queue.");
+  }
+
+  return {
+    ...operation.primaryQueueItem,
+    pilotOperationId: operation.id,
+    pilotApplied: false,
+  };
+};
+
+const isPilotOperationConflict = (error: unknown) =>
+  error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
+
+export const createBooking = async (input: CreateBookingInput): Promise<PilotMutationResult<Awaited<ReturnType<typeof prisma.queueItem.create>>>> => {
+  const pilot = await getPilotMutationContext(input.operationId);
+
+  if (!pilot) {
+    await assertPublicQueueIntakeOpen("booking");
+    const service = await findActiveService(input.serviceId);
+    const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId });
+    const startAt = createDateTime(input.dateValue, input.timeValue);
+    const { start } = getDayBounds(input.dateValue);
+    const slots = await getAvailableBookingSlots(input.dateValue, service.id);
+    const selectedSlot = slots.find((slot) => slot.value === input.timeValue);
+
+    if (!selectedSlot?.available) {
+      throw new Error("Booking slot is not available.");
+    }
+
+    return prisma.queueItem.create({
+      data: {
+        type: QueueItemType.BOOKING,
+        status: QueueItemStatus.CONFIRMED,
+        customerId: customer.id,
+        customerNameSnapshot: customer.name,
+        phoneSnapshot: input.phone || null,
+        lineUserIdSnapshot: customer.lineUserId,
+        serviceId: service.id,
+        serviceNameSnapshot: service.name,
+        serviceDurationMinutes: service.durationMinutes,
+        date: start,
+        startAt,
+        note: input.note,
+        createdBy: QueueCreatedBy.CUSTOMER,
+      },
+    });
+  }
+
+  try {
+    return await prisma.$transaction(async (transaction) => {
+      await reservePilotOperation(transaction, {
+        operationId: pilot.operationId,
+        mutationSource: QueueEventMutationSource.PUBLIC_BOOKING,
+        config: pilot.config,
+      });
+      await acquirePilotDateLocks(transaction, [input.dateValue]);
+      await assertPublicQueueIntakeOpen("booking", input.dateValue, transaction);
+      const service = await findActiveService(input.serviceId, transaction);
+      const slots = await getAvailableBookingSlotsWithClient(input.dateValue, service.id, transaction);
+      const selectedSlot = slots.find((slot) => slot.value === input.timeValue);
+
+      if (!selectedSlot?.available) {
+        throw new Error("Booking slot is not available.");
+      }
+
+      const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId }, transaction);
+      const startAt = createDateTime(input.dateValue, input.timeValue);
+      const { start } = getDayBounds(input.dateValue);
+      const queueItem = await transaction.queueItem.create({
+        data: {
+          type: QueueItemType.BOOKING,
+          status: QueueItemStatus.CONFIRMED,
+          customerId: customer.id,
+          customerNameSnapshot: customer.name,
+          phoneSnapshot: input.phone || null,
+          lineUserIdSnapshot: customer.lineUserId,
+          serviceId: service.id,
+          serviceNameSnapshot: service.name,
+          serviceDurationMinutes: service.durationMinutes,
+          date: start,
+          startAt,
+          note: input.note,
+          createdBy: QueueCreatedBy.CUSTOMER,
+          entrySource: input.entrySource ?? QueueEntrySource.UNKNOWN,
+          pilotClassification: PilotQueueClassification.REAL,
+          pilotCohortId: pilot.config.cohortId,
+          pilotReleaseSegment: pilot.config.releaseSegment,
+        },
+      });
+      const event = await appendPilotQueueEvent(transaction, {
+        operationId: pilot.operationId,
+        eventOrdinal: 0,
+        queueItemId: queueItem.id,
+        config: pilot.config,
+        facts: {
+          role: QueueEventRole.PRIMARY,
+          type: QueueEventType.QUEUE_CREATED,
+          actor: QueueEventActor.CUSTOMER,
+          mutationSource: QueueEventMutationSource.PUBLIC_BOOKING,
+          reason: QueueEventReason.CREATED,
+          effectiveAt: queueItem.createdAt,
+          toStatus: queueItem.status,
+          toStartAt: queueItem.startAt,
+          toServiceId: queueItem.serviceId,
+        },
+      });
+      await completePilotOperation(transaction, pilot.operationId, { primaryQueueItemId: queueItem.id, outcome: QueueMutationOutcome.APPLIED });
+
+      return { ...queueItem, pilotOperationId: pilot.operationId, pilotApplied: true, pilotEventId: event.id };
+    });
+  } catch (error) {
+    if (isPilotOperationConflict(error)) {
+      return resolveDuplicatePilotOperation(pilot.operationId, QueueEventMutationSource.PUBLIC_BOOKING);
+    }
+
+    throw error;
+  }
+};
+
+const createInstrumentedWalkIn = async (
+  input: CreateWalkInInput,
+  createdBy: QueueCreatedBy,
+  mutationSource: QueueEventMutationSource,
+  actor: QueueEventActor,
+  requirePublicOpen = false,
+) => {
+  const pilot = await getPilotMutationContext(input.operationId);
+
+  if (!pilot) {
+    return null;
+  }
+
+  try {
+    return await prisma.$transaction(async (transaction) => {
+      await reservePilotOperation(transaction, { operationId: pilot.operationId, mutationSource, config: pilot.config });
+      const todayValue = getTodayValue();
+      await acquirePilotDateLocks(transaction, [todayValue]);
+      if (requirePublicOpen) await assertPublicQueueIntakeOpen("walk-in", todayValue, transaction);
+      const service = createdBy === QueueCreatedBy.CUSTOMER
+        ? await findActiveService(input.serviceId, transaction)
+        : await findService(input.serviceId, transaction);
+      const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId }, transaction);
+      const { start } = getDayBounds(todayValue);
+      const now = new Date();
+      const estimatedAt = await getEstimatedWalkInStart(todayValue, service.durationMinutes, now, transaction);
+      const quotedWaitMinutes = Math.max(0, Math.ceil((estimatedAt.getTime() - now.getTime()) / 60_000));
+      const queueItem = await transaction.queueItem.create({
+        data: {
+          type: QueueItemType.WALK_IN,
+          status: QueueItemStatus.WAITING,
+          customerId: customer.id,
+          customerNameSnapshot: customer.name,
+          phoneSnapshot: input.phone || null,
+          lineUserIdSnapshot: customer.lineUserId,
+          serviceId: service.id,
+          serviceNameSnapshot: service.name,
+          serviceDurationMinutes: service.durationMinutes,
+          date: start,
+          estimatedAt,
+          quotedEstimatedAt: estimatedAt,
+          quotedWaitMinutes,
+          note: input.note,
+          createdBy,
+          entrySource: input.entrySource ?? QueueEntrySource.UNKNOWN,
+          pilotClassification: PilotQueueClassification.REAL,
+          pilotCohortId: pilot.config.cohortId,
+          pilotReleaseSegment: pilot.config.releaseSegment,
+        },
+      });
+      const event = await appendPilotQueueEvent(transaction, {
+        operationId: pilot.operationId,
+        eventOrdinal: 0,
+        queueItemId: queueItem.id,
+        config: pilot.config,
+        facts: {
+          role: QueueEventRole.PRIMARY,
+          type: QueueEventType.QUEUE_CREATED,
+          actor,
+          mutationSource,
+          reason: QueueEventReason.CREATED,
+          effectiveAt: queueItem.createdAt,
+          toStatus: queueItem.status,
+          toEstimatedAt: queueItem.estimatedAt,
+          toServiceId: queueItem.serviceId,
+        },
+      });
+      await completePilotOperation(transaction, pilot.operationId, { primaryQueueItemId: queueItem.id, outcome: QueueMutationOutcome.APPLIED });
+
+      return { ...queueItem, pilotOperationId: pilot.operationId, pilotApplied: true, pilotEventId: event.id };
+    });
+  } catch (error) {
+    if (isPilotOperationConflict(error)) {
+      return resolveDuplicatePilotOperation(pilot.operationId, mutationSource);
+    }
+
+    throw error;
+  }
 };
 
 export const createWalkIn = async (input: CreateWalkInInput) => {
-  await assertPublicQueueIntakeOpen("walk-in");
+  const instrumented = await createInstrumentedWalkIn(input, QueueCreatedBy.CUSTOMER, QueueEventMutationSource.PUBLIC_WALK_IN, QueueEventActor.CUSTOMER, true);
 
+  if (instrumented) {
+    return instrumented;
+  }
+
+  await assertPublicQueueIntakeOpen("walk-in");
   return prisma.$transaction(async (transaction) => {
     await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('bqa:walk-in-estimate'))`;
     const service = await findActiveService(input.serviceId, transaction);
@@ -1804,8 +2121,13 @@ export const createWalkIn = async (input: CreateWalkInInput) => {
   });
 };
 
-
 export const createOwnerWalkIn = async (input: CreateOwnerWalkInInput) => {
+  const instrumented = await createInstrumentedWalkIn(input, QueueCreatedBy.OWNER, QueueEventMutationSource.OWNER_WALK_IN, QueueEventActor.OWNER);
+
+  if (instrumented) {
+    return instrumented;
+  }
+
   return prisma.$transaction(async (transaction) => {
     await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('bqa:walk-in-estimate'))`;
     const customer = await findOrCreateCustomer({ name: input.customerName, phone: input.phone, lineUserId: input.lineUserId }, transaction);
@@ -1911,133 +2233,153 @@ export const getQueueItemByCodeAndAccessPin = async (code: string, accessPin: st
 };
 
 
-export const updateQueueItemStatus = async (id: string, status: QueueItemStatus) => {
+export const updateQueueItemStatus = async (id: string, status: QueueItemStatus, operationId?: string, topologyAttempt = 0): Promise<PilotMutationResult<QueueItemRecord>> => {
+  const pilot = await getPilotMutationContext(operationId);
   const existingItem = await prisma.queueItem.findUnique({ where: { id } });
+  if (!existingItem) throw new Error("Queue item not found.");
 
-  if (!existingItem) {
-    throw new Error("Queue item not found.");
-  }
+  const executeStatus = async (tx: PilotTransactionClient, current: typeof existingItem, instrumented = true) => {
+    const now = new Date();
+    const timestampData = {
+      arrivedAt: status === QueueItemStatus.ARRIVED ? now : undefined,
+      startedAt: status === QueueItemStatus.IN_PROGRESS ? now : undefined,
+      completedAt: status === QueueItemStatus.DONE ? now : null,
+      cancelledAt: status === QueueItemStatus.CANCELLED ? now : null,
+      noShowAt: status === QueueItemStatus.NO_SHOW ? now : null,
+    };
+    const refreshesTimestamp = status === QueueItemStatus.ARRIVED
+      || status === QueueItemStatus.IN_PROGRESS
+      || status === QueueItemStatus.DONE
+      || status === QueueItemStatus.CANCELLED
+      || status === QueueItemStatus.NO_SHOW;
+    const lifecycleCleanupChanges = (status !== QueueItemStatus.DONE && current.completedAt !== null)
+      || (status !== QueueItemStatus.CANCELLED && current.cancelledAt !== null)
+      || (status !== QueueItemStatus.NO_SHOW && current.noShowAt !== null);
+    const applied = !instrumented || current.status !== status || refreshesTimestamp || lifecycleCleanupChanges;
 
-  const now = new Date();
-  const customerCounterUpdate = getCustomerCounterUpdate(existingItem.status, status);
-  const timestampData = {
-    arrivedAt: status === QueueItemStatus.ARRIVED ? now : undefined,
-    startedAt: status === QueueItemStatus.IN_PROGRESS ? now : undefined,
-    completedAt: status === QueueItemStatus.DONE ? now : null,
-    cancelledAt: status === QueueItemStatus.CANCELLED ? now : null,
-    noShowAt: status === QueueItemStatus.NO_SHOW ? now : null,
+    if (!applied) return { updated: current, demoted: [] as QueueItemRecord[], now, applied: false };
+
+    const demoted = status === QueueItemStatus.IN_PROGRESS
+      ? (await tx.queueItem.updateManyAndReturn({
+          where: { date: current.date, status: QueueItemStatus.IN_PROGRESS, id: { not: id } },
+          data: { status: QueueItemStatus.WAITING },
+        })).sort((left, right) => left.id.localeCompare(right.id))
+      : [];
+    const customerCounterUpdate = getCustomerCounterUpdate(current.status, status);
+    if (current.customerId && customerCounterUpdate) {
+      await tx.customer.update({ where: { id: current.customerId }, data: customerCounterUpdate });
+    }
+    const updated = await tx.queueItem.update({ where: { id }, data: { status, ...timestampData } });
+    return { updated, demoted, now, applied: true };
   };
 
-  return prisma.$transaction(async (tx) => {
-    if (status === QueueItemStatus.IN_PROGRESS) {
-      await tx.queueItem.updateMany({
-        where: {
-          date: existingItem.date,
-          status: QueueItemStatus.IN_PROGRESS,
-          id: { not: id },
-        },
-        data: {
-          status: QueueItemStatus.WAITING,
-        },
-      });
-    }
+  if (!pilot) return prisma.$transaction((tx) => executeStatus(tx, existingItem, false).then((result) => result.updated));
 
-    if (existingItem.customerId && customerCounterUpdate) {
-      await tx.customer.update({
-        where: { id: existingItem.customerId },
-        data: customerCounterUpdate,
-      });
-    }
+  try {
+    return await prisma.$transaction(async (tx) => {
+      await reservePilotOperation(tx, { operationId: pilot.operationId, mutationSource: QueueEventMutationSource.OWNER_STATUS_ACTION, primaryQueueItemId: id, config: pilot.config });
+      const dateValue = toDateValue(existingItem.date);
+      await acquirePilotDateLocks(tx, [dateValue]);
+      await lockPilotQueueItems(tx, [id]);
+      const locked = await tx.queueItem.findUnique({ where: { id } });
+      if (!locked || toDateValue(locked.date) !== dateValue) throw new Error("Queue topology changed during status update.");
+      const result = await executeStatus(tx, locked);
 
-    return tx.queueItem.update({
-      where: { id },
-      data: {
-        status,
-        ...timestampData,
-      },
+      if (result.applied) {
+        await appendPilotQueueEvent(tx, {
+          operationId: pilot.operationId,
+          eventOrdinal: 0,
+          queueItemId: id,
+          config: pilot.config,
+          facts: {
+            role: QueueEventRole.PRIMARY,
+            type: QueueEventType.STATUS_CHANGED,
+            actor: QueueEventActor.OWNER,
+            mutationSource: QueueEventMutationSource.OWNER_STATUS_ACTION,
+            reason: QueueEventReason.OWNER_REQUEST,
+            effectiveAt: result.now,
+            fromStatus: locked.status,
+            toStatus: result.updated.status,
+            fromArrivedAt: locked.arrivedAt,
+            toArrivedAt: result.updated.arrivedAt,
+            fromStartedAt: locked.startedAt,
+            toStartedAt: result.updated.startedAt,
+            fromCompletedAt: locked.completedAt,
+            toCompletedAt: result.updated.completedAt,
+            fromCancelledAt: locked.cancelledAt,
+            toCancelledAt: result.updated.cancelledAt,
+            fromNoShowAt: locked.noShowAt,
+            toNoShowAt: result.updated.noShowAt,
+          },
+        });
+      }
+
+      for (const [index, demoted] of result.demoted.entries()) {
+        await appendPilotQueueEvent(tx, {
+          operationId: pilot.operationId,
+          eventOrdinal: index + 1,
+          queueItemId: demoted.id,
+          config: pilot.config,
+          facts: { role: QueueEventRole.AUTO_DEMOTION, type: QueueEventType.STATUS_CHANGED, actor: QueueEventActor.SYSTEM, mutationSource: QueueEventMutationSource.OWNER_STATUS_ACTION, reason: QueueEventReason.REPLACED_IN_PROGRESS, effectiveAt: result.now, fromStatus: QueueItemStatus.IN_PROGRESS, toStatus: demoted.status },
+        });
+      }
+
+      await completePilotOperation(tx, pilot.operationId, {
+        primaryQueueItemId: id,
+        outcome: result.applied ? QueueMutationOutcome.APPLIED : QueueMutationOutcome.NO_OP,
+      });
+      return { ...result.updated, pilotOperationId: pilot.operationId, pilotApplied: result.applied };
     });
-  });
+  } catch (error) {
+    if (isPilotOperationConflict(error)) return resolveDuplicatePilotOperation(pilot.operationId, QueueEventMutationSource.OWNER_STATUS_ACTION, id);
+    if (error instanceof Error && error.message.includes("topology changed") && topologyAttempt < 2) return updateQueueItemStatus(id, status, operationId, topologyAttempt + 1);
+    throw error;
+  }
 };
 
-export const updateQueueItem = async (input: UpdateQueueItemInput) => {
+export const updateQueueItem = async (input: UpdateQueueItemInput, topologyAttempt = 0): Promise<PilotMutationResult<QueueItemRecord>> => {
+  const pilot = await getPilotMutationContext(input.operationId);
   const existingItem = await prisma.queueItem.findUnique({ where: { id: input.id } });
 
-  if (!existingItem) {
-    throw new Error("Queue item not found.");
-  }
+  if (!existingItem) throw new Error("Queue item not found.");
 
-  const service = await findService(input.serviceId);
-  const { start } = getDayBounds(input.dateValue);
-  const startAt = input.timeValue ? createDateTime(input.dateValue, input.timeValue) : null;
-  const slotEnd = startAt ? addMinutes(startAt, service.durationMinutes) : null;
   const existingDateValue = toDateValue(existingItem.date);
-  const existingTimeValue = existingItem.startAt ? toTimeValue(existingItem.startAt) : null;
-  const isKeepingExistingLockedTime = Boolean(input.timeValue && existingTimeValue && input.dateValue === existingDateValue && input.timeValue === existingTimeValue);
+  const validateSchedule = async (
+    database: BookingAvailabilityClient,
+    current: QueueItemRecord,
+    service: Awaited<ReturnType<typeof findService>>,
+    startAt: Date | null,
+  ) => {
+    if (!startAt) return;
+    const slotEnd = addMinutes(startAt, service.durationMinutes);
+    const existingTimeValue = current.startAt ? toTimeValue(current.startAt) : null;
+    const keepsTime = Boolean(input.timeValue && existingTimeValue && input.dateValue === toDateValue(current.date) && input.timeValue === existingTimeValue);
+    const settings = await getOrCreateShopSettings(database);
 
-  if (startAt && slotEnd) {
-    const settings = await getOrCreateShopSettings();
-    const businessHours = getBusinessHours(settings.businessHours);
-
-    if (!isKeepingExistingLockedTime && !getIsTimeWindowInsideBusinessHours(input.timeValue ?? "", service.durationMinutes, businessHours)) {
+    if (!keepsTime && !getIsTimeWindowInsideBusinessHours(input.timeValue ?? "", service.durationMinutes, getBusinessHours(settings.businessHours))) {
       throw new Error("Queue item time is outside business hours.");
     }
 
-    const { start: dayStart, end: dayEnd } = getDayBounds(input.dateValue);
+    const { start, end } = getDayBounds(input.dateValue);
     const [queueItems, timeBlocks] = await Promise.all([
-      prisma.queueItem.findMany({
-        where: {
-          id: { not: input.id },
-          date: {
-            gte: dayStart,
-            lt: dayEnd,
-          },
-          startAt: { not: null },
-          status: {
-            notIn: activeQueueStatusExclusions,
-          },
-        },
-        select: {
-          startAt: true,
-          serviceDurationMinutes: true,
-        },
+      database.queueItem.findMany({
+        where: { id: { not: input.id }, date: { gte: start, lt: end }, startAt: { not: null }, status: { notIn: activeQueueStatusExclusions } },
+        select: { startAt: true, serviceDurationMinutes: true },
       }),
-      prisma.timeBlock.findMany({
-        where: {
-          date: {
-            gte: dayStart,
-            lt: dayEnd,
-          },
-        },
-        select: {
-          startAt: true,
-          endAt: true,
-        },
-      }),
+      database.timeBlock.findMany({ where: { date: { gte: start, lt: end } }, select: { startAt: true, endAt: true } }),
     ]);
+    const queueConflict = queueItems.some((item) => item.startAt && overlaps(startAt, slotEnd, item.startAt, addMinutes(item.startAt, item.serviceDurationMinutes)));
+    const blockConflict = timeBlocks.some((block) => overlaps(startAt, slotEnd, block.startAt, block.endAt));
+    if (queueConflict || blockConflict) throw new Error("Queue item time conflicts.");
+  };
 
-    const conflictsWithQueue = queueItems.some((item) => {
-      if (!item.startAt) {
-        return false;
-      }
+  const executeEdit = async (tx: PilotTransactionClient, current: QueueItemRecord, service: Awaited<ReturnType<typeof findService>>) => {
+    const { start } = getDayBounds(input.dateValue);
+    const startAt = input.timeValue ? createDateTime(input.dateValue, input.timeValue) : null;
+    await validateSchedule(tx, current, service, startAt);
 
-      return overlaps(startAt, slotEnd, item.startAt, addMinutes(item.startAt, item.serviceDurationMinutes));
-    });
-    const conflictsWithBlock = timeBlocks.some((block) => overlaps(startAt, slotEnd, block.startAt, block.endAt));
-
-    if (conflictsWithQueue || conflictsWithBlock) {
-      throw new Error("Queue item time conflicts.");
-    }
-  }
-
-  return prisma.$transaction(async (tx) => {
-    if (existingItem.customerId) {
-      await tx.customer.update({
-        where: { id: existingItem.customerId },
-        data: {
-          name: input.customerName,
-          phone: input.phone || null,
-        },
-      });
+    if (current.customerId) {
+      await tx.customer.update({ where: { id: current.customerId }, data: { name: input.customerName, phone: input.phone || null } });
     }
 
     return tx.queueItem.update({
@@ -2050,10 +2392,74 @@ export const updateQueueItem = async (input: UpdateQueueItemInput) => {
         serviceDurationMinutes: service.durationMinutes,
         date: start,
         startAt,
-        estimatedAt: startAt ? null : (existingItem.estimatedAt ?? new Date()),
+        estimatedAt: startAt ? null : (current.estimatedAt ?? new Date()),
         note: input.note || null,
         ownerNote: input.ownerNote || null,
       },
     });
-  });
+  };
+
+  if (!pilot) {
+    const service = await findService(input.serviceId);
+    return prisma.$transaction((tx) => executeEdit(tx, existingItem, service));
+  }
+
+  try {
+    return await prisma.$transaction(async (tx) => {
+      await reservePilotOperation(tx, { operationId: pilot.operationId, mutationSource: QueueEventMutationSource.OWNER_EDIT_ACTION, primaryQueueItemId: input.id, config: pilot.config });
+      await acquirePilotDateLocks(tx, [existingDateValue, input.dateValue]);
+      await lockPilotQueueItems(tx, [input.id]);
+      const locked = await tx.queueItem.findUnique({ where: { id: input.id } });
+      if (!locked || toDateValue(locked.date) !== existingDateValue) throw new Error("Queue topology changed during edit.");
+
+      const service = await findService(input.serviceId, tx);
+      const { start } = getDayBounds(input.dateValue);
+      const startAt = input.timeValue ? createDateTime(input.dateValue, input.timeValue) : null;
+      await validateSchedule(tx, locked, service, startAt);
+      const estimatedAt = startAt ? null : (locked.estimatedAt ?? new Date());
+      const scheduleChanged = locked.date.getTime() !== start.getTime() || locked.startAt?.getTime() !== startAt?.getTime() || locked.estimatedAt?.getTime() !== estimatedAt?.getTime();
+      const serviceChanged = locked.serviceId !== service.id || locked.serviceNameSnapshot !== service.name || locked.serviceDurationMinutes !== service.durationMinutes;
+      const detailsChanged = locked.customerNameSnapshot !== input.customerName || locked.phoneSnapshot !== (input.phone || null) || locked.note !== (input.note || null) || locked.ownerNote !== (input.ownerNote || null);
+      const changed = scheduleChanged || serviceChanged || detailsChanged;
+
+      let updated = locked;
+      if (changed) {
+        if (locked.customerId && (locked.customerNameSnapshot !== input.customerName || locked.phoneSnapshot !== (input.phone || null))) {
+          await tx.customer.update({ where: { id: locked.customerId }, data: { name: input.customerName, phone: input.phone || null } });
+        }
+        updated = await tx.queueItem.update({
+          where: { id: input.id },
+          data: {
+            customerNameSnapshot: input.customerName,
+            phoneSnapshot: input.phone || null,
+            serviceId: service.id,
+            serviceNameSnapshot: service.name,
+            serviceDurationMinutes: service.durationMinutes,
+            date: start,
+            startAt,
+            estimatedAt,
+            note: input.note || null,
+            ownerNote: input.ownerNote || null,
+          },
+        });
+      }
+
+      let ordinal = 0;
+      if (scheduleChanged) {
+        await appendPilotQueueEvent(tx, { operationId: pilot.operationId, eventOrdinal: ordinal++, queueItemId: input.id, config: pilot.config, facts: { role: QueueEventRole.PRIMARY, type: QueueEventType.SCHEDULE_CHANGED, actor: QueueEventActor.OWNER, mutationSource: QueueEventMutationSource.OWNER_EDIT_ACTION, reason: QueueEventReason.SCHEDULE_EDIT, effectiveAt: new Date(), fromStartAt: locked.startAt, toStartAt: updated.startAt, fromEstimatedAt: locked.estimatedAt, toEstimatedAt: updated.estimatedAt } });
+      }
+      if (serviceChanged) {
+        await appendPilotQueueEvent(tx, { operationId: pilot.operationId, eventOrdinal: ordinal++, queueItemId: input.id, config: pilot.config, facts: { role: QueueEventRole.PRIMARY, type: QueueEventType.SERVICE_CHANGED, actor: QueueEventActor.OWNER, mutationSource: QueueEventMutationSource.OWNER_EDIT_ACTION, reason: QueueEventReason.SERVICE_EDIT, effectiveAt: new Date(), fromServiceId: locked.serviceId, toServiceId: updated.serviceId } });
+      }
+      if (detailsChanged) {
+        await appendPilotQueueEvent(tx, { operationId: pilot.operationId, eventOrdinal: ordinal++, queueItemId: input.id, config: pilot.config, facts: { role: QueueEventRole.PRIMARY, type: QueueEventType.OWNER_OVERRIDE, actor: QueueEventActor.OWNER, mutationSource: QueueEventMutationSource.OWNER_EDIT_ACTION, reason: QueueEventReason.DETAILS_EDIT, effectiveAt: new Date() } });
+      }
+      await completePilotOperation(tx, pilot.operationId, { primaryQueueItemId: input.id, outcome: changed ? QueueMutationOutcome.APPLIED : QueueMutationOutcome.NO_OP });
+      return { ...updated, pilotOperationId: pilot.operationId, pilotApplied: changed };
+    });
+  } catch (error) {
+    if (isPilotOperationConflict(error)) return resolveDuplicatePilotOperation(pilot.operationId, QueueEventMutationSource.OWNER_EDIT_ACTION, input.id);
+    if (error instanceof Error && error.message.includes("topology changed") && topologyAttempt < 2) return updateQueueItem(input, topologyAttempt + 1);
+    throw error;
+  }
 };

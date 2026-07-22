@@ -212,6 +212,7 @@ test.describe("customer walk-in V2 responsive ownership", () => {
         sameSite: "Lax",
       }]);
       await page.goto("/walk-in");
+      await expect(page.getByRole("combobox", { name: "บริการ", exact: true })).toHaveText(/.+/);
       const serviceBefore = await page.getByRole("combobox", { name: "บริการ", exact: true }).innerText();
       await page.getByLabel("ชื่อ", { exact: true }).fill(customerName);
       await page.getByLabel("เบอร์โทร (ไม่บังคับ)").fill("invalid-phone!");

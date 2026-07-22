@@ -12,16 +12,20 @@ type LineEntryClientProps = {
   targetPath: string;
 };
 
+const getTargetPathname = (targetPath: string) => targetPath.split("?", 1)[0];
+
 const getTargetLabel = (targetPath: LineEntryClientProps["targetPath"]) => {
-  if (targetPath === "/book") {
+  const pathname = getTargetPathname(targetPath);
+
+  if (pathname === "/book") {
     return "จองเวลา";
   }
 
-  if (targetPath === "/#queue-status") {
+  if (pathname === "/#queue-status") {
     return "เช็คคิว";
   }
 
-  if (targetPath.startsWith("/line/owner")) {
+  if (pathname.startsWith("/line/owner")) {
     return "เชื่อม LINE เจ้าของร้าน";
   }
 
@@ -29,11 +33,13 @@ const getTargetLabel = (targetPath: LineEntryClientProps["targetPath"]) => {
 };
 
 const getIdentityPurpose = (targetPath: LineEntryClientProps["targetPath"]): LineEntryIdentityPurpose => {
-  if (targetPath === "/book") {
+  const pathname = getTargetPathname(targetPath);
+
+  if (pathname === "/book") {
     return "book";
   }
 
-  if (targetPath.startsWith("/line/owner")) {
+  if (pathname.startsWith("/line/owner")) {
     return "owner";
   }
 
@@ -86,7 +92,7 @@ export const LineEntryClient = ({ liffId, targetPath }: LineEntryClientProps) =>
           return;
         }
 
-        if (targetPath !== "/#queue-status") {
+        if (getTargetPathname(targetPath) !== "/#queue-status") {
           const idToken = liff.getIDToken();
 
           if (!idToken) {

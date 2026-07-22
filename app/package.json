@@ -17,6 +17,13 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "node scripts/seed-services.mjs",
     "privacy:prune": "node scripts/prune-customer-data.mjs",
+    "pilot:cohort": "node scripts/manage-pilot-cohort.mjs",
+    "pilot:report": "node scripts/generate-pilot-report.mjs",
+    "pilot:classify": "node scripts/classify-pilot-queue.mjs",
+    "pilot:hold": "node scripts/manage-evidence-hold.mjs",
+    "pilot:correct": "node scripts/correct-pilot-event.mjs",
+    "pilot:subject-request": "node scripts/process-customer-data-request.mjs",
+    "pilot:daily-close:validate": "node scripts/validate-pilot-daily-close.mjs",
     "db:deploy": "prisma migrate deploy",
     "deploy:start": "prisma migrate deploy && next start -H 0.0.0.0 -p ${PORT:-3000}"
   },

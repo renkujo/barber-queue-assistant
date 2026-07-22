@@ -20,7 +20,7 @@ test.describe("LINE entry route", () => {
     await page.goto("/line?target=book");
 
     await expect(page.getByRole("heading", { name: "เชื่อม LINE เพื่อรับแจ้งเตือน" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "ไปต่อ: จองเวลา" })).toHaveAttribute("href", "/book");
+    await expect(page.getByRole("link", { name: "ไปต่อ: จองเวลา" })).toHaveAttribute("href", "/book?source=line");
     await expect(page.locator("main[data-customer-visual='v2'].bqa-customer-line-v2")).toBeVisible();
     await expect(page.locator("main[data-owner-visual]")).toHaveCount(0);
   });
@@ -30,7 +30,7 @@ test.describe("LINE entry route", () => {
     await page.goto("/line?liff.state=%3Ftarget%3Dbook");
 
     await expect(page.getByRole("heading", { name: "เชื่อม LINE เพื่อรับแจ้งเตือน" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "ไปต่อ: จองเวลา" })).toHaveAttribute("href", "/book");
+    await expect(page.getByRole("link", { name: "ไปต่อ: จองเวลา" })).toHaveAttribute("href", "/book?source=line");
   });
 
   test("supports queue-status target fallback", async ({ page }) => {
@@ -79,7 +79,7 @@ test.describe("LINE entry route", () => {
     await page.goto("/line");
 
     await expect(page.getByRole("heading", { name: "เชื่อม LINE เพื่อรับแจ้งเตือน" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "ไปต่อ: รับบัตรคิวออนไลน์" })).toHaveAttribute("href", "/walk-in");
+    await expect(page.getByRole("link", { name: "ไปต่อ: รับบัตรคิวออนไลน์" })).toHaveAttribute("href", "/walk-in?source=line");
   });
 
   test("falls back safely when LIFF state is malformed", async ({ page }) => {
@@ -87,6 +87,6 @@ test.describe("LINE entry route", () => {
 
     expect(response?.status()).toBe(200);
     await expect(page.getByRole("heading", { name: "เชื่อม LINE เพื่อรับแจ้งเตือน" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "ไปต่อ: รับบัตรคิวออนไลน์" })).toHaveAttribute("href", "/walk-in");
+    await expect(page.getByRole("link", { name: "ไปต่อ: รับบัตรคิวออนไลน์" })).toHaveAttribute("href", "/walk-in?source=line");
   });
 });

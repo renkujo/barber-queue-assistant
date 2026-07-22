@@ -60,21 +60,114 @@ enum NotificationStatus {
   SKIPPED
 }
 
+enum QueueEntrySource {
+  LINE
+  SHOP_QR
+  OWNER_SHARED_LINK
+  IN_SHOP
+  UNKNOWN
+}
+
+enum PilotQueueClassification {
+  PRE_PILOT
+  REAL
+  TEST_SMOKE
+  TRAINING
+  EXCLUDED_OTHER
+}
+
+enum QueueEventType {
+  QUEUE_CREATED
+  STATUS_CHANGED
+  QUEUE_RESTORED
+  QUEUE_REORDERED
+  SCHEDULE_CHANGED
+  SERVICE_CHANGED
+  OWNER_OVERRIDE
+  EVIDENCE_CORRECTION
+}
+
+enum QueueEventActor {
+  CUSTOMER
+  OWNER
+  SYSTEM
+  OPERATOR
+}
+
+enum QueueEventMutationSource {
+  PUBLIC_BOOKING
+  PUBLIC_WALK_IN
+  OWNER_WALK_IN
+  OWNER_STATUS_ACTION
+  OWNER_RESTORE_ACTION
+  OWNER_REORDER_ACTION
+  OWNER_EDIT_ACTION
+  OPERATOR_CORRECTION
+}
+
+enum QueueEventReason {
+  CREATED
+  OWNER_REQUEST
+  REPLACED_IN_PROGRESS
+  RESTORED
+  REORDER_UP
+  REORDER_DOWN
+  REORDER_BOTTOM
+  SCHEDULE_EDIT
+  SERVICE_EDIT
+  DETAILS_EDIT
+  EVIDENCE_CORRECTION
+}
+
+enum QueueEventRole {
+  PRIMARY
+  AUTO_DEMOTION
+  CORRECTION
+}
+
+enum QueueReorderIntent {
+  UP
+  DOWN
+  BOTTOM
+}
+
+enum QueueMutationOutcome {
+  APPLIED
+  NO_OP
+}
+
+enum NotificationAudience {
+  CUSTOMER
+  OWNER
+}
+
+enum NotificationSkipReason {
+  NO_CUSTOMER_RECIPIENT
+  NO_OWNER_RECIPIENT
+  LINE_TOKEN_MISSING
+}
+
+enum EvidenceHoldReason {
+  INCIDENT
+  CUSTOMER_DISPUTE
+  LEGAL
+}
+
 model Customer {
-  id             String      @id @default(cuid())
+  id             String            @id @default(cuid())
   name           String
   phone          String?
-  lineUserId     String?     @unique
+  lineUserId     String?           @unique
   note           String?
-  totalBookings  Int         @default(0)
-  completedCount Int         @default(0)
-  lateCount      Int         @default(0)
-  noShowCount    Int         @default(0)
-  cancelledCount Int         @default(0)
+  totalBookings  Int               @default(0)
+  completedCount Int               @default(0)
+  lateCount      Int               @default(0)
+  noShowCount    Int               @default(0)
+  cancelledCount Int               @default(0)
   queueItems     QueueItem[]
   notifications  NotificationLog[]
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 }
 
 model Service {
@@ -90,17 +183,17 @@ model Service {
 }
 
 model QueueItem {
-  id                     String             @id @default(cuid())
-  publicToken            String             @unique @default(uuid())
+  id                     String                   @id @default(cuid())
+  publicToken            String                   @unique @default(uuid())
   type                   QueueItemType
-  status                 QueueItemStatus    @default(CONFIRMED)
+  status                 QueueItemStatus          @default(CONFIRMED)
   customerId             String?
-  customer               Customer?          @relation(fields: [customerId], references: [id])
+  customer               Customer?                @relation(fields: [customerId], references: [id])
   customerNameSnapshot   String
   phoneSnapshot          String?
   lineUserIdSnapshot     String?
   serviceId              String?
-  service                Service?           @relation(fields: [serviceId], references: [id])
+  service                Service?                 @relation(fields: [serviceId], references: [id])
   serviceNameSnapshot    String
   serviceDurationMinutes Int
   date                   DateTime
@@ -115,10 +208,21 @@ model QueueItem {
   note                   String?
   ownerNote              String?
   sortOrder              Int?
-  createdBy              QueueCreatedBy     @default(CUSTOMER)
+  createdBy              QueueCreatedBy           @default(CUSTOMER)
+  entrySource            QueueEntrySource         @default(UNKNOWN)
+  quotedEstimatedAt      DateTime?
+  quotedWaitMinutes      Int?
+  pilotClassification    PilotQueueClassification @default(PRE_PILOT)
+  pilotCohortId          String?
+  pilotCohort            PilotCohort?             @relation(fields: [pilotCohortId], references: [id], onDelete: Restrict)
+  pilotReleaseSegment    String?
   notifications          NotificationLog[]
-  createdAt              DateTime           @default(now())
-  updatedAt              DateTime           @updatedAt
+  queueEvents            QueueEvent[]
+  pilotOperations        QueueMutationOperation[] @relation("PrimaryQueueOperation")
+  evidenceHolds          EvidenceHold[]
+  classificationAudits   PilotClassificationAudit[]
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
 
   @@index([date, status])
   @@index([startAt])
@@ -139,23 +243,34 @@ model TimeBlock {
 }
 
 model NotificationLog {
-  id             String             @id @default(cuid())
-  queueItemId    String?
-  queueItem      QueueItem?         @relation(fields: [queueItemId], references: [id])
-  customerId     String?
-  customer       Customer?          @relation(fields: [customerId], references: [id])
-  channel        NotificationChannel
-  type           NotificationType
-  status         NotificationStatus @default(PENDING)
-  recipient      String?
-  messagePreview String
-  sentAt         DateTime?
-  error          String?
-  createdAt      DateTime           @default(now())
+  id               String                  @id @default(cuid())
+  queueItemId      String?
+  queueItem        QueueItem?              @relation(fields: [queueItemId], references: [id])
+  customerId       String?
+  customer         Customer?               @relation(fields: [customerId], references: [id])
+  channel          NotificationChannel
+  type             NotificationType
+  status           NotificationStatus      @default(PENDING)
+  recipient        String?
+  messagePreview   String
+  sentAt           DateTime?
+  error            String?
+  audience         NotificationAudience?
+  skipReason       NotificationSkipReason?
+  businessEventKey String?
+  attemptNumber    Int?
+  pilotCohortId    String?
+  pilotCohort      PilotCohort?            @relation(fields: [pilotCohortId], references: [id], onDelete: Restrict)
+  operationId      String?
+  operation        QueueMutationOperation? @relation(fields: [operationId], references: [id], onDelete: SetNull)
+  createdAt        DateTime                @default(now())
 
+  @@unique([businessEventKey, audience, attemptNumber])
   @@index([queueItemId])
   @@index([customerId])
   @@index([status])
+  @@index([audience, status, createdAt])
+  @@index([pilotCohortId, createdAt])
 }
 
 model ShopSettings {
@@ -210,6 +325,115 @@ model RateLimitBucket {
   updatedAt       DateTime  @updatedAt
 
   @@index([updatedAt])
+}
+
+model PilotCohort {
+  id                String                   @id
+  evidenceExpiresAt DateTime                 @db.Timestamptz(3)
+  pilotEndDate      DateTime?                @db.Date
+  shopTimezone      String?
+  approvalRef       String?
+  createdAt         DateTime                 @default(now())
+  queueItems        QueueItem[]
+  operations        QueueMutationOperation[]
+  events            QueueEvent[]
+  notificationLogs  NotificationLog[]
+}
+
+model PilotClassificationAudit {
+  id                 String                   @id
+  queueItemId        String
+  queueItem          QueueItem                @relation(fields: [queueItemId], references: [id], onDelete: Cascade)
+  fromClassification PilotQueueClassification
+  toClassification   PilotQueueClassification
+  reason             String
+  operatorId         String
+  reviewedRestore    Boolean                  @default(false)
+  createdAt          DateTime                 @default(now()) @db.Timestamptz(3)
+
+  @@index([queueItemId, createdAt])
+}
+
+model QueueMutationOperation {
+  id                  String                   @id
+  mutationSource      QueueEventMutationSource
+  primaryQueueItemId  String?
+  primaryQueueItem    QueueItem?               @relation("PrimaryQueueOperation", fields: [primaryQueueItemId], references: [id], onDelete: SetNull)
+  outcome             QueueMutationOutcome?
+  pilotCohortId       String
+  pilotCohort         PilotCohort              @relation(fields: [pilotCohortId], references: [id], onDelete: Restrict)
+  pilotReleaseSegment String
+  createdAt           DateTime                 @default(now())
+  completedAt         DateTime?
+  events              QueueEvent[]
+  notifications       NotificationLog[]
+
+  @@index([pilotCohortId, createdAt])
+  @@index([primaryQueueItemId, createdAt])
+}
+
+model QueueEvent {
+  id                  String                   @id @default(cuid())
+  operationId         String
+  operation           QueueMutationOperation   @relation(fields: [operationId], references: [id], onDelete: Cascade)
+  role                QueueEventRole
+  eventOrdinal        Int
+  queueItemId         String
+  queueItem           QueueItem                @relation(fields: [queueItemId], references: [id], onDelete: Cascade)
+  type                QueueEventType
+  actor               QueueEventActor
+  mutationSource      QueueEventMutationSource
+  reason              QueueEventReason?
+  schemaVersion       Int                      @default(1)
+  sequence            Int
+  effectiveAt         DateTime
+  recordedAt          DateTime                 @default(now())
+  pilotCohortId       String
+  pilotCohort         PilotCohort              @relation(fields: [pilotCohortId], references: [id], onDelete: Restrict)
+  pilotReleaseSegment String
+  fromStatus          QueueItemStatus?
+  toStatus            QueueItemStatus?
+  fromStartAt         DateTime?
+  toStartAt           DateTime?
+  fromEstimatedAt     DateTime?
+  toEstimatedAt       DateTime?
+  fromArrivedAt       DateTime?
+  toArrivedAt         DateTime?
+  fromStartedAt       DateTime?
+  toStartedAt         DateTime?
+  fromCompletedAt     DateTime?
+  toCompletedAt       DateTime?
+  fromCancelledAt     DateTime?
+  toCancelledAt       DateTime?
+  fromNoShowAt        DateTime?
+  toNoShowAt          DateTime?
+  fromServiceId       String?
+  toServiceId         String?
+  reorderIntent       QueueReorderIntent?
+  correctsEventId     String?
+  correctsEvent       QueueEvent?              @relation("QueueEventCorrection", fields: [correctsEventId], references: [id], onDelete: SetNull)
+  corrections         QueueEvent[]             @relation("QueueEventCorrection")
+
+  @@unique([operationId, eventOrdinal])
+  @@unique([queueItemId, sequence])
+  @@index([pilotCohortId, effectiveAt])
+  @@index([queueItemId, effectiveAt])
+  @@index([recordedAt])
+}
+
+model EvidenceHold {
+  id          String             @id @default(cuid())
+  queueItemId String
+  queueItem   QueueItem          @relation(fields: [queueItemId], references: [id], onDelete: Restrict)
+  reason      EvidenceHoldReason
+  approvedBy  String
+  startsAt    DateTime           @default(now())
+  expiresAt   DateTime
+  releasedAt  DateTime?
+  createdAt   DateTime           @default(now())
+
+  @@index([queueItemId])
+  @@index([expiresAt, releasedAt])
 }
 
 model OwnerLineConnectToken {

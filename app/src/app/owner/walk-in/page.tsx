@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { Notice } from "@/components/barber/app-ui";
 import { Icon, RouteToast } from "@/components/ui";
@@ -42,7 +43,7 @@ const OwnerWalkInPage = async ({ searchParams }: OwnerWalkInPageProps) => {
         {errorMessage ? <Notice>{errorMessage}</Notice> : null}
         {!hasServices ? <Notice>ยังไม่มีบริการที่เปิดใช้ เปิดใช้หรือเพิ่มบริการก่อนเพิ่ม walk-in</Notice> : null}
         <RouteToast message={errorMessage} type="error" toastKey={`owner-walk-in:${params.error ?? ""}`} />
-        <OwnerWalkInForm action={createOwnerWalkInAction} services={services} />
+        <OwnerWalkInForm action={createOwnerWalkInAction} operationId={randomUUID()} services={services} />
       </div>
     </OwnerShell>
   );

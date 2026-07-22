@@ -63,6 +63,7 @@ Current implementation foundation:
 - If no LINE identity exists, the notification is logged as `channel=NONE`, `status=SKIPPED`.
 - If LINE identity exists but `LINE_CHANNEL_ACCESS_TOKEN` is missing, it is logged as `channel=LINE`, `status=SKIPPED`.
 - If LINE push fails, it is logged as `status=FAILED` and must not block booking/queue actions.
+- While approved pilot measurement is enabled, customer/owner audience and skip reasons are explicit. Eligible calls use an at-most-once application-send attempt: `PENDING` older than 10 minutes means outcome unknown, and `SENT` means LINE API accepted—not confirmed customer delivery. Pilot fields remain null while measurement is disabled.
 - Wired events: booking confirmed, walk-in/owner walk-in created, queue near when owner starts service, late, cancelled, and no-show.
 - Integration tests use a fake LINE client; tests must not hit the real LINE API.
 

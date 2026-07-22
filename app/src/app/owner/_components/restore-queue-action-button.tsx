@@ -24,7 +24,7 @@ const PendingRestoreButton = () => {
   );
 };
 
-export const RestoreQueueActionButton = ({ customerLabel, itemId }: { customerLabel: string; itemId: string }) => (
+export const RestoreQueueActionButton = ({ customerLabel, itemId, operationId }: { customerLabel: string; itemId: string; operationId: string }) => (
   <AlertDialog>
     <AlertDialogTrigger asChild>
       <Button type="button" variant="outline" size="sm" className="bqa-owner-restore-button">
@@ -44,6 +44,7 @@ export const RestoreQueueActionButton = ({ customerLabel, itemId }: { customerLa
 
       <form action={restoreQueueItemAction} className="bqa-confirm-actions">
         <input name="queueItemId" type="hidden" value={itemId} />
+        <input name="operationId" type="hidden" value={operationId} />
         <AlertDialogCancel asChild>
           <Button variant="outline" type="button" fullWidth>
             ยังไม่เปิด

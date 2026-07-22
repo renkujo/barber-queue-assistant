@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { QueueItemStatus } from "@/generated/prisma/enums";
 import { StatusBadge } from "@/components/barber/app-ui";
 import {
@@ -57,7 +58,7 @@ export const OwnerClosedQueueList = ({ queue }: { queue: QueueListItem[] }) => {
               </div>
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 pl-[64px]">
                 <StatusBadge tone={closedTone(item.status)}>{item.statusLabel}</StatusBadge>
-                <RestoreQueueActionButton itemId={item.id} customerLabel={`${item.code} ${item.customerName}`} />
+                <RestoreQueueActionButton itemId={item.id} customerLabel={`${item.code} ${item.customerName}`} operationId={randomUUID()} />
               </div>
             </li>
           ))}
@@ -88,7 +89,7 @@ export const OwnerClosedQueueList = ({ queue }: { queue: QueueListItem[] }) => {
                     <StatusBadge tone={closedTone(item.status)}>{item.statusLabel}</StatusBadge>
                   </TableCell>
                   <TableCell className="w-[116px]">
-                    <RestoreQueueActionButton itemId={item.id} customerLabel={`${item.code} ${item.customerName}`} />
+                    <RestoreQueueActionButton itemId={item.id} customerLabel={`${item.code} ${item.customerName}`} operationId={randomUUID()} />
                   </TableCell>
                 </TableRow>
               ))}

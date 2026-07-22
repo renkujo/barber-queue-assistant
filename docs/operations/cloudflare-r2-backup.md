@@ -9,7 +9,7 @@ In Cloudflare:
 1. Open **R2 Object Storage** and enable/purchase R2. The pilot should remain inside the current free tier, but Cloudflare may require billing setup.
 2. Create bucket `barber-queue-backups`.
 3. Choose the Asia-Pacific location hint when available.
-4. Add a lifecycle rule that deletes objects under `barber-queue-assistant/postgres/` after **14 days**. This keeps at least seven daily recovery points while allowing for missed runs.
+4. Add a lifecycle rule that deletes every object under `barber-queue-assistant/postgres/` after **14 days**. Do not use a longer noncurrent-version or soft-delete retention, and do not enable bucket versioning unless its versions obey the same limit. Export evidence of the exact prefix/rule without credentials.
 
 ## 2. Create a scoped token
 
@@ -65,14 +65,15 @@ The Compose healthcheck remains healthy while backup is disabled. After enabling
 
 ## 5. Recovery rehearsal
 
-For the first rehearsal, download one `.dump` and `.sha256` pair from R2 to a secure machine, verify the checksum, and restore only into a disposable/staging Compose project using `scripts/restore-database.sh`. Never rehearse by overwriting production.
+For the first rehearsal, download one `.dump` and `.sha256` pair from R2 to a secure machine and restore only into an isolated disposable Compose project using `scripts/restore-database.sh`. The restore script requires the checksum plus exact project, isolation, and outbound-disabled confirmations. The project must have no public route, notification credentials, production write path, or reused application/operator credentials. Before any application smoke, apply current migrations, run `app/scripts/reconcile-pilot-function-owner.sql` because the portable dump intentionally omits owner/ACL metadata, provision and verify fresh bounded roles, run current retention dry-run/execute, replay approved subject-deletion receipts, and verify expired-cohort/hold postconditions. Never overwrite production or promote the restored database. Delete the downloaded pair and destroy the disposable database after review; record non-secret proof. Run `scripts/verify-pilot-backup-restore.sh` first for a synthetic local proof of the same owner-reconciliation and re-prune sequence.
 
 ## Rotation and incident rules
 
 - Rotate the R2 token immediately if it appears in chat, logs, screenshots, shell history, or repository files.
 - Keep the bucket private; do not enable an R2 public development URL or custom public domain.
 - A failed backup must not stop the production web/database services. Review the `backup` service logs and rerun after correcting credentials or connectivity.
-- Before a production migration, verify a recent R2 object exists and take an additional manual backup when practical.
+- Before a production migration, verify a recent R2 object exists and take an additional manual backup when practical; delete that manual dump and checksum within 7 days unless a separately approved incident hold names the copy and expiry.
+- After a live subject deletion or retention run, disclose that deleted data may remain in R2 for at most the 14-day lifecycle. A restore does not cancel that deletion: isolated re-pruning is mandatory.
 
 ## Current reference limits
 
