@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="คู่มือแบ่งหน้าที่เจ้าของร้านและ Developer สำหรับสร้าง ตั้งค่า ติดตั้ง และส่งมอบ LINE Official Account.">
+  <title>Owner + Developer LINE OA Setup · Barber Queue Assistant</title>
+  <link rel="stylesheet" href="guide.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">ข้ามไปเนื้อหา</a>
+  <header class="topbar">
+    <a class="brand" href="../../README.md">
+      <span class="brand-mark" aria-hidden="true">Q</span>
+      <span class="brand-copy"><strong>Barber Queue Assistant</strong><span>Owner + Developer handoff</span></span>
+    </a>
+    <nav class="top-actions" aria-label="เอกสารที่เกี่ยวข้อง">
+      <a href="line-oa-guide.html">Technical OA Guide</a>
+      <a href="developer-guide.html">Developer Guide →</a>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="สารบัญ">
+      <strong>Owner + Developer</strong>
+      <a href="#decision">ข้อตกลง ownership</a>
+      <a href="#assets">ใครเป็นเจ้าของอะไร</a>
+      <a href="#prepare">เตรียมก่อนติดตั้ง</a>
+      <a href="#owner-create">Owner สร้างบัญชี</a>
+      <a href="#invite">เชิญ Developer</a>
+      <a href="#developer-config">Developer ตั้งค่า</a>
+      <a href="#install">ติดตั้งเข้าแอป</a>
+      <a href="#smoke">ทดสอบร่วมกัน</a>
+      <a href="#handoff">ส่งมอบและถอนสิทธิ์</a>
+      <a href="#troubleshooting">Troubleshooting</a>
+    </nav>
+
+    <main id="content">
+      <article class="hero">
+        <div class="hero-main">
+          <div>
+            <p class="eyebrow">Owner owns · Developer configures</p>
+            <h1>เจ้าของร้านถือบัญชี เราติดตั้งระบบให้ โดยไม่ต้องขอรหัสผ่าน</h1>
+            <p class="hero-lead">คู่มือการสร้าง LINE OA และ LINE Developers แบบที่เจ้าของร้านควบคุมบัญชี การกู้คืน และสิทธิ์ระยะยาว ส่วน Developer รับสิทธิ์ชั่วคราวเพื่อเชื่อม Messaging API, LIFF, webhook และระบบแจ้งเตือน</p>
+          </div>
+          <div class="hero-meta" aria-label="หลักการส่งมอบ">
+            <div class="meta-item"><span>Account owner</span><strong>เจ้าของร้าน</strong></div>
+            <div class="meta-item"><span>Technical setup</span><strong>Developer</strong></div>
+            <div class="meta-item"><span>Password sharing</span><strong>ไม่ใช้</strong></div>
+          </div>
+        </div>
+        <div class="hero-note">เป้าหมาย: ต่อให้เปลี่ยน Developer เจ้าของร้านยังเปิด OA, เปลี่ยนสิทธิ์, กู้บัญชี และควบคุมช่องทางลูกค้าได้เอง</div>
+      </article>
+
+      <section class="doc-section" id="decision">
+        <div class="section-head"><span class="section-index">01</span><div><h2>ข้อตกลง Ownership</h2><p>ตกลงเรื่องเจ้าของบัญชีก่อนเริ่มสร้าง Provider หรือ Channel</p></div></div>
+        <div class="grid">
+          <article class="card"><span class="label">Recommended</span><h3>Owner owns</h3><ul><li>LINE OA อยู่ใต้บัญชีที่เจ้าของร้านควบคุม</li><li>Provider/Channels สร้างใน business identity ของร้าน</li><li>เจ้าของร้านเป็น Admin หลักและมี recovery method</li><li>Developer ได้รับสิทธิ์ผ่าน invitation</li></ul></article>
+          <article class="card"><span class="label planned">Avoid</span><h3>Developer owns</h3><ul><li>อย่าสร้าง OA/Provider ใต้ LINE ส่วนตัวของ Developer</li><li>อย่าใช้บัญชีร่วมที่ทุกคนรู้ password เดียวกัน</li><li>อย่าฝาก recovery email/2FA ไว้กับผู้รับจ้างคนเดียว</li><li>อย่าพึ่ง workflow การโอน channel ภายหลัง</li></ul></article>
+        </div>
+        <div class="callout"><strong>Developer ทำแทนได้ แต่ต้องอยู่ใน ownership ของร้าน</strong>ถ้าเจ้าของร้านไม่ถนัด ให้ทำผ่าน screen share หรือให้ Owner login ด้วยตัวเองแล้วเชิญ Developer เข้าระบบ ห้ามขอให้ส่ง password/OTP ในแชต</div>
+      </section>
+
+      <section class="doc-section" id="assets">
+        <div class="section-head"><span class="section-index">02</span><div><h2>ใครเป็นเจ้าของอะไร</h2><p>แยก business ownership, technical access และ notification destination ออกจากกัน</p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Asset</th><th>เจ้าของหลัก</th><th>Developer ทำอะไร</th></tr></thead><tbody>
+          <tr><td>LINE Official Account</td><td>เจ้าของร้าน</td><td>ช่วยตั้งค่า Messaging API, rich menu และ webhook</td></tr>
+          <tr><td>LINE Developers Provider</td><td>เจ้าของร้าน/ธุรกิจร้าน</td><td>สร้างและดูแล channels ด้วย invited role</td></tr>
+          <tr><td>Messaging API Channel</td><td>Provider ของร้าน</td><td>ตั้ง secret/token/webhook และทดสอบ push</td></tr>
+          <tr><td>LINE Login Channel + LIFF</td><td>Provider ของร้าน</td><td>ตั้ง endpoint, scopes และ LIFF ID</td></tr>
+          <tr><td>Domain/Dokploy project</td><td>เจ้าของระบบหรือร้านตามสัญญา</td><td>ติดตั้ง env, deploy และ monitor</td></tr>
+          <tr><td>Channel secret/access token</td><td>Secret store ของระบบ</td><td>กำหนดใน Dokploy โดยไม่ใส่ใน git/docs/chat</td></tr>
+          <tr><td>LINE ที่รับ owner alerts</td><td>เจ้าของร้านเลือกเอง</td><td>ระบบผูกผ่าน <code>/owner/settings</code></td></tr>
+        </tbody></table></div>
+        <div class="callout warning"><strong>สองคำว่า Owner ที่ไม่เหมือนกัน</strong>การเป็นเจ้าของ LINE OA/Provider คือสิทธิ์จัดการบัญชี ส่วน “เชื่อม LINE เจ้าของร้าน” ในแอปคือการเลือก LINE user ที่จะรับแจ้งเตือนคิวใหม่</div>
+      </section>
+
+      <section class="doc-section" id="prepare">
+        <div class="section-head"><span class="section-index">03</span><div><h2>เตรียมก่อนวันติดตั้ง</h2><p>เตรียมข้อมูลให้ครบเพื่อจบ setup ในหนึ่ง session โดยไม่ส่ง credential ผ่านแชต</p></div></div>
+        <div class="grid">
+          <article class="card"><h3>เจ้าของร้านเตรียม</h3><ul class="checklist"><li>LINE account หรือ LINE Business ID ที่จะถือ OA</li><li>Email/เบอร์ recovery ที่ร้านเข้าถึงได้</li><li>เปิด 2FA ตามที่ platform รองรับ</li><li>ชื่อร้าน รูปโปรไฟล์ และข้อมูลติดต่อ</li><li>มือถือที่ติดตั้ง LINE สำหรับทดสอบ LIFF</li><li>ตกลงว่า LINE account ใดรับ owner alerts</li></ul></article>
+          <article class="card"><h3>Developer เตรียม</h3><ul class="checklist"><li>Public HTTPS domain หรือ HTTPS tunnel</li><li>สิทธิ์ deploy/Dokploy secret store</li><li>App รันและ database health ผ่าน</li><li>Webhook และ LIFF URLs ที่จะใช้</li><li>Test customer LINE account แยกจาก owner ถ้าเป็นไปได้</li><li>Smoke checklist และ rollback plan</li></ul></article>
+        </div>
+        <div class="callout danger"><strong>ห้ามเตรียมด้วยการส่ง password</strong>Owner เป็นคนกรอก password/OTP เอง Developer ใช้ role invitation หรือ screen share เท่านั้น</div>
+      </section>
+
+      <section class="doc-section" id="owner-create">
+        <div class="section-head"><span class="section-index">04</span><div><h2>Owner สร้างบัญชีและ OA</h2><p>ขั้นตอนนี้ควรทำโดยเจ้าของร้าน หรือทำพร้อม Developer ผ่าน screen share</p></div></div>
+        <ol class="checklist">
+          <li>เข้า <a href="https://manager.line.biz/">LINE Official Account Manager</a> ด้วยบัญชีที่ร้านควบคุม</li>
+          <li>สร้าง LINE Official Account ชื่อร้าน เลือกประเทศและหมวดธุรกิจที่เหมาะสม</li>
+          <li>ยืนยันว่า Owner เปิดหน้า OA Manager ได้และ recovery method เป็นของร้าน</li>
+          <li>เข้า <a href="https://developers.line.biz/console/">LINE Developers Console</a></li>
+          <li>สร้าง Provider เช่น <strong>ชื่อร้าน</strong> หรือ <strong>Barber Queue Assistant — ชื่อร้าน</strong></li>
+          <li>จดเฉพาะชื่อ Provider/OA ใน checklist ไม่จด token หรือ secret ลงเอกสาร</li>
+        </ol>
+        <div class="callout warning"><strong>ถ้ามี OA เดิมอยู่แล้ว</strong>ใช้ OA เดิมของร้านได้ ไม่ต้องสร้างซ้ำ ให้ตรวจว่าเจ้าของร้านมี Admin/recovery ก่อนเปิด Messaging API</div>
+      </section>
+
+      <section class="doc-section" id="invite">
+        <div class="section-head"><span class="section-index">05</span><div><h2>Owner เชิญ Developer</h2><p>เมนู/ชื่อ role อาจต่างตามภาษาและ UI เวอร์ชัน ให้ยึดหลัก least privilege</p></div></div>
+        <h3>LINE Official Account Manager</h3>
+        <ol>
+          <li>Owner เปิด OA → Settings → Manage permissions/จัดการสิทธิ์</li>
+          <li>สร้าง invitation สำหรับ Developer ตามวิธีที่หน้า Manager รองรับ</li>
+          <li>ใช้สิทธิ์สูงเท่าที่จำเป็นชั่วคราวสำหรับ Messaging API/rich menu</li>
+          <li>Owner ยังคงเป็น Admin หลักตลอดเวลา</li>
+        </ol>
+        <h3>LINE Developers Console</h3>
+        <ol>
+          <li>Owner เปิด Provider → Roles/สมาชิก</li>
+          <li>เชิญ Developer ด้วย business identity/email ที่ระบุตัวได้</li>
+          <li>ถ้าต้องสร้าง Channel ให้มอบสิทธิ์ที่ทำได้ชั่วคราว แล้วลดสิทธิ์หลังส่งมอบ</li>
+          <li>Developer ทดสอบว่าเห็น Provider แต่ไม่ต้องรู้ password ของ Owner</li>
+        </ol>
+        <div class="callout"><strong>บันทึกสิทธิ์อย่างง่าย</strong>จดว่าใครมีสิทธิ์อะไร วันที่ให้สิทธิ์ และวันที่จะ review/ถอนสิทธิ์ แต่ไม่จด credential</div>
+      </section>
+
+      <section class="doc-section" id="developer-config">
+        <div class="section-head"><span class="section-index">06</span><div><h2>Developer ตั้งค่า Channels</h2><p>สร้าง Messaging API และ LINE Login/LIFF ภายใต้ Provider ของร้าน</p></div></div>
+        <div class="grid">
+          <article class="card"><span class="label">Messaging API</span><h3>Webhook + Push</h3><ol><li>Enable Messaging API จาก OA</li><li>ตรวจว่า channel อยู่ Provider ของร้าน</li><li>คัดลอก Channel secret เข้า secret store</li><li>Issue access token เข้า secret store</li><li>ตั้ง webhook URL หลัง public HTTPS พร้อม</li></ol></article>
+          <article class="card"><span class="label">LINE Login</span><h3>LIFF Identity</h3><ol><li>สร้าง LINE Login channel ใน Provider เดิม</li><li>App type: Web app</li><li>สร้าง LIFF app ขนาด Full</li><li>Endpoint: <code>https://&lt;domain&gt;/line</code></li><li>Scopes: <code>openid</code> + <code>profile</code></li></ol></article>
+        </div>
+        <h3>URLs ที่ต้องตั้ง</h3>
+        <div class="code-wrap"><pre><code>LIFF endpoint
+https://&lt;domain&gt;/line
+
+Webhook URL
+https://&lt;domain&gt;/api/line/webhook
+
+Rich menu
+https://&lt;domain&gt;/line?target=walk-in
+https://&lt;domain&gt;/line?target=book
+https://&lt;domain&gt;/line?target=queue-status</code></pre></div>
+        <div class="callout danger"><strong>อย่า enable production webhook ก่อน secret พร้อม</strong>Source ปัจจุบันตรวจ signature เมื่อ <code class="inline-code">LINE_CHANNEL_SECRET</code> ถูกตั้งเท่านั้น</div>
+      </section>
+
+      <section class="doc-section" id="install">
+        <div class="section-head"><span class="section-index">07</span><div><h2>ติดตั้งค่าเข้าแอป</h2><p>Developer ใส่ค่าลง local env หรือ Dokploy secret store โดยไม่ส่งค่าจริงกลับมาในเอกสาร</p></div></div>
+        <div class="code-wrap"><pre><code>LINE_CHANNEL_SECRET="replace-with-channel-secret"
+LINE_CHANNEL_ACCESS_TOKEN="replace-with-access-token"
+NEXT_PUBLIC_LINE_LIFF_ID="1234567890-example"
+
+# Optional fallback only
+OWNER_LINE_USER_ID=""</code></pre></div>
+        <ol>
+          <li>Local: ใส่ค่าใน <code class="inline-code">app/.env</code> ที่ไม่ถูก commit</li>
+          <li>Production: ใส่ค่าใน Dokploy environment/secret store</li>
+          <li>Restart หรือ rebuild/redeploy หลังแก้ <code class="inline-code">NEXT_PUBLIC_LINE_LIFF_ID</code></li>
+          <li>เปิด <code class="inline-code">/api/health</code> และหน้าเว็บปกติก่อนตั้ง LINE URLs</li>
+          <li>ตั้ง webhook และ rich menu หลัง domain version ปัจจุบันขึ้นจริง</li>
+        </ol>
+        <div class="callout warning"><strong>ไม่มี token ใน git/chat</strong>ถ้าต้องประสานงาน ให้ส่งเพียงสถานะ “ตั้งแล้ว/ยังไม่ตั้ง” หรือใช้ password manager/secret store ที่ได้รับอนุมัติ</div>
+      </section>
+
+      <section class="doc-section" id="smoke">
+        <div class="section-head"><span class="section-index">08</span><div><h2>Owner + Developer Smoke Test</h2><p>ทดสอบร่วมกันเพื่อแยก customer identity, customer push และ owner alert</p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>ลำดับ</th><th>คนทำ</th><th>ผลที่ต้องเห็น</th></tr></thead><tbody>
+          <tr><td>1. Follow/message OA</td><td>Test customer</td><td>Webhook 200 และ bindable event ถูกนับ</td></tr>
+          <tr><td>2. เปิด rich menu</td><td>Test customer</td><td>LIFF เปิด <code>/line</code> และ redirect ไป form</td></tr>
+          <tr><td>3. สร้าง booking/walk-in</td><td>Test customer</td><td>Queue สำเร็จและ customer ได้ confirmation</td></tr>
+          <tr><td>4. เปิด owner dashboard</td><td>Owner</td><td>เห็นคิวใหม่โดยไม่ refresh ผิด state</td></tr>
+          <tr><td>5. เริ่ม service</td><td>Owner</td><td>Customer ได้ queue-near notification</td></tr>
+          <tr><td>6. เชื่อม owner LINE</td><td>Owner</td><td><code>/owner/settings</code> แสดงสถานะเชื่อมแล้ว</td></tr>
+          <tr><td>7. สร้าง customer queue ใหม่</td><td>Test customer</td><td>Owner ได้ alert คิวใหม่</td></tr>
+          <tr><td>8. ตรวจ logs</td><td>Developer</td><td>NotificationLog เป็น SENT/SKIPPED/FAILED ตามความจริง</td></tr>
+        </tbody></table></div>
+        <div class="callout"><strong>SENT ไม่ใช่ read receipt</strong><code class="inline-code">LINE/SENT</code> หมายถึง LINE API accepted request ไม่ได้ยืนยันว่าผู้ใช้เปิดอ่านแล้ว</div>
+      </section>
+
+      <section class="doc-section" id="handoff">
+        <div class="section-head"><span class="section-index">09</span><div><h2>ส่งมอบและถอนสิทธิ์</h2><p>ปิดงานโดยให้ Owner พิสูจน์ว่าควบคุมระบบได้ และลด developer access ให้เหมาะสม</p></div></div>
+        <ul class="checklist">
+          <li>Owner login OA Manager และ LINE Developers Console ได้ด้วยตัวเอง</li>
+          <li>Owner เห็น Provider, Messaging API channel, LINE Login channel และ LIFF app</li>
+          <li>Owner มี recovery email/phone และ 2FA ที่ควบคุมเอง</li>
+          <li>Developer ส่งมอบรายการ URLs และชื่อ env เท่านั้น ไม่ส่ง secret ในเอกสาร</li>
+          <li>Owner รู้วิธีเชื่อม LINE แจ้งเตือนใหม่จาก <code>/owner/settings</code></li>
+          <li>Owner รู้วิธีปิด rich menu/webhook ชั่วคราวเมื่อเกิด incident</li>
+          <li>Review role ของ Developer: ลดสิทธิ์หรือถอนออกตามข้อตกลง support</li>
+          <li>Rotate token/secret ถ้ามีเหตุสงสัยว่าถูกเปิดเผย</li>
+          <li>บันทึกวันส่งมอบ ผู้รับผิดชอบ support และช่องทาง incident</li>
+        </ul>
+        <div class="grid">
+          <article class="card"><h3>ถ้ามี support ต่อ</h3><p>คง developer role ระดับต่ำสุดที่แก้ระบบได้ กำหนดวัน review และห้ามใช้ shared password</p></article>
+          <article class="card"><h3>ถ้าจบงานแล้ว</h3><p>ถอน developer role หลัง Owner ยืนยัน access และเก็บวิธีติดต่อกรณี incident แยกจาก platform credentials</p></article>
+        </div>
+      </section>
+
+      <section class="doc-section" id="troubleshooting">
+        <div class="section-head"><span class="section-index">10</span><div><h2>Troubleshooting การส่งมอบ</h2><p>ปัญหาบัญชีและสิทธิ์ต้องแก้ที่ ownership boundary ก่อน debug code</p></div></div>
+        <details><summary>Owner สร้าง OA ไม่ได้หรือไม่เห็น Provider</summary><div>ตรวจว่ากำลังใช้ business identity/LINE account ที่ถูกต้องและเลือก Provider เดียวกัน ห้ามแก้ด้วยการสร้าง Provider ใหม่ใต้บัญชี Developer โดยไม่ตกลง</div></details>
+        <details><summary>Developer ไม่เห็น Channel</summary><div>ให้ Owner ตรวจ role ที่ Provider/Channel และ invitation status ไม่ส่ง password เพื่อให้ Developer login แทน</div></details>
+        <details><summary>อดีต Developer เป็น Admin คนเดียว</summary><div>ให้เพิ่ม Owner-controlled Admin และพิสูจน์ recovery ก่อนลด/ถอนอดีต Developer ถ้าเข้าบัญชีไม่ได้ให้ใช้ official LINE support/recovery process</div></details>
+        <details><summary>ต้องเปลี่ยน Developer</summary><div>Owner เชิญคนใหม่ผ่าน role, ส่งมอบ URLs/architecture, rotate credentials ตามความเสี่ยง แล้วถอนคนเดิมหลัง smoke ผ่าน</div></details>
+        <details><summary>Token อาจหลุด</summary><div>Reissue access token, เปลี่ยน channel/session secrets ตามขอบเขตที่กระทบ, redeploy, ตรวจ NotificationLog และอย่าแปะ token ใน issue/chat</div></details>
+      </section>
+
+      <footer class="footer">
+        <p><strong>เอกสารต่อ:</strong> <a href="line-oa-guide.html">LINE OA Technical Guide</a>, <a href="developer-guide.html">Developer Guide</a>, <a href="../line-oa-tutorial-th.md">Original Thai tutorial</a>, <a href="../deployment-checklist.md">Deployment checklist</a></p>
+        <p>เมนูและชื่อ role ใน LINE Console อาจเปลี่ยนตามภาษา/เวอร์ชัน ให้ยึดหลัก Owner-controlled account, role invitation, least privilege และ no password sharing</p>
+      </footer>
+    </main>
+  </div>
+  <script src="guide.js"></script>
+</body>
+</html>

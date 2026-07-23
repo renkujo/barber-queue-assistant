@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="คู่มือ LINE Official Account, Messaging API, LIFF, webhook และ owner notifications สำหรับ Barber Queue Assistant.">
+  <title>LINE OA Guide · Barber Queue Assistant</title>
+  <link rel="stylesheet" href="guide.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">ข้ามไปเนื้อหา</a>
+  <header class="topbar">
+    <a class="brand" href="../../README.md">
+      <span class="brand-mark" aria-hidden="true">Q</span>
+      <span class="brand-copy"><strong>Barber Queue Assistant</strong><span>LINE Official Account operations</span></span>
+    </a>
+    <nav class="top-actions" aria-label="เอกสารที่เกี่ยวข้อง">
+      <a href="line-oa-owner-setup-guide.html">Owner Setup</a>
+      <a href="developer-guide.html">Developer Guide →</a>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="สารบัญ">
+      <strong>LINE OA guide</strong>
+      <a href="#overview">ภาพรวม</a>
+      <a href="#status">สถานะระบบ</a>
+      <a href="#credentials">Credentials</a>
+      <a href="#setup">ตั้งค่า LINE</a>
+      <a href="#urls">URLs</a>
+      <a href="#owner-connect">เชื่อม Owner</a>
+      <a href="#identity">Identity & Security</a>
+      <a href="#notifications">Notifications</a>
+      <a href="#smoke">Smoke test</a>
+      <a href="#troubleshooting">Troubleshooting</a>
+      <a href="#checklist">Checklist</a>
+    </nav>
+
+    <main id="content">
+      <article class="hero">
+        <div class="hero-main">
+          <div>
+            <p class="eyebrow">LINE Official Account · Setup & operations</p>
+            <h1>เชื่อม LINE อย่างปลอดภัย โดยไม่ทำให้ระบบคิวพึ่ง LINE เพียงทางเดียว</h1>
+            <p class="hero-lead">คู่มือตั้งแต่สร้าง OA และ channels ไปจนถึง LIFF identity, webhook, rich-menu URLs, owner alerts, NotificationLog และ real-send smoke</p>
+          </div>
+          <div class="hero-meta" aria-label="ข้อมูล integration">
+            <div class="meta-item"><span>Messaging</span><strong>Messaging API channel</strong></div>
+            <div class="meta-item"><span>Identity</span><strong>LINE Login + LIFF</strong></div>
+            <div class="meta-item"><span>Fallback</span><strong>Normal web remains usable</strong></div>
+          </div>
+        </div>
+        <div class="hero-note">LINE เป็น optional identity + notification layer: ถ้า LINE config/recipient ไม่มี queue action ต้องยังสำเร็จและบันทึก NotificationLog เป็น skipped/failed</div>
+      </article>
+
+      <section class="doc-section" id="overview">
+        <div class="section-head"><span class="section-index">01</span><div><h2>ระบบนี้ใช้ LINE ส่วนไหนบ้าง</h2><p>LINE OA, Messaging API และ LINE Login/LIFF เป็นคนละส่วน แต่ต้องอยู่ใน provider ที่จัดการร่วมกันอย่างชัดเจน</p></div></div>
+        <div class="grid three">
+          <article class="card"><span class="label">OA</span><h3>Official Account</h3><p>บัญชีร้านที่ลูกค้า follow, เปิด rich menu และรับข้อความ push จากระบบ</p></article>
+          <article class="card"><span class="label">Messaging API</span><h3>Webhook + Push</h3><p>ใช้ Channel secret ตรวจ signature และ access token ส่งข้อความไป customer/owner</p></article>
+          <article class="card"><span class="label">LINE Login</span><h3>LIFF identity</h3><p>เปิดเว็บใน LINE, รับ ID token และให้ server ตรวจสอบก่อนผูก <code>lineUserId</code></p></article>
+        </div>
+        <div class="flow" aria-label="LINE customer flow">
+          <div><strong>Rich menu</strong><span>Open LIFF URL</span></div>
+          <div><strong>/line</strong><span>Initialize LIFF</span></div>
+          <div><strong>Verify ID token</strong><span>LINE OAuth API</span></div>
+          <div><strong>Signed cookie</strong><span>10-minute purpose</span></div>
+          <div><strong>Queue + Push</strong><span>Log every attempt</span></div>
+        </div>
+        <div class="callout"><strong>ใครควรสร้างบัญชี?</strong>เจ้าของร้านควรถือ ownership ส่วน Developer ตั้งค่าผ่าน role invitation โดยไม่รับ password ดูขั้นตอนส่งมอบฉบับเต็มที่ <a href="line-oa-owner-setup-guide.html">Owner + Developer LINE OA Setup</a></div>
+      </section>
+
+      <section class="doc-section" id="status">
+        <div class="section-head"><span class="section-index">02</span><div><h2>Implemented vs Planned</h2><p>อย่าสับสนระหว่างสิ่งที่ใช้งานได้แล้วกับสิ่งที่ยังต้องทำด้วยมือหรือยังไม่อนุมัติ</p></div></div>
+        <div class="grid">
+          <article class="card"><span class="label">Implemented</span><h3>พร้อมใช้งานใน source</h3><ul><li><code>POST /api/line/webhook</code> + signature verification</li><li>Bind <code>follow</code>/<code>message</code> user IDs</li><li><code>/line</code> targets: book, walk-in, queue-status, owner</li><li>Server verification ของ LIFF ID token</li><li>Purpose-bound HttpOnly identity cookies</li><li>LINE text push + NotificationLog</li><li>One-use owner LINE connection from settings</li></ul></article>
+          <article class="card"><span class="label planned">Manual / not implemented</span><h3>อย่าสัญญาว่ามีแล้ว</h3><ul><li>Rich menu creation automation — ต้องสร้างใน LINE Manager เอง</li><li>Production retry worker สำหรับ failed push</li><li>Full chatbot/chat-booking conversation</li><li>Payment/deposit ผ่าน LINE</li><li>Pilot measurement/customer execution — ต้อง approval แยก</li></ul></article>
+        </div>
+        <div class="callout warning"><strong>Docs drift ที่ต้องรู้</strong>เอกสารเก่าบางจุดบอกว่า owner notification UI ยังไม่มี แต่ source ปัจจุบันมี flow เชื่อม owner LINE จาก <code class="inline-code">/owner/settings</code> แล้ว</div>
+      </section>
+
+      <section class="doc-section" id="credentials">
+        <div class="section-head"><span class="section-index">03</span><div><h2>Credentials และ environment</h2><p>ใช้ชื่อ variable ตามนี้เท่านั้น อย่าใส่ค่าจริงลงเอกสารหรือ git</p></div></div>
+        <div class="code-wrap"><pre><code># LINE Messaging API
+LINE_CHANNEL_SECRET="replace-with-channel-secret"
+LINE_CHANNEL_ACCESS_TOKEN="replace-with-access-token"
+
+# LINE Login / LIFF
+NEXT_PUBLIC_LINE_LIFF_ID="1234567890-example"
+
+# Owner fallback only; normal flow uses /owner/settings
+OWNER_LINE_USER_ID=""
+
+# Required signing boundary
+BARBER_ADMIN_SESSION_SECRET="replace-with-long-random-secret"</code></pre></div>
+        <div class="table-wrap"><table><thead><tr><th>Variable</th><th>มาจาก</th><th>ใช้โดย</th></tr></thead><tbody>
+          <tr><td><code>LINE_CHANNEL_SECRET</code></td><td>Messaging API · Basic settings</td><td>HMAC SHA-256 webhook signature</td></tr>
+          <tr><td><code>LINE_CHANNEL_ACCESS_TOKEN</code></td><td>Messaging API tab · Issue/Reissue</td><td>Bearer token สำหรับ push API</td></tr>
+          <tr><td><code>NEXT_PUBLIC_LINE_LIFF_ID</code></td><td>LINE Login channel · LIFF app</td><td>LIFF init และ derive channel ID จาก prefix</td></tr>
+          <tr><td><code>OWNER_LINE_USER_ID</code></td><td>Manual/emergency</td><td>Fallback ถ้า ShopSettings ยังไม่มี owner recipient</td></tr>
+          <tr><td><code>BARBER_ADMIN_SESSION_SECRET</code></td><td>Independent app secret</td><td>Signed identity/owner connect/result tokens</td></tr>
+        </tbody></table></div>
+        <div class="callout danger"><strong>Production webhook guard</strong>Source ปัจจุบันยอมรับ webhook แบบไม่ตรวจ signature เมื่อ <code class="inline-code">LINE_CHANNEL_SECRET</code> ว่าง ดังนั้นห้าม enable/expose production webhook ก่อนตั้ง secret จริง</div>
+        <div class="callout warning"><strong>Rebuild required</strong><code class="inline-code">NEXT_PUBLIC_LINE_LIFF_ID</code> เป็น public client env; เปลี่ยนแล้วต้อง restart dev server หรือ rebuild/redeploy production</div>
+      </section>
+
+      <section class="doc-section" id="setup">
+        <div class="section-head"><span class="section-index">04</span><div><h2>ตั้งค่า LINE ทีละขั้น</h2><p>ทำตามลำดับนี้เพื่อไม่สลับ Messaging API channel กับ LINE Login channel</p></div></div>
+        <ol class="checklist">
+          <li>สร้าง Provider ใน <a href="https://developers.line.biz/console/">LINE Developers Console</a> เช่น <strong>Barber Queue Assistant</strong></li>
+          <li>สร้างหรือเลือก LINE Official Account ของร้านใน LINE Official Account Manager</li>
+          <li>เปิด Messaging API และเชื่อมกับ Provider เดียวกัน</li>
+          <li>คัดลอก Channel secret และ issue Channel access token</li>
+          <li>สร้าง LINE Login channel ใน Provider เดิม เลือก App type เป็น Web app</li>
+          <li>สร้าง LIFF app: Size Full, Endpoint <code>https://&lt;domain&gt;/line</code>, scopes <code>openid</code> + <code>profile</code>, Add friend On (Normal)</li>
+          <li>ใส่ env ทั้งสามค่าแล้ว restart/redeploy</li>
+          <li>ตั้ง webhook URL และเปิด Use webhook</li>
+          <li>กด Verify ใน LINE Developers และตรวจ server response</li>
+          <li>สร้าง rich menu ด้วย URLs ของ target ที่ระบบรองรับ</li>
+          <li>Login owner แล้วเชื่อม LINE เจ้าของร้านจาก <code>/owner/settings</code></li>
+          <li>ทำ real-send smoke ด้วย test LINE account ก่อนเปิดให้ร้านใช้</li>
+        </ol>
+        <h3>LIFF settings ที่แนะนำ</h3>
+        <div class="table-wrap"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>
+          <tr><td>App name</td><td>Barber Queue Entry</td></tr>
+          <tr><td>Size</td><td>Full</td></tr>
+          <tr><td>Endpoint URL</td><td><code>https://&lt;domain&gt;/line</code></td></tr>
+          <tr><td>Scopes</td><td><code>openid</code>, <code>profile</code></td></tr>
+          <tr><td>Add friend option</td><td>On (Normal)</td></tr>
+          <tr><td>Scan QR</td><td>ปิดได้สำหรับ MVP</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="doc-section" id="urls">
+        <div class="section-head"><span class="section-index">05</span><div><h2>URL reference</h2><p>ใช้ public HTTPS domain เดียวกับแอป เปลี่ยนเฉพาะ <code>&lt;domain&gt;</code></p></div></div>
+        <div class="code-wrap"><pre><code># LIFF endpoint
+https://&lt;domain&gt;/line
+
+# Webhook
+https://&lt;domain&gt;/api/line/webhook
+
+# Rich menu targets
+https://&lt;domain&gt;/line?target=walk-in
+https://&lt;domain&gt;/line?target=book
+https://&lt;domain&gt;/line?target=queue-status
+
+# Owner connect start (owner session required)
+https://&lt;domain&gt;/owner/settings/line-connect</code></pre></div>
+        <h3>Local tunnel</h3>
+        <div class="code-wrap"><pre><code># เลือกอย่างใดอย่างหนึ่ง
+ngrok http 3000
+cloudflared tunnel --url http://localhost:3000
+
+# นำ HTTPS tunnel URL ไปแทน &lt;domain&gt;</code></pre></div>
+        <div class="callout"><strong>Fallback behavior</strong>ถ้า LIFF ID ไม่มีหรือ LIFF init ไม่ผ่าน หน้า <code class="inline-code">/line</code> ต้องแสดงปุ่มไปเว็บปกติแทนการทำให้ระบบพัง</div>
+      </section>
+
+      <section class="doc-section" id="owner-connect">
+        <div class="section-head"><span class="section-index">06</span><div><h2>เชื่อม LINE เจ้าของร้าน</h2><p>ใช้ UI flow เป็นทางหลัก <code>OWNER_LINE_USER_ID</code> เป็น fallback เท่านั้น</p></div></div>
+        <div class="flow" aria-label="owner LINE flow">
+          <div><strong>/owner/settings</strong><span>Owner clicks connect</span></div>
+          <div><strong>One-use token</strong><span>Random nonce · 10 min</span></div>
+          <div><strong>LIFF owner target</strong><span>Verified LINE ID</span></div>
+          <div><strong>Atomic consume</strong><span>Replay blocked</span></div>
+          <div><strong>ShopSettings</strong><span>ownerLineUserId saved</span></div>
+        </div>
+        <ol>
+          <li>Owner login แล้วเปิด <code class="inline-code">/owner/settings</code></li>
+          <li>กด <strong>เชื่อม LINE เจ้าของร้าน</strong></li>
+          <li>ระบบออก signed token ที่มี random nonce และ expiry 10 นาที</li>
+          <li>เปิด LIFF ใน LINE account ที่ต้องการรับแจ้งเตือน</li>
+          <li>Completion route consume nonce และ update <code>ShopSettings.ownerLineUserId</code> ใน transaction เดียว</li>
+          <li>หน้า result แสดง connected/missing-line/invalid ด้วย signed result token อายุ 2 นาที</li>
+        </ol>
+        <div class="callout warning"><strong>Owner alert scope</strong>แจ้ง owner เฉพาะ booking/walk-in ที่ลูกค้าสร้างเอง Owner-created walk-in ไม่ push กลับหา owner เพื่อไม่สร้าง self-notification spam</div>
+      </section>
+
+      <section class="doc-section" id="identity">
+        <div class="section-head"><span class="section-index">07</span><div><h2>Identity และ Security</h2><p>ระบบไม่เชื่อ <code>lineUserId</code> จาก URL หรือ hidden input</p></div></div>
+        <ul class="checklist">
+          <li>LIFF ส่ง ID token เข้า server action; server เรียก <code>https://api.line.me/oauth2/v2.1/verify</code></li>
+          <li>ตรวจ <code>aud</code> เท่ากับ LINE Login channel ID, <code>iss</code>, <code>exp</code> และ <code>sub</code></li>
+          <li>Identity ถูกเก็บใน signed HttpOnly cookie แยก purpose: book, walk-in, owner</li>
+          <li>Cookie อายุ 10 นาที, SameSite=Lax และ Secure ใน production</li>
+          <li>Booking/walk-in ใช้ verified cookie แล้ว clear หลังสำเร็จ; recoverable retry ยังรักษา identity</li>
+          <li>QueueItem snapshot <code>lineUserIdSnapshot</code> เพื่อไม่พึ่ง customer row ที่เปลี่ยนได้</li>
+          <li>Owner connection token ต้อง signature ถูก, ยังไม่หมดอายุ, nonce มีอยู่และยังไม่ consumed</li>
+          <li>Webhook ตรวจ HMAC SHA-256 แบบ timing-safe เมื่อ channel secret ถูกตั้ง</li>
+          <li>ห้าม log access token, channel secret, ID token, signed cookie หรือ raw LINE user IDs โดยไม่จำเป็น</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="notifications">
+        <div class="section-head"><span class="section-index">08</span><div><h2>Notification events และ logs</h2><p>ข้อความเป็น text push; every attempt ต้องมี durable NotificationLog</p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Event</th><th>Customer</th><th>Owner</th></tr></thead><tbody>
+          <tr><td><code>BOOKING_CONFIRMED</code></td><td>แจ้งยืนยัน booking เมื่อมี recipient</td><td>แจ้งคิวใหม่ถ้าลูกค้าเป็นคนสร้าง</td></tr>
+          <tr><td><code>QUEUE_CREATED</code></td><td>แจ้งบัตรคิว/walk-in</td><td>แจ้งเฉพาะ customer-created</td></tr>
+          <tr><td><code>QUEUE_NEAR</code></td><td>เมื่อ owner เริ่มให้บริการ</td><td>ไม่ส่ง</td></tr>
+          <tr><td><code>LATE</code></td><td>เมื่อ owner ทำเครื่องหมายมาสาย</td><td>ไม่ส่ง</td></tr>
+          <tr><td><code>CANCELLED</code></td><td>เมื่อยกเลิกคิว</td><td>ไม่ส่ง</td></tr>
+          <tr><td><code>NO_SHOW</code></td><td>เมื่อบันทึกไม่มา</td><td>ไม่ส่ง</td></tr>
+        </tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>NotificationLog</th><th>ความหมาย</th></tr></thead><tbody>
+          <tr><td><code>NONE / SKIPPED</code></td><td>ไม่มี customer LINE identity</td></tr>
+          <tr><td><code>LINE / SKIPPED</code></td><td>มี recipient แต่ไม่มี access token</td></tr>
+          <tr><td><code>LINE / SENT</code></td><td>LINE API accepted request — ไม่ใช่หลักฐานว่า user อ่านหรือได้รับแน่นอน</td></tr>
+          <tr><td><code>LINE / FAILED</code></td><td>Provider call ถูก reject/timeout/error</td></tr>
+          <tr><td><code>LINE / PENDING</code></td><td>Pilot at-most-once attempt outcome ยังไม่ทราบ; ห้าม resend อัตโนมัติ</td></tr>
+        </tbody></table></div>
+        <div class="callout"><strong>Fail-soft contract</strong>LINE failure ต้องไม่ block booking, walk-in หรือ owner status action ให้ตรวจจาก NotificationLog ภายหลัง</div>
+      </section>
+
+      <section class="doc-section" id="smoke">
+        <div class="section-head"><span class="section-index">09</span><div><h2>Real-send smoke test</h2><p>ทำหลัง public HTTPS, credentials, webhook และ LIFF endpoint พร้อมแล้วเท่านั้น</p></div></div>
+        <ol class="checklist">
+          <li>เปิด OA จาก test LINE account แล้ว follow หรือส่ง message</li>
+          <li>ตรวจ webhook ตอบ 200 และ <code>boundUserCount</code> เพิ่มเมื่อ event bindable</li>
+          <li>เปิด <code>/line?target=walk-in</code> หรือ <code>/line?target=book</code> จาก LINE app</li>
+          <li>สร้างคิวและตรวจ tracking page/queue code/PIN</li>
+          <li>ตรวจ customer ได้รับ confirmation push และ NotificationLog เป็น <code>LINE/SENT</code></li>
+          <li>Owner เริ่ม service แล้วตรวจ customer ได้รับ queue-near message</li>
+          <li>เชื่อม owner LINE จาก settings แล้วสร้าง customer queue ใหม่</li>
+          <li>ตรวจ owner ได้รับ alert แต่ owner-created queue ไม่ส่งกลับ owner</li>
+          <li>ทดสอบ missing token ใน environment แยก: queue ต้องสำเร็จและ log <code>SKIPPED</code></li>
+        </ol>
+        <div class="code-wrap"><pre><code>cd app
+pnpm test:integration
+pnpm e2e
+pnpm typecheck
+pnpm lint
+pnpm prisma:validate
+pnpm build</code></pre></div>
+        <p>Webhook tests: <code class="inline-code">tests/integration/line-webhook-route.test.ts</code><br>Notification tests: <code class="inline-code">tests/integration/notification-service.test.ts</code></p>
+      </section>
+
+      <section class="doc-section" id="troubleshooting">
+        <div class="section-head"><span class="section-index">10</span><div><h2>Troubleshooting</h2><p>ใช้ NotificationLog และ response status แยกปัญหา identity, credentials และ provider</p></div></div>
+        <details><summary>Webhook Verify ไม่ผ่าน</summary><div>ตรวจ URL ลงท้าย <code>/api/line/webhook</code>, HTTPS domain/tunnel, server reachability และ Channel secret ว่ามาจาก Messaging API channel เดียวกัน</div></details>
+        <details><summary>LIFF ไม่ redirect หรือขึ้น fallback</summary><div>ตรวจ LIFF ID, endpoint URL, scopes <code>openid/profile</code>, เปิดจาก LINE app และ rebuild หลังแก้ <code>NEXT_PUBLIC_LINE_LIFF_ID</code></div></details>
+        <details><summary>LINE webview ใช้ dev mode แล้ว chunk/error</summary><div>ทดสอบด้วย production local mode: <code>pnpm build</code> แล้ว <code>pnpm start</code> จากนั้นเปิดผ่าน HTTPS tunnel</div></details>
+        <details><summary>Notification ไม่เข้า</summary><div><code>NONE/SKIPPED</code> = ไม่มี identity, <code>LINE/SKIPPED</code> = token หาย, <code>LINE/FAILED</code> = provider reject, <code>LINE/SENT</code> = app ส่งถึง LINE API แล้ว ให้ตรวจ account ปลายทางต่อ</div></details>
+        <details><summary>Owner connect ขึ้น missing-line หรือ invalid</summary><div><code>missing-line</code> มักเกิดจากไม่ได้เปิดใน LINE; <code>invalid</code> มักเป็น token หาย/หมดอายุ/replay/tamper ให้กลับไปสร้างลิงก์ใหม่จาก owner settings</div></details>
+        <details><summary>Owner ไม่ได้รับ alert</summary><div>ตรวจ <code>ShopSettings.ownerLineUserId</code> หรือ fallback, access token และยืนยันว่า event มาจาก customer-created booking/walk-in ไม่ใช่ owner-created queue</div></details>
+      </section>
+
+      <section class="doc-section" id="checklist">
+        <div class="section-head"><span class="section-index">11</span><div><h2>Production checklist</h2><p>รายการสั้นสำหรับ operator ก่อนเปิด rich menu หรือ webhook ให้ลูกค้าจริง</p></div></div>
+        <ul class="checklist">
+          <li>Public HTTPS domain และ <code>/api/health</code> ทำงาน</li>
+          <li>Messaging API secret/token ตั้งใน production secret store ไม่ใช่ git</li>
+          <li>LINE Login channel และ LIFF endpoint ใช้ domain ปัจจุบัน</li>
+          <li><code>NEXT_PUBLIC_LINE_LIFF_ID</code> ถูก rebuild เข้า client bundle</li>
+          <li>Webhook secret ตั้งแล้วก่อน enable Use webhook</li>
+          <li>Webhook Verify ผ่านและ invalid signature ตอบ 401</li>
+          <li>Rich menu links ใช้ <code>/line?target=walk-in</code> และ <code>/line?target=book</code></li>
+          <li>Customer real-send และ owner connection smoke ผ่าน</li>
+          <li>NotificationLog status ถูกต้องทั้ง SENT/SKIPPED/FAILED</li>
+          <li>Normal web booking/walk-in/tracking ยังทำงานเมื่อ LINE unavailable</li>
+          <li>Privacy contact เป็นช่องทางจริง และ Pilot Measurement ยัง disabled</li>
+        </ul>
+      </section>
+
+      <footer class="footer">
+        <p><strong>Sources:</strong> <a href="../line-oa-setup.md">line-oa-setup.md</a>, <a href="../line-oa-tutorial-th.md">line-oa-tutorial-th.md</a>, <a href="../line-oa-integration.md">line-oa-integration.md</a>, <a href="../production-environment.md">production-environment.md</a>, <a href="../deployment-checklist.md">deployment-checklist.md</a></p>
+        <p>Snapshot prepared from repository state after commit <code>97e41d4</code>. Verify current source before changing LINE credentials, routes, or production behavior.</p>
+      </footer>
+    </main>
+  </div>
+  <script src="guide.js"></script>
+</body>
+</html>

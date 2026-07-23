@@ -7,6 +7,9 @@ The product is not a full salon management suite. It focuses on helping a single
 ## Project structure
 
 - `docs/` — product, flow, design-system, LINE OA, data-model, and asset docs
+- `docs/guides/developer-guide.html` — responsive developer setup, architecture, testing, deployment, and operations guide
+- `docs/guides/line-oa-guide.html` — responsive LINE Official Account, Messaging API, LIFF, webhook, and notification guide
+- `docs/guides/line-oa-owner-setup-guide.html` — owner/developer account ownership, permissions, installation, smoke, and handoff guide
 - `prototypes/ui-v1/` — static UI prototype
 - `app/` — Next.js fullstack app scaffold
 

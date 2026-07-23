@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="คู่มือนักพัฒนา Barber Queue Assistant: architecture, setup, database, testing, deployment and operations.">
+  <title>Developer Guide · Barber Queue Assistant</title>
+  <link rel="stylesheet" href="guide.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">ข้ามไปเนื้อหา</a>
+  <header class="topbar">
+    <a class="brand" href="../../README.md">
+      <span class="brand-mark" aria-hidden="true">Q</span>
+      <span class="brand-copy"><strong>Barber Queue Assistant</strong><span>Repository documentation</span></span>
+    </a>
+    <nav class="top-actions" aria-label="เอกสารที่เกี่ยวข้อง">
+      <a href="../deployment-haabiz.md">Deployment source</a>
+      <a href="line-oa-guide.html">LINE OA Guide →</a>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="สารบัญ">
+      <strong>Developer guide</strong>
+      <a href="#overview">ภาพรวม</a>
+      <a href="#quick-start">เริ่มต้น local</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#routes">Routes</a>
+      <a href="#environment">Environment</a>
+      <a href="#database">Database</a>
+      <a href="#scripts">Scripts</a>
+      <a href="#security">Security</a>
+      <a href="#testing">Testing</a>
+      <a href="#deployment">Deployment</a>
+      <a href="#operations">Operations</a>
+      <a href="#troubleshooting">Troubleshooting</a>
+    </nav>
+
+    <main id="content">
+      <article class="hero">
+        <div class="hero-main">
+          <div>
+            <p class="eyebrow">Developer guide · Repository-grounded</p>
+            <h1>สร้าง ทดสอบ และดูแลระบบคิวโดยไม่ทำลายความจริงของร้าน</h1>
+            <p class="hero-lead">คู่มือโครงสร้าง Next.js fullstack, Prisma/PostgreSQL, owner authentication, LINE boundaries, test lanes และ Dokploy deployment ของ Barber Queue Assistant เวอร์ชันปัจจุบัน</p>
+          </div>
+          <div class="hero-meta" aria-label="ข้อมูล snapshot">
+            <div class="meta-item"><span>Stack</span><strong>Next.js 16 · React 19</strong></div>
+            <div class="meta-item"><span>Data</span><strong>Prisma 7 · PostgreSQL 17</strong></div>
+            <div class="meta-item"><span>Package manager</span><strong>pnpm 10.33.0</strong></div>
+          </div>
+        </div>
+        <div class="hero-note">Owner เป็นช่างคนเดียว ระบบต้องลดงาน ไม่เพิ่ม ceremony และทุก refactor ต้องรักษา queue/business conditions เดิม</div>
+      </article>
+
+      <section class="doc-section" id="overview">
+        <div class="section-head"><span class="section-index">01</span><div><h2>ภาพรวมและขอบเขต</h2><p>ระบบคิวสำหรับร้านตัดผมเจ้าของคนเดียว ไม่ใช่ salon ERP และไม่บังคับให้ลูกค้าทุกคนใช้ LINE</p></div></div>
+        <div class="grid three">
+          <article class="card"><span class="label">Customer</span><h3>จองและรับบัตรคิว</h3><p>ลูกค้าเช็คสถานะร้าน จองล่วงหน้า รับคิววันนี้ และติดตามด้วย public token หรือ queue code + PIN</p></article>
+          <article class="card"><span class="label">Owner</span><h3>จัดการคิววันนี้</h3><p>Owner login ด้วย passcode, เพิ่ม walk-in, จัดลำดับ, เริ่มงาน, ปิดงาน, late, no-show และตั้งค่าร้าน</p></article>
+          <article class="card"><span class="label">Channel</span><h3>เว็บเป็นแกนหลัก</h3><p>LINE OA/LIFF เป็นช่องทางเข้าและแจ้งเตือน ระบบเว็บและ tracking code ต้องยังใช้ได้เมื่อ LINE ไม่พร้อม</p></article>
+        </div>
+        <div class="callout warning"><strong>Operational boundary</strong>Pilot Measurement, Pilot Execution, invitation, Daily Close external collection และ production promotion ต้องมี approval แยกจากการ deploy ตัวแอป</div>
+      </section>
+
+      <section class="doc-section" id="quick-start">
+        <div class="section-head"><span class="section-index">02</span><div><h2>เริ่มต้นพัฒนาใน local</h2><p>ทุกคำสั่ง frontend/app รันจากโฟลเดอร์ <code class="inline-code">app/</code> และใช้ pnpm ตาม lockfile</p></div></div>
+        <div class="grid">
+          <div class="card"><strong>Runtime</strong><p>Node.js 22+ และ Corepack/pnpm 10.33.0</p></div>
+          <div class="card"><strong>Services</strong><p>PostgreSQL ที่เข้าถึงได้ผ่าน <code class="inline-code">DATABASE_URL</code></p></div>
+        </div>
+        <h3>Install และ run</h3>
+        <div class="code-wrap"><pre><code>cd app
+pnpm install --frozen-lockfile
+cp .env.example .env
+
+# เติมเฉพาะค่า local ของคุณ ห้าม commit
+pnpm prisma:generate
+pnpm db:migrate
+pnpm db:seed
+pnpm dev</code></pre></div>
+        <p>เปิด <code class="inline-code">http://localhost:3000</code> และ owner login ที่ <code class="inline-code">/owner/login</code></p>
+        <div class="callout danger"><strong>ห้ามเผยแพร่ secret</strong>ใช้ <code class="inline-code">app/.env.example</code> และ <code class="inline-code">.env.production.example</code> เป็นรายการชื่อเท่านั้น ค่าใน <code class="inline-code">.env</code> จริงต้องไม่เข้า git, screenshot, log หรือเอกสาร</div>
+      </section>
+
+      <section class="doc-section" id="architecture">
+        <div class="section-head"><span class="section-index">03</span><div><h2>Architecture</h2><p>หนึ่ง Next.js service ทำหน้าที่ frontend, server actions, route handlers, auth boundary และ notification orchestration</p></div></div>
+        <div class="flow" aria-label="architecture flow">
+          <div><strong>Browser / LINE</strong><span>Customer + Owner UI</span></div>
+          <div><strong>Next.js App Router</strong><span>Pages · Actions · APIs</span></div>
+          <div><strong>Repository layer</strong><span>Queue rules + safety</span></div>
+          <div><strong>Prisma 7</strong><span>Typed data access</span></div>
+          <div><strong>PostgreSQL</strong><span>Durable shop truth</span></div>
+        </div>
+        <div class="grid">
+          <article class="card"><h3>Application ownership</h3><ul><li><code>app/src/app</code> — routes, server actions, route handlers</li><li><code>app/src/components/ui</code> — source-owned primitives</li><li><code>app/src/components/barber</code> — product-level UI</li><li><code>app/src/styles</code> — tokens and responsive layouts</li></ul></article>
+          <article class="card"><h3>Domain ownership</h3><ul><li><code>app/src/lib/queue</code> — queue/date/repository rules</li><li><code>app/src/lib/notifications</code> — LINE push/logging/templates</li><li><code>app/src/lib/security</code> — rate limits and fingerprints</li><li><code>app/prisma</code> — schema and migrations</li></ul></article>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Flow</th><th>Path</th><th>Truth boundary</th></tr></thead><tbody>
+          <tr><td>Customer booking/walk-in</td><td>Page → Server Action</td><td>Repository validates availability/collision then writes QueueItem</td></tr>
+          <tr><td>Owner mutation</td><td>Protected page → Server Action</td><td><code>requireOwnerSession()</code> before repository mutation</td></tr>
+          <tr><td>Tracking</td><td><code>/queue/[publicToken]</code></td><td>Never exposes database ID; customer name is masked</td></tr>
+          <tr><td>LINE webhook</td><td><code>POST /api/line/webhook</code></td><td>Signature check, then minimal follow/message binding</td></tr>
+          <tr><td>LINE push</td><td>Notification boundary</td><td>Attempt logged; failure never blocks queue action</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="doc-section" id="routes">
+        <div class="section-head"><span class="section-index">04</span><div><h2>Route map</h2><p>Visual/API routes สำหรับการพัฒนาและ smoke test</p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Route</th><th>Audience</th><th>หน้าที่</th></tr></thead><tbody>
+          <tr><td><code>/</code></td><td>Public</td><td>สถานะร้าน action และ queue lookup</td></tr>
+          <tr><td><code>/book</code></td><td>Public</td><td>จองล่วงหน้า</td></tr>
+          <tr><td><code>/walk-in</code></td><td>Public</td><td>รับบัตรคิวออนไลน์วันนี้</td></tr>
+          <tr><td><code>/queue/[publicToken]</code></td><td>Public/noindex</td><td>ติดตามคิวด้วย token ที่ไม่ใช่ DB id</td></tr>
+          <tr><td><code>/line</code></td><td>LIFF/Public fallback</td><td>ยืนยัน LINE identity และส่งต่อ target</td></tr>
+          <tr><td><code>/privacy</code></td><td>Public</td><td>Privacy notice และ contact</td></tr>
+          <tr><td><code>/owner/login</code></td><td>Owner</td><td>Passcode login</td></tr>
+          <tr><td><code>/owner</code></td><td>Owner session</td><td>คิววันนี้และ fast actions</td></tr>
+          <tr><td><code>/owner/walk-in</code></td><td>Owner session</td><td>เพิ่มคิวจากหน้าร้าน/แชต/โทรศัพท์</td></tr>
+          <tr><td><code>/owner/settings</code></td><td>Owner session</td><td>ร้าน เวลา ช่องทาง และ LINE owner</td></tr>
+          <tr><td><code>/owner/settings/availability</code></td><td>Owner session</td><td>ตารางรับลูกค้าประจำสัปดาห์</td></tr>
+          <tr><td><code>/owner/settings/services</code></td><td>Owner session</td><td>บริการ ราคา ระยะเวลา สถานะ</td></tr>
+          <tr><td><code>/api/health</code></td><td>Monitor</td><td>App/database/pilot health</td></tr>
+          <tr><td><code>/api/queue/status</code></td><td>Public</td><td>สถานะรวมที่ไม่มีข้อมูลลูกค้า</td></tr>
+          <tr><td><code>/api/line/webhook</code></td><td>LINE</td><td>Webhook signature + user binding</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="doc-section" id="environment">
+        <div class="section-head"><span class="section-index">05</span><div><h2>Environment variables</h2><p>สร้าง secret แยกหน้าที่และกำหนดเฉพาะ service/process ที่ต้องใช้</p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Variable</th><th>Required</th><th>หน้าที่</th></tr></thead><tbody>
+          <tr><td><code>DATABASE_URL</code></td><td>Yes</td><td>Prisma/PostgreSQL connection</td></tr>
+          <tr><td><code>BARBER_ADMIN_PASSCODE</code></td><td>Yes</td><td>Owner login passcode</td></tr>
+          <tr><td><code>BARBER_ADMIN_SESSION_SECRET</code></td><td>Production yes</td><td>Owner session + signed LINE tokens</td></tr>
+          <tr><td><code>RATE_LIMIT_HASH_SECRET</code></td><td>Production yes</td><td>Hash request fingerprints; ต้องต่างจาก session secret</td></tr>
+          <tr><td><code>NEXT_PUBLIC_PRIVACY_CONTACT</code></td><td>Pilot yes</td><td>LINE URL/email/phone ที่แสดงใน privacy notice</td></tr>
+          <tr><td><code>CUSTOMER_DATA_RETENTION_DAYS</code></td><td>Default 180</td><td>Retention; valid 30–3650</td></tr>
+          <tr><td><code>LINE_CHANNEL_SECRET</code></td><td>Webhook enabled</td><td>Verify <code>x-line-signature</code></td></tr>
+          <tr><td><code>LINE_CHANNEL_ACCESS_TOKEN</code></td><td>Push enabled</td><td>Messaging API bearer token</td></tr>
+          <tr><td><code>NEXT_PUBLIC_LINE_LIFF_ID</code></td><td>LIFF enabled</td><td>LIFF initialization and channel ID derivation</td></tr>
+          <tr><td><code>OWNER_LINE_USER_ID</code></td><td>Optional fallback</td><td>Manual owner recipient; UI binding preferred</td></tr>
+          <tr><td><code>PILOT_MEASUREMENT_ENABLED</code></td><td>Default false</td><td>ห้ามเปิดโดยไม่มี approval/cohort</td></tr>
+        </tbody></table></div>
+        <div class="code-wrap"><pre><code># สร้าง secrets คนละค่า
+openssl rand -hex 32
+openssl rand -hex 32</code></pre></div>
+        <div class="callout warning"><strong>Public build-time value</strong>เมื่อแก้ <code class="inline-code">NEXT_PUBLIC_LINE_LIFF_ID</code> ต้อง restart local dev server หรือ rebuild/redeploy production</div>
+      </section>
+
+      <section class="doc-section" id="database">
+        <div class="section-head"><span class="section-index">06</span><div><h2>Database และ migrations</h2><p><code>QueueItem</code> เป็นหน่วยกลางของ booking, walk-in และ owner-created queue</p></div></div>
+        <div class="grid three">
+          <div class="card"><h3>Core</h3><p>Customer, Service, QueueItem, TimeBlock, ShopSettings และ availability</p></div>
+          <div class="card"><h3>Communication</h3><p>NotificationLog เก็บทุก attempt; OwnerLineConnectToken ป้องกัน replay</p></div>
+          <div class="card"><h3>Safety</h3><p>RateLimitBucket เก็บ hashed fingerprint ไม่เก็บ raw IP; pilot disabled by default</p></div>
+        </div>
+        <div class="code-wrap"><pre><code># Development
+cd app
+pnpm prisma:validate
+pnpm db:migrate
+pnpm prisma:generate
+pnpm db:seed
+
+# Production
+pnpm db:deploy</code></pre></div>
+        <div class="callout"><strong>อย่า reset database ที่มีข้อมูลจริง</strong>ถ้า <code class="inline-code">prisma migrate dev</code> แจ้ง drift ให้หยุด ตรวจ migration history และใช้ disposable database สำหรับพิสูจน์</div>
+      </section>
+
+      <section class="doc-section" id="scripts">
+        <div class="section-head"><span class="section-index">07</span><div><h2>Command reference</h2><p>คำสั่งหลักจาก <code class="inline-code">app/package.json</code></p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Command</th><th>ใช้เมื่อ</th></tr></thead><tbody>
+          <tr><td><code>pnpm dev</code></td><td>Next.js development server</td></tr>
+          <tr><td><code>pnpm typecheck</code></td><td>TypeScript without emit</td></tr>
+          <tr><td><code>pnpm lint</code></td><td>ESLint whole app</td></tr>
+          <tr><td><code>pnpm test:integration</code></td><td>Vitest integration behavior</td></tr>
+          <tr><td><code>pnpm e2e</code></td><td>Playwright responsive/workflows</td></tr>
+          <tr><td><code>pnpm prisma:validate</code></td><td>Validate Prisma schema/config</td></tr>
+          <tr><td><code>pnpm build</code></td><td>Production compile</td></tr>
+          <tr><td><code>pnpm privacy:prune</code></td><td>Controlled retention process</td></tr>
+          <tr><td><code>pnpm deploy:start</code></td><td><code>prisma migrate deploy</code> then Next start</td></tr>
+        </tbody></table></div>
+        <div class="callout warning"><strong>Pilot scripts are not normal dev utilities</strong><code class="inline-code">pilot:cohort</code>, <code class="inline-code">pilot:report</code>, <code class="inline-code">pilot:classify</code>, <code class="inline-code">pilot:hold</code> และ <code class="inline-code">pilot:correct</code> ต้องใช้ bounded role + authorization</div>
+      </section>
+
+      <section class="doc-section" id="security">
+        <div class="section-head"><span class="section-index">08</span><div><h2>Security invariants</h2><p>สิ่งที่ห้ามทำให้หลุดระหว่าง refactor</p></div></div>
+        <ul class="checklist">
+          <li>Owner mutations เรียก <code>requireOwnerSession()</code> ก่อนแตะข้อมูล</li>
+          <li>Production session cookie ใช้ HTTPS/secure และ secret แยกจาก passcode</li>
+          <li>Public tracking รับ UUID public token ไม่ใช่ database ID และมี <code>noindex</code></li>
+          <li>Queue lookup ใช้ queue code + 4-digit PIN และ rate limit ต่อ IP/code</li>
+          <li>Raw IP ไม่ถูกเก็บใน RateLimitBucket; ใช้ hashed fingerprint</li>
+          <li>LINE identity มาจาก server-verified ID token ไม่รับ query/hidden <code>lineUserId</code></li>
+          <li>Notification failure ต้องไม่ rollback booking/queue mutation</li>
+          <li>อย่า expose container port 3000 ตรงสู่ internet; trusted proxy เป็น client-IP boundary</li>
+          <li>อย่า commit secret, production dump, browser auth state หรือ generated test artifacts</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="testing">
+        <div class="section-head"><span class="section-index">09</span><div><h2>Validation lanes</h2><p>ก่อน merge/deploy ควรผ่านชุดเต็มจาก <code class="inline-code">app/</code></p></div></div>
+        <div class="code-wrap"><pre><code>pnpm typecheck
+pnpm lint
+pnpm test:integration
+pnpm e2e
+pnpm prisma:validate
+pnpm build</code></pre></div>
+        <div class="grid">
+          <div class="card"><h3>Integration</h3><p>Repository, notification, webhook, auth config, rate limit และ pilot contracts</p></div>
+          <div class="card"><h3>Playwright</h3><p>Customer/owner flows, responsive geometry, portals และ dynamic tracking/edit</p></div>
+        </div>
+        <div class="callout warning"><strong>Time-window tests</strong>ถ้า <code class="inline-code">pilot-report.test.ts</code> คืน zero samples รอบวันเปลี่ยน ให้ตรวจ report date/timezone และ fixture timestamps ก่อน ห้ามเพียง skip test</div>
+      </section>
+
+      <section class="doc-section" id="deployment">
+        <div class="section-head"><span class="section-index">10</span><div><h2>Dokploy deployment</h2><p>Production shape คือ web + postgres + disabled-by-default backup sidecar</p></div></div>
+        <div class="flow" aria-label="deployment flow">
+          <div><strong>Git main</strong><span>Reviewed commit</span></div>
+          <div><strong>Docker build</strong><span>Node 22 + pnpm</span></div>
+          <div><strong>migrate deploy</strong><span>Before listen</span></div>
+          <div><strong>Next web</strong><span>Internal :3000</span></div>
+          <div><strong>Trusted proxy</strong><span>Public HTTPS</span></div>
+        </div>
+        <ol>
+          <li>สร้าง Dokploy app จาก repository และใช้ <code class="inline-code">docker-compose.deploy.yml</code></li>
+          <li>กำหนด persistent PostgreSQL volume และ env ตาม <a href="../production-environment.md">production-environment.md</a></li>
+          <li>Deploy แล้วตรวจ migration log และ Next listen ที่ port 3000</li>
+          <li>รัน <code class="inline-code">pnpm db:seed</code> หนึ่งครั้งใน web container</li>
+          <li>ผูก HTTPS domain ผ่าน trusted proxy ไป <code class="inline-code">web:3000</code></li>
+        </ol>
+        <div class="code-wrap"><pre><code>cd /workspace/app
+pnpm db:seed
+
+curl -I https://&lt;domain&gt;/api/health
+curl -I https://&lt;domain&gt;/
+curl -I https://&lt;domain&gt;/book
+curl -I https://&lt;domain&gt;/walk-in
+curl -I https://&lt;domain&gt;/owner/login</code></pre></div>
+        <div class="callout danger"><strong>Deployment ≠ Pilot approval</strong>คง <code class="inline-code">PILOT_MEASUREMENT_ENABLED=false</code> จน migration, smoke, roles, privacy, retention, rollback และ human approval ครบ</div>
+      </section>
+
+      <section class="doc-section" id="operations">
+        <div class="section-head"><span class="section-index">11</span><div><h2>Operations checklist</h2><p>ขั้นต่ำก่อนส่งต่อระบบให้สภาพแวดล้อมจริง</p></div></div>
+        <ul class="checklist">
+          <li><code>/api/health</code> ตอบ success, database reachable และ pilot disabled</li>
+          <li>Owner login, customer walk-in, owner start/close และ tracking link ทำงานครบ</li>
+          <li><code>/api/queue/status</code> ไม่เผย customer/queue detail fields</li>
+          <li><code>/privacy</code> แสดงช่องทางติดต่อจริง</li>
+          <li>LINE ว่างได้โดย queue action ไม่พัง; NotificationLog บันทึก skipped</li>
+          <li>R2 backup คง disabled จน config + backup + checksum + lifecycle ผ่าน</li>
+          <li>ตั้ง uptime monitor สำหรับ HTTP 503 ของ <code>/api/health</code></li>
+          <li>หยุด dev server/Playwright และตรวจ port 3000 หลัง validation</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="troubleshooting">
+        <div class="section-head"><span class="section-index">12</span><div><h2>Troubleshooting</h2><p>เริ่มจาก boundary ที่เล็กที่สุดและอย่ากลบ error ด้วย fallback</p></div></div>
+        <details><summary>Prisma ใช้งานไม่ได้หรือ app start ไม่ขึ้น</summary><div>ตรวจ <code>DATABASE_URL</code>, PostgreSQL health, migration logs และ <code>pnpm prisma:validate</code> ก่อน ถ้า production start ค้างให้ดู <code>prisma migrate deploy</code></div></details>
+        <details><summary>Owner login วนกลับหน้า login</summary><div>ตรวจ passcode/session secret, HTTPS และ secure-cookie behavior ห้ามลด security flag เพื่อแก้ production โดยไม่เข้าใจ proxy</div></details>
+        <details><summary>หน้า customer ใช้ mock/fallback data</summary><div>Repository บางจุดมี safe fallback เมื่อ DB unavailable ตรวจ database connection/log ก่อนเชื่อข้อมูลในหน้า</div></details>
+        <details><summary>Responsive ผ่าน overflow แต่ card ยังดูชนกัน</summary><div>ตรวจ screenshot จริงที่ 360/390/768/1024/1440, sibling gaps, Thai wrapping, fixed-nav clearance และ card height growth</div></details>
+        <details><summary>LINE ไม่ส่งแต่ queue ถูกสร้าง</summary><div>เป็น fail-soft contract ที่ตั้งใจ ตรวจ NotificationLog, recipient snapshot และ token ต่อใน <a href="line-oa-guide.html">LINE OA Guide</a></div></details>
+      </section>
+
+      <footer class="footer">
+        <p><strong>Sources:</strong> <a href="../../README.md">README</a>, <a href="../tech-stack.md">tech-stack.md</a>, <a href="../data-model.md">data-model.md</a>, <a href="../production-environment.md">production-environment.md</a>, <a href="../deployment-haabiz.md">deployment-haabiz.md</a>, <a href="../deployment-checklist.md">deployment-checklist.md</a></p>
+        <p>Snapshot prepared from repository state after commit <code>97e41d4</code>. Verify source after future schema, route, or deployment changes.</p>
+      </footer>
+    </main>
+  </div>
+  <script src="guide.js"></script>
+</body>
+</html>
