@@ -38,6 +38,91 @@ test.describe("owner availability schedule", () => {
     expect(viewport.scrollWidth).toBe(viewport.clientWidth);
   });
 
+  test("stacks the weekly preset below its heading without wrapping on narrow mobile", async ({ page }) => {
+    await loginOwner(page);
+
+    for (const viewport of [
+      { width: 360, height: 800 },
+      { width: 390, height: 844 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto("/owner/settings/availability");
+
+      const header = page.locator(".bqa-owner-weekly-schedule-panel > .bqa-section-header");
+      const heading = header.locator(":scope > div");
+      const presetForm = header.locator(":scope > form");
+      const presetButton = header.locator(".bqa-owner-weekly-preset-button");
+      const [headerBox, headingBox, formBox, buttonBox] = await Promise.all([
+        header.boundingBox(),
+        heading.boundingBox(),
+        presetForm.boundingBox(),
+        presetButton.boundingBox(),
+      ]);
+
+      expect(formBox?.y ?? 0).toBeGreaterThanOrEqual((headingBox?.y ?? 0) + (headingBox?.height ?? 0) + 12);
+      expect(buttonBox?.width ?? 0).toBeGreaterThanOrEqual((headerBox?.width ?? 0) - 26);
+
+      const textLineCount = await presetButton.evaluate((element) => {
+        const textNode = [...element.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+        if (!textNode) return 0;
+        const range = document.createRange();
+        range.selectNode(textNode);
+        return range.getClientRects().length;
+      });
+      expect(textLineCount).toBe(1);
+
+      const width = await page.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }));
+      expect(width.scroll).toBe(width.client);
+    }
+  });
+
+  test("gives expanded mobile fields breathing room without nested field borders", async ({ page }) => {
+    await loginOwner(page);
+
+    for (const viewport of [
+      { width: 360, height: 800 },
+      { width: 390, height: 844 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto("/owner/settings/availability");
+
+      const row = page.locator(".bqa-owner-weekly-row:visible").first();
+      const fields = row.locator(".ui-form-field");
+      const modeField = fields.nth(0);
+      const reasonField = fields.nth(1);
+      const modeLabel = modeField.locator(".ui-form-label-group");
+      const reasonLabel = reasonField.locator(".ui-form-label-group");
+      const modeControl = modeField.locator(".ui-select-trigger");
+      const reasonControl = reasonField.locator(".ui-input");
+      const saveButton = row.locator(".bqa-owner-weekly-save-button");
+      const [modeFieldBox, reasonFieldBox, modeLabelBox, reasonLabelBox, modeControlBox, reasonControlBox, saveButtonBox] = await Promise.all([
+        modeField.boundingBox(),
+        reasonField.boundingBox(),
+        modeLabel.boundingBox(),
+        reasonLabel.boundingBox(),
+        modeControl.boundingBox(),
+        reasonControl.boundingBox(),
+        saveButton.boundingBox(),
+      ]);
+
+      expect((modeControlBox?.y ?? 0) - ((modeLabelBox?.y ?? 0) + (modeLabelBox?.height ?? 0))).toBeGreaterThanOrEqual(8);
+      expect((reasonControlBox?.y ?? 0) - ((reasonLabelBox?.y ?? 0) + (reasonLabelBox?.height ?? 0))).toBeGreaterThanOrEqual(8);
+      expect((reasonFieldBox?.y ?? 0) - ((modeFieldBox?.y ?? 0) + (modeFieldBox?.height ?? 0))).toBeGreaterThanOrEqual(16);
+      expect((saveButtonBox?.y ?? 0) - ((reasonFieldBox?.y ?? 0) + (reasonFieldBox?.height ?? 0))).toBeGreaterThanOrEqual(16);
+      await expect(modeField).toHaveCSS("border-top-width", "0px");
+      await expect(reasonField).toHaveCSS("border-top-width", "0px");
+
+      const width = await page.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }));
+      expect(width.scroll).toBe(width.client);
+    }
+  });
+
   test("shows one connected seven-row desktop schedule with aligned owned forms", async ({ page }) => {
     await loginOwner(page);
     await page.setViewportSize({ width: 1440, height: 1000 });

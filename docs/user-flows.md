@@ -23,7 +23,7 @@
 6. Customer receives:
    - confirmation screen;
    - tracking link, queue code, and four-digit access PIN;
-   - LINE message if available.
+   - LINE message with the queue code and access PIN if verified LINE identity is available.
 7. Before appointment, system sends reminder/confirm-coming message if possible.
 
 ## Customer flow — walk-in / today's queue

@@ -193,8 +193,8 @@ cloudflared tunnel --url http://localhost:3000
       <section class="doc-section" id="notifications">
         <div class="section-head"><span class="section-index">08</span><div><h2>Notification events และ logs</h2><p>ข้อความเป็น text push; every attempt ต้องมี durable NotificationLog</p></div></div>
         <div class="table-wrap"><table><thead><tr><th>Event</th><th>Customer</th><th>Owner</th></tr></thead><tbody>
-          <tr><td><code>BOOKING_CONFIRMED</code></td><td>แจ้งยืนยัน booking เมื่อมี recipient</td><td>แจ้งคิวใหม่ถ้าลูกค้าเป็นคนสร้าง</td></tr>
-          <tr><td><code>QUEUE_CREATED</code></td><td>แจ้งบัตรคิว/walk-in</td><td>แจ้งเฉพาะ customer-created</td></tr>
+          <tr><td><code>BOOKING_CONFIRMED</code></td><td>แจ้งยืนยัน booking พร้อม queue code + PIN</td><td>แจ้งคิวใหม่ถ้าลูกค้าเป็นคนสร้าง</td></tr>
+          <tr><td><code>QUEUE_CREATED</code></td><td>แจ้งบัตรคิว/walk-in พร้อม queue code + PIN</td><td>แจ้งเฉพาะ customer-created</td></tr>
           <tr><td><code>QUEUE_NEAR</code></td><td>เมื่อ owner เริ่มให้บริการ</td><td>ไม่ส่ง</td></tr>
           <tr><td><code>LATE</code></td><td>เมื่อ owner ทำเครื่องหมายมาสาย</td><td>ไม่ส่ง</td></tr>
           <tr><td><code>CANCELLED</code></td><td>เมื่อยกเลิกคิว</td><td>ไม่ส่ง</td></tr>
@@ -207,6 +207,7 @@ cloudflared tunnel --url http://localhost:3000
           <tr><td><code>LINE / FAILED</code></td><td>Provider call ถูก reject/timeout/error</td></tr>
           <tr><td><code>LINE / PENDING</code></td><td>Pilot at-most-once attempt outcome ยังไม่ทราบ; ห้าม resend อัตโนมัติ</td></tr>
         </tbody></table></div>
+        <div class="callout"><strong>PIN scope</strong>ส่ง PIN จริงเฉพาะข้อความเริ่มต้นไป verified customer LINE เท่านั้น ข้อความสถานะภายหลังไม่ส่งซ้ำ และ NotificationLog เก็บเพียง <code class="inline-code">PIN เช็คคิว: ••••</code></div>
         <div class="callout"><strong>Fail-soft contract</strong>LINE failure ต้องไม่ block booking, walk-in หรือ owner status action ให้ตรวจจาก NotificationLog ภายหลัง</div>
       </section>
 

@@ -76,6 +76,8 @@ Current owner-alert events:
 
 Owner-created walk-ins are intentionally not pushed back to the owner to avoid self-notification spam. If no owner LINE id is connected/configured, the app records a skipped `NotificationLog` row and queue creation still succeeds.
 
+Initial customer messages for `BOOKING_CONFIRMED` and `QUEUE_CREATED` include the queue code and four-digit queue-check PIN. Later status messages do not repeat the PIN. The real PIN is sent only to the verified customer LINE recipient; durable `NotificationLog.messagePreview` stores `PIN เช็คคิว: ••••` instead of the credential.
+
 ## LIFF setup
 
 Create a LIFF app in the same LINE Login channel if you want rich-menu links to associate verified LINE identity with booking/walk-in forms without exposing identity in URLs.

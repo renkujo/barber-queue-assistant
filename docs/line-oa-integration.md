@@ -28,6 +28,7 @@ Current binding foundation:
 - Booking/walk-in actions read the verified cookie, pass the identity into queue creation, and clear it after success while preserving it across recoverable retries.
 - Customer lookup first prefers `lineUserId`, then phone fallback; if a LINE placeholder customer exists, the real form submission updates its name/phone.
 - Queue items snapshot `lineUserIdSnapshot`, so later notification sends do not depend only on the mutable customer row.
+- Initial booking/queue-created customer pushes include the queue code and deterministic four-digit access PIN. Later status pushes omit the PIN, and `NotificationLog.messagePreview` redacts it as `••••`.
 - `/api/line/webhook` binds `follow` and `message` events with `source.userId` into placeholder customers named `LINE user ...` until the user submits a real form.
 - LIFF entry and rich-menu deep-link targets are implemented through `/line?target=...`.
 - Authenticated `/owner/settings/line-connect` issues an owner connection link only when clicked. It carries a signed random nonce recorded in `OwnerLineConnectToken`; completion atomically consumes it once before updating the owner destination.

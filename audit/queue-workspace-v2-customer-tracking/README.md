@@ -2,6 +2,8 @@
 
 Status: technical QA passed; human-approved with strengthened responsive spacing and long-text QA.
 
+2026-07-23 responsive regression follow-up: a real seven-character queue code containing wide glyphs could be clipped by the dark ticket at narrow widths even though page-level overflow stayed zero. The code now uses an explicit full-width monospaced anchor with responsive sizing, and Playwright asserts a worst-case `QWMWMWM` fixture stays inside the ticket at every covered breakpoint.
+
 ## Scope and privacy boundary
 
 - `/queue/[publicToken]` opts into `data-customer-visual="v2"`; database IDs remain invalid public routes.
@@ -23,6 +25,11 @@ Canonical waiting state:
 - `tracking-waiting-768x1024.png`
 - `tracking-waiting-1024x768.png`
 - `tracking-waiting-1440x1000.png`
+
+Wide-glyph queue-code regression:
+
+- `tracking-wide-code-360x844.png`
+- `tracking-wide-code-390x844.png`
 
 Status variants:
 

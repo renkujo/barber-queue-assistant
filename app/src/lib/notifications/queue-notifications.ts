@@ -9,6 +9,7 @@ import {
 } from "@/generated/prisma/enums";
 import { getPilotMeasurementConfig } from "@/lib/pilot/config";
 import { prisma } from "@/lib/prisma";
+import { getQueueAccessPin } from "@/lib/queue/access-pin";
 import { getQueueCode } from "@/lib/queue/code";
 import { buildOwnerQueueNotificationMessage, buildQueueNotificationMessage, getQueueTimeLabel } from "./templates";
 import { createLineClient, type ILinePushClient } from "./line-client";
@@ -84,6 +85,7 @@ const sendPilotLineAttempt = async (input: {
   customerId: string | null;
   type: NotificationType;
   recipient: string;
+  messageText: string;
   messagePreview: string;
   audience: NotificationAudience;
   operationId: string;
@@ -91,8 +93,9 @@ const sendPilotLineAttempt = async (input: {
   lineClient: ILinePushClient;
   failureLabel: string;
 }) => {
+  const { failureLabel, lineClient, messageText, ...attemptInput } = input;
   const { attempt, won } = await createPilotAttempt({
-    ...input,
+    ...attemptInput,
     channel: NotificationChannel.LINE,
     status: NotificationStatus.PENDING,
   });
@@ -100,13 +103,13 @@ const sendPilotLineAttempt = async (input: {
   if (!won) return attempt;
 
   try {
-    await input.lineClient.pushTextMessage(input.recipient, input.messagePreview);
+    await lineClient.pushTextMessage(input.recipient, messageText);
   } catch (error) {
     return prisma.notificationLog.update({
       where: { id: attempt.id },
       data: {
         status: NotificationStatus.FAILED,
-        error: error instanceof Error ? error.message.slice(0, 500) : input.failureLabel,
+        error: error instanceof Error ? error.message.slice(0, 500) : failureLabel,
       },
     });
   }
@@ -131,7 +134,9 @@ export const notifyQueueEvent = async (queueItemId: string, type: NotificationTy
   if (!queueItem) throw new Error("Queue item not found for notification.");
 
   const recipient = queueItem.lineUserIdSnapshot ?? queueItem.customer?.lineUserId ?? null;
-  const messagePreview = buildQueueNotificationMessage(type, {
+  const accessPin = getQueueAccessPin(queueItem.publicToken);
+  const messageText = buildQueueNotificationMessage(type, {
+    accessPin,
     customerName: queueItem.customerNameSnapshot,
     queueCode: getQueueCode(queueItem.id),
     serviceName: queueItem.serviceNameSnapshot,
@@ -139,6 +144,7 @@ export const notifyQueueEvent = async (queueItemId: string, type: NotificationTy
     date: queueItem.date,
     timeLabel: getQueueTimeLabel(queueItem.startAt, queueItem.estimatedAt, queueItem.date),
   });
+  const messagePreview = messageText.replace(`PIN เช็คคิว: ${accessPin}`, "PIN เช็คคิว: ••••");
   const pilot = getPilotAttemptContext(queueItem, options.operationId);
 
   if (!recipient) {
@@ -157,11 +163,11 @@ export const notifyQueueEvent = async (queueItemId: string, type: NotificationTy
   }
 
   if (pilot) {
-    return sendPilotLineAttempt({ queueItemId: queueItem.id, customerId: queueItem.customerId, type, recipient, messagePreview, audience: NotificationAudience.CUSTOMER, lineClient, failureLabel: "Unknown LINE push error", ...pilot });
+    return sendPilotLineAttempt({ queueItemId: queueItem.id, customerId: queueItem.customerId, type, recipient, messageText, messagePreview, audience: NotificationAudience.CUSTOMER, lineClient, failureLabel: "Unknown LINE push error", ...pilot });
   }
 
   try {
-    await lineClient.pushTextMessage(recipient, messagePreview);
+    await lineClient.pushTextMessage(recipient, messageText);
     return prisma.notificationLog.create({ data: { queueItemId: queueItem.id, customerId: queueItem.customerId, channel: NotificationChannel.LINE, type, status: NotificationStatus.SENT, recipient, messagePreview, sentAt: new Date() } });
   } catch (error) {
     return prisma.notificationLog.create({ data: { queueItemId: queueItem.id, customerId: queueItem.customerId, channel: NotificationChannel.LINE, type, status: NotificationStatus.FAILED, recipient, messagePreview, error: error instanceof Error ? error.message : "Unknown LINE push error" } });
@@ -200,7 +206,7 @@ export const notifyOwnerQueueEvent = async (queueItemId: string, type: Notificat
   }
 
   if (pilot) {
-    return sendPilotLineAttempt({ queueItemId: queueItem.id, customerId: null, type, recipient, messagePreview, audience: NotificationAudience.OWNER, lineClient, failureLabel: "Unknown owner LINE push error", ...pilot });
+    return sendPilotLineAttempt({ queueItemId: queueItem.id, customerId: null, type, recipient, messageText: messagePreview, messagePreview, audience: NotificationAudience.OWNER, lineClient, failureLabel: "Unknown owner LINE push error", ...pilot });
   }
 
   try {

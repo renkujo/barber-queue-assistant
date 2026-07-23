@@ -2,6 +2,7 @@ import { NotificationType, QueueItemStatus } from "@/generated/prisma/enums";
 import { formatThaiTime, toDateValue } from "@/lib/queue/date";
 
 export type QueueNotificationContext = {
+  accessPin?: string;
   customerName: string;
   queueCode: string;
   serviceName: string;
@@ -40,13 +41,16 @@ const getCustomerStatusCopy = (statusLabel: string) => customerStatusCopy[status
 
 export const buildQueueNotificationMessage = (type: NotificationType, context: QueueNotificationContext) => {
   const appointmentLabel = `${formatDateLabel(context.date)} ${context.timeLabel}`;
+  const queueAccessCopy = context.accessPin
+    ? `\nPIN เช็คคิว: ${context.accessPin}\nเก็บรหัสคิวและ PIN ไว้ใช้เช็คสถานะ`
+    : "";
 
   if (type === NotificationType.BOOKING_CONFIRMED) {
-    return `ยืนยันคิว ${context.queueCode}\n${context.customerName} · ${context.serviceName}\nเวลา ${appointmentLabel}`;
+    return `ยืนยันคิว ${context.queueCode}${queueAccessCopy}\n${context.customerName} · ${context.serviceName}\nเวลา ${appointmentLabel}`;
   }
 
   if (type === NotificationType.QUEUE_CREATED) {
-    return `รับคิวแล้ว ${context.queueCode}\n${context.customerName} · ${context.serviceName}\nตอนนี้คิวของคุณ: ${getCustomerStatusCopy(context.statusLabel)}`;
+    return `รับคิวแล้ว ${context.queueCode}${queueAccessCopy}\n${context.customerName} · ${context.serviceName}\nตอนนี้คิวของคุณ: ${getCustomerStatusCopy(context.statusLabel)}`;
   }
 
   if (type === NotificationType.QUEUE_NEAR) {

@@ -3,6 +3,7 @@ import { NotificationChannel, NotificationStatus, NotificationType, QueueCreated
 import { prisma } from "@/lib/prisma";
 import { bindLineUserId } from "@/lib/notifications/line-binding";
 import { notifyOwnerQueueEvent, notifyQueueEvent } from "@/lib/notifications/queue-notifications";
+import { getQueueAccessPin } from "@/lib/queue/access-pin";
 import { createDateTime, getDayBounds, getTodayValue } from "@/lib/queue/date";
 import { getQueueCode } from "@/lib/queue/code";
 import type { ILinePushClient } from "@/lib/notifications/line-client";
@@ -140,6 +141,8 @@ describe("queue notifications", () => {
     expect(notification.messagePreview).toContain(getQueueCode(queueItem.id));
     expect(notification.messagePreview).toContain("ตอนนี้คิวของคุณ");
     expect(notification.messagePreview).toContain("รอเรียกคิว");
+    expect(notification.messagePreview).toContain("PIN เช็คคิว: ••••");
+    expect(notification.messagePreview).not.toContain(getQueueAccessPin(queueItem.publicToken));
     expect(notification.messagePreview).not.toContain(QueueItemStatus.WAITING);
   });
 
@@ -161,7 +164,27 @@ describe("queue notifications", () => {
     expect(pushes[0]?.to).toBe(queueItem.lineUserIdSnapshot);
     expect(pushes[0]?.text).toContain("Vitest Notification Service");
     expect(pushes[0]?.text).toContain("รอเรียกคิว");
+    expect(pushes[0]?.text).toContain(`PIN เช็คคิว: ${getQueueAccessPin(queueItem.publicToken)}`);
+    expect(pushes[0]?.text).toContain("เก็บรหัสคิวและ PIN ไว้ใช้เช็คสถานะ");
+    expect(notification.messagePreview).toContain("PIN เช็คคิว: ••••");
+    expect(notification.messagePreview).not.toContain(getQueueAccessPin(queueItem.publicToken));
     expect(pushes[0]?.text).not.toContain(QueueItemStatus.WAITING);
+  });
+
+  it("sends the access PIN for booking confirmation but not later status events", async () => {
+    const queueItem = await createQueueItem({ name: `${testPrefix} PIN Scope`, lineUserId: `U${Date.now()}pinscope` });
+    const pushes: string[] = [];
+    const lineClient: ILinePushClient = {
+      pushTextMessage: async (_to, text) => {
+        pushes.push(text);
+      },
+    };
+
+    await notifyQueueEvent(queueItem.id, NotificationType.BOOKING_CONFIRMED, { lineClient });
+    await notifyQueueEvent(queueItem.id, NotificationType.QUEUE_NEAR, { lineClient });
+
+    expect(pushes[0]).toContain(`PIN เช็คคิว: ${getQueueAccessPin(queueItem.publicToken)}`);
+    expect(pushes[1]).not.toContain("PIN เช็คคิว");
   });
 
 

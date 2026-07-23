@@ -85,6 +85,7 @@ Notes:
 - Public tracking never accepts the database `id`; it resolves `publicToken` and masks the customer name.
 - The human-readable `Q` + six-character queue code is derived from the immutable queue ID, so it stays stable after reorder and matches LINE notification copy.
 - Manual lookup uses the queue code plus a deterministic four-digit PIN derived from the UUID `publicToken`. The PIN is not stored as a database column, can be reproduced for owner sharing, and remains protected by per-IP and per-queue-code lookup rate limits. Phone digits are not accepted as a lookup credential.
+- Initial customer LINE messages include the PIN when a verified recipient exists; `NotificationLog.messagePreview` redacts it as `••••` so the durable log does not become another credential store.
 - Phone is optional. A phone-less queue can still be tracked through its UUID link or queue code + PIN.
 
 ## Entity: TimeBlock

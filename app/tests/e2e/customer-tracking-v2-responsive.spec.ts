@@ -20,7 +20,7 @@ test.describe("customer tracking V2 privacy and responsive ownership", () => {
   });
 
   const createTrackingItem = async (client: Client) => {
-    const id = randomUUID();
+    const id = `${randomUUID()}WMWMWM`;
     const publicToken = randomUUID();
     const service = await client.query<{ id: string }>(
       `select "id" from "Service" where "isActive"=true order by "sortOrder","createdAt" limit 1`,
@@ -71,6 +71,23 @@ test.describe("customer tracking V2 privacy and responsive ownership", () => {
         await expect(page.locator("main[data-customer-visual='v2'].bqa-customer-tracking-v2")).toBeVisible();
         await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex.*nofollow/);
         await expect(page.locator(".bqa-tracking-access-pin")).toHaveText(/^\d{4}$/);
+
+        const queueCodeFit = await page.locator(".bqa-tracking-ticket strong").evaluate((element) => {
+          const code = element.getBoundingClientRect();
+          const ticket = element.parentElement?.getBoundingClientRect();
+
+          return {
+            codeLeft: code.left,
+            codeRight: code.right,
+            ticketLeft: ticket?.left ?? 0,
+            ticketRight: ticket?.right ?? 0,
+            scrollWidth: element.scrollWidth,
+            clientWidth: element.clientWidth,
+          };
+        });
+        expect(queueCodeFit.scrollWidth).toBeLessThanOrEqual(queueCodeFit.clientWidth + 1);
+        expect(queueCodeFit.codeLeft).toBeGreaterThanOrEqual(queueCodeFit.ticketLeft - 1);
+        expect(queueCodeFit.codeRight).toBeLessThanOrEqual(queueCodeFit.ticketRight + 1);
 
         const main = await page.locator(".bqa-tracking-main").boundingBox();
         const side = await page.locator(".bqa-tracking-side").boundingBox();

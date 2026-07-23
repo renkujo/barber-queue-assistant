@@ -159,12 +159,12 @@ OWNER_LINE_USER_ID=""</code></pre></div>
         <div class="table-wrap"><table><thead><tr><th>ลำดับ</th><th>คนทำ</th><th>ผลที่ต้องเห็น</th></tr></thead><tbody>
           <tr><td>1. Follow/message OA</td><td>Test customer</td><td>Webhook 200 และ bindable event ถูกนับ</td></tr>
           <tr><td>2. เปิด rich menu</td><td>Test customer</td><td>LIFF เปิด <code>/line</code> และ redirect ไป form</td></tr>
-          <tr><td>3. สร้าง booking/walk-in</td><td>Test customer</td><td>Queue สำเร็จและ customer ได้ confirmation</td></tr>
+          <tr><td>3. สร้าง booking/walk-in</td><td>Test customer</td><td>Queue สำเร็จและ customer ได้ queue code + PIN ใน LINE</td></tr>
           <tr><td>4. เปิด owner dashboard</td><td>Owner</td><td>เห็นคิวใหม่โดยไม่ refresh ผิด state</td></tr>
           <tr><td>5. เริ่ม service</td><td>Owner</td><td>Customer ได้ queue-near notification</td></tr>
           <tr><td>6. เชื่อม owner LINE</td><td>Owner</td><td><code>/owner/settings</code> แสดงสถานะเชื่อมแล้ว</td></tr>
           <tr><td>7. สร้าง customer queue ใหม่</td><td>Test customer</td><td>Owner ได้ alert คิวใหม่</td></tr>
-          <tr><td>8. ตรวจ logs</td><td>Developer</td><td>NotificationLog เป็น SENT/SKIPPED/FAILED ตามความจริง</td></tr>
+          <tr><td>8. ตรวจ logs</td><td>Developer</td><td>NotificationLog เป็น SENT/SKIPPED/FAILED และ PIN ถูก redact เป็น ••••</td></tr>
         </tbody></table></div>
         <div class="callout"><strong>SENT ไม่ใช่ read receipt</strong><code class="inline-code">LINE/SENT</code> หมายถึง LINE API accepted request ไม่ได้ยืนยันว่าผู้ใช้เปิดอ่านแล้ว</div>
       </section>
