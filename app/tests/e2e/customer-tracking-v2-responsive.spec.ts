@@ -6,13 +6,21 @@ import { getDatabaseUrl, skipWhenE2eEnvMissing } from "./helpers";
 const statusCases = [
   ["CONFIRMED", "ยืนยันแล้ว", "ยืนยันคิวแล้ว", "ร้านได้รับคิวจองของคุณแล้ว", "ui-badge--neutral"],
   ["ARRIVED", "มาถึงแล้ว", "เช็กอินถึงร้านแล้ว", "ร้านรับทราบว่าคุณมาถึงแล้ว", "ui-badge--positive"],
-  ["WAITING", "รออยู่", "กำลังรอเรียกคิว", "คิวของคุณอยู่ในรายการรอ", "ui-badge--neutral"],
+  ["WAITING", "รออยู่", "กำลังรอเรียกคิว", "คิวของคุณอยู่ในรายการรอ", "ui-badge--warm"],
   ["IN_PROGRESS", "กำลังตัด", "กำลังให้บริการ", "ถึงคิวของคุณแล้ว", "ui-badge--positive"],
   ["LATE", "มาสาย", "คิวนี้ถูกทำเครื่องหมายว่ามาสาย", "ให้รับบัตรคิวใหม่", "ui-badge--warning"],
   ["NO_SHOW", "ไม่มา", "คิวนี้ถูกบันทึกว่าไม่มา", "ให้รับบัตรคิวใหม่", "ui-badge--danger"],
   ["CANCELLED", "ยกเลิก", "คิวนี้ถูกยกเลิก", "ให้รับบัตรคิวใหม่", "ui-badge--danger"],
   ["DONE", "เสร็จแล้ว", "บริการเสร็จแล้ว", "ขอบคุณที่ใช้บริการ", "ui-badge--positive"],
 ] as const;
+
+const badgePalette = {
+  "ui-badge--neutral": { background: "rgb(232, 236, 242)", border: "rgb(107, 114, 128)", color: "rgb(55, 65, 81)" },
+  "ui-badge--warm": { background: "rgb(223, 232, 255)", border: "rgb(61, 95, 204)", color: "rgb(32, 59, 145)" },
+  "ui-badge--positive": { background: "rgb(216, 238, 232)", border: "rgb(47, 116, 107)", color: "rgb(31, 93, 85)" },
+  "ui-badge--warning": { background: "rgb(255, 237, 179)", border: "rgb(138, 90, 0)", color: "rgb(111, 61, 0)" },
+  "ui-badge--danger": { background: "rgb(248, 216, 213)", border: "rgb(162, 64, 56)", color: "rgb(129, 40, 33)" },
+} as const;
 
 test.describe("customer tracking V2 privacy and responsive ownership", () => {
   test.beforeEach(() => {
@@ -167,6 +175,14 @@ test.describe("customer tracking V2 privacy and responsive ownership", () => {
         const badge = page.getByText(label, { exact: true });
         await expect(badge).toBeVisible();
         await expect(badge).toHaveClass(new RegExp(toneClass));
+        await expect(badge).toHaveCSS("background-color", badgePalette[toneClass].background);
+        await expect(badge).toHaveCSS("border-color", badgePalette[toneClass].border);
+        await expect(badge).toHaveCSS("color", badgePalette[toneClass].color);
+        const marker = await badge.evaluate((element) => {
+          const style = getComputedStyle(element, "::before");
+          return { background: style.backgroundColor, content: style.content, height: style.height, width: style.width };
+        });
+        expect(marker).toEqual({ background: badgePalette[toneClass].color, content: '""', height: "6px", width: "6px" });
         await expect(page.getByRole("heading", { name: heading })).toBeVisible();
         await expect(page.getByText(new RegExp(guidance))).toBeVisible();
       }

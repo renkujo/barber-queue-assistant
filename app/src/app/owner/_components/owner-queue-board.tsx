@@ -45,6 +45,12 @@ type StatusActionButtonProps = {
 
 type QueueReorderIntent = "up" | "down" | "bottom";
 
+const reorderIcon: Record<QueueReorderIntent, "lucide:arrow-up" | "lucide:arrow-down" | "lucide:move-down"> = {
+  up: "lucide:arrow-up",
+  down: "lucide:arrow-down",
+  bottom: "lucide:move-down",
+};
+
 const StatusActionButton = ({
   itemId,
   status,
@@ -157,8 +163,14 @@ const QueueRowNote = ({ item }: { item: OwnerQueueRowItem }) => {
 };
 
 const QueueRowEditLink = ({ item }: { item: QueueListItem }) => (
-  <Link href={`/owner/queue/${item.id}/edit`} className="bqa-owner-queue-edit">
-    <Icon icon="lucide:square-pen" aria-hidden="true" />แก้ไข
+  <Link
+    href={`/owner/queue/${item.id}/edit`}
+    className="bqa-owner-queue-edit"
+    aria-label={`แก้ไขคิว ${item.code} ${item.customerName}`}
+    title="แก้ไขคิว"
+  >
+    <Icon icon="lucide:square-pen" aria-hidden="true" />
+    <span>แก้ไข</span>
   </Link>
 );
 
@@ -169,14 +181,31 @@ const QueueRowAccess = ({ item }: { item: OwnerQueueRowItem }) => {
 
   return (
     <div className="bqa-owner-queue-access">
-      <span className="bqa-owner-queue-pin">PIN {item.accessPin}</span>
+      <span className="bqa-owner-queue-pin">
+        <Icon icon="lucide:key-round" aria-hidden="true" />
+        PIN {item.accessPin}
+      </span>
       <OwnerQueueShareButton accessPin={item.accessPin} publicToken={item.publicToken} queueCode={item.code} />
     </div>
   );
 };
 
-const QueueRowTime = ({ item }: { item: QueueListItem }) => (
-  <div className="bqa-owner-queue-time">{item.timeLabel}</div>
+const QueueRowTime = ({ item, rowIndex }: { item: QueueListItem; rowIndex: number }) => {
+  const isFlexibleQueue = item.timeLabel === "รอ";
+
+  return (
+    <div className={cn("bqa-owner-queue-time", isFlexibleQueue && "bqa-owner-queue-time--position")}>
+      <span className="sr-only">{isFlexibleQueue ? "ลำดับคิว " : "เวลา "}</span>
+      <Icon icon={isFlexibleQueue ? "lucide:list-ordered" : "lucide:clock"} aria-hidden="true" />
+      <span>{isFlexibleQueue ? `#${rowIndex + 1}` : item.timeLabel}</span>
+    </div>
+  );
+};
+
+const QueueRowStatus = ({ item }: { item: QueueListItem }) => (
+  <div className="bqa-owner-queue-status">
+    <StatusBadge tone={rowTone(item.tone)}>{item.statusLabel}</StatusBadge>
+  </div>
 );
 
 const QueueRowIdentity = ({ canMutateQueue, item }: { canMutateQueue: boolean; item: OwnerQueueRowItem }) => (
@@ -187,7 +216,10 @@ const QueueRowIdentity = ({ canMutateQueue, item }: { canMutateQueue: boolean; i
       </strong>
       {canMutateQueue ? <QueueRowEditLink item={item} /> : null}
     </div>
-    {canMutateQueue ? <QueueRowAccess item={item} /> : null}
+    <div className="bqa-owner-queue-meta">
+      <QueueRowStatus item={item} />
+      {canMutateQueue ? <QueueRowAccess item={item} /> : null}
+    </div>
     <p className="bqa-owner-queue-mobile-note">
       <QueueRowNote item={item} />
     </p>
@@ -200,18 +232,14 @@ const QueueRowServiceNote = ({ item }: { item: OwnerQueueRowItem }) => (
   </div>
 );
 
-const QueueRowStatus = ({ item }: { item: QueueListItem }) => (
-  <div className="bqa-owner-queue-status">
-    <StatusBadge tone={rowTone(item.tone)}>{item.statusLabel}</StatusBadge>
-  </div>
-);
-
 const ReorderActionButton = ({
+  accessibleLabel,
   disabled,
   intent,
   itemId,
   label,
 }: {
+  accessibleLabel: string;
   disabled: boolean;
   intent: QueueReorderIntent;
   itemId: string;
@@ -219,8 +247,8 @@ const ReorderActionButton = ({
 }) => {
   if (disabled) {
     return (
-      <Button variant="outline" type="button" size="sm" disabled fullWidth className="bqa-owner-reorder-button">
-        {label}
+      <Button variant="outline" type="button" size="sm" disabled fullWidth className="bqa-owner-reorder-button" aria-label={accessibleLabel}>
+        <Icon icon={reorderIcon[intent]} aria-hidden="true" />{label}
       </Button>
     );
   }
@@ -230,8 +258,8 @@ const ReorderActionButton = ({
       <input name="queueItemId" type="hidden" value={itemId} />
       <input name="intent" type="hidden" value={intent} />
       <input name="operationId" type="hidden" value={randomUUID()} />
-      <Button variant="outline" type="submit" size="sm" fullWidth className="bqa-owner-reorder-button">
-        {label}
+      <Button variant="outline" type="submit" size="sm" fullWidth className="bqa-owner-reorder-button" aria-label={accessibleLabel}>
+        <Icon icon={reorderIcon[intent]} aria-hidden="true" />{label}
       </Button>
     </form>
   );
@@ -254,26 +282,21 @@ const QueueRowReorderActions = ({
 
   const isFirst = rowIndex === 0;
   const isLast = rowIndex === totalCount - 1;
-  const reorderControls = (
-    <>
-      <ReorderActionButton disabled={disabled || isFirst} intent="up" itemId={item.id} label="ขึ้น" />
-      <ReorderActionButton disabled={disabled || isLast} intent="down" itemId={item.id} label="ลง" />
-      <ReorderActionButton disabled={disabled || isLast} intent="bottom" itemId={item.id} label="ท้าย" />
-    </>
-  );
+  const itemLabel = `${item.code} ${item.customerName}`;
 
   return (
-    <>
-      <details className="bqa-owner-reorder-disclosure">
-        <summary>จัดลำดับ</summary>
-        <div className="bqa-owner-reorder-actions" aria-label={`จัดลำดับ ${item.code} ${item.customerName}`}>
-          {reorderControls}
-        </div>
-      </details>
-      <div className="bqa-owner-reorder-actions bqa-owner-reorder-actions--desktop" aria-label={`จัดลำดับ ${item.code} ${item.customerName}`}>
-        {reorderControls}
+    <details className="bqa-owner-reorder-disclosure">
+      <summary>
+        <Icon icon="lucide:list-restart" aria-hidden="true" />
+        <span>จัดลำดับ</span>
+        <Icon icon="lucide:chevron-down" className="bqa-owner-reorder-chevron" aria-hidden="true" />
+      </summary>
+      <div className="bqa-owner-reorder-actions" aria-label={`จัดลำดับ ${itemLabel}`}>
+        <ReorderActionButton accessibleLabel={`เลื่อน ${itemLabel} ขึ้น`} disabled={disabled || isFirst} intent="up" itemId={item.id} label="ขึ้น" />
+        <ReorderActionButton accessibleLabel={`เลื่อน ${itemLabel} ลง`} disabled={disabled || isLast} intent="down" itemId={item.id} label="ลง" />
+        <ReorderActionButton accessibleLabel={`ย้าย ${itemLabel} ไปท้ายคิว`} disabled={disabled || isLast} intent="bottom" itemId={item.id} label="ท้าย" />
       </div>
-    </>
+    </details>
   );
 };
 
@@ -299,7 +322,7 @@ const QueueRowActions = ({
     return (
       <div className="bqa-owner-board-actions bqa-owner-board-actions--quiet">
         <StatusActionButton itemId={item.id} status={QueueItemStatus.WAITING} size="sm" disabled={disabled} className="bqa-owner-action-button bqa-owner-action-button--wait">
-          รอเพิ่ม
+          <Icon icon="lucide:clock" aria-hidden="true" />รอเพิ่ม
         </StatusActionButton>
         <NoShowConfirmButton item={item} disabled={disabled} />
       </div>
@@ -308,8 +331,8 @@ const QueueRowActions = ({
 
   if (!isPrimaryCandidate) {
     return (
-      <span className="bqa-owner-passive-action" aria-label="ยังไม่ถึงคิวนี้">
-        <Icon icon="lucide:clock" aria-hidden="true" />ยังไม่ถึงคิว
+      <span className="bqa-owner-passive-action" aria-label="รอคิวก่อนหน้า">
+        <Icon icon="lucide:clock" aria-hidden="true" />รอคิวก่อนหน้า
       </span>
     );
   }
@@ -317,7 +340,7 @@ const QueueRowActions = ({
   return (
     <div className="bqa-owner-board-actions bqa-owner-board-actions--primary">
       <StatusActionButton itemId={item.id} status={QueueItemStatus.IN_PROGRESS} variant="default" size="sm" disabled={disabled} className="bqa-owner-action-button bqa-owner-action-button--start">
-        <Icon icon="lucide:circle-play" aria-hidden="true" />เริ่มตัด
+        <Icon icon="lucide:scissors" aria-hidden="true" />เริ่มตัด
       </StatusActionButton>
       <div className="bqa-owner-board-actions bqa-owner-board-actions--quiet">
         <StatusActionButton itemId={item.id} status={QueueItemStatus.LATE} variant="outline" size="sm" disabled={disabled} className="bqa-owner-action-button bqa-owner-action-button--late">
@@ -343,10 +366,9 @@ const OwnerQueueRow = ({
   totalCount: number;
 }) => (
   <article className={cn("bqa-owner-queue-row", isPrimaryCandidate && "bqa-owner-queue-row--active", `bqa-tone-${rowTone(item.tone)}`)}>
-    <QueueRowTime item={item} />
+    <QueueRowTime item={item} rowIndex={rowIndex} />
     <QueueRowIdentity canMutateQueue={canMutateQueue} item={item} />
     <QueueRowServiceNote item={item} />
-    <QueueRowStatus item={item} />
     <div className="bqa-owner-queue-manage">
       <QueueRowActions item={item} disabled={!canMutateQueue} isPrimaryCandidate={isPrimaryCandidate} />
       <QueueRowReorderActions disabled={!canMutateQueue} item={item} rowIndex={rowIndex} totalCount={totalCount} />
@@ -383,11 +405,10 @@ export const OwnerQueueBoard = ({
 
     <CardContent className="bqa-owner-queue-content">
       <div className="bqa-owner-queue-head" aria-hidden="true">
-        <span><Icon icon="lucide:clock" />เวลา</span>
-        <span>คิว</span>
-        <span>บริการ / หมายเหตุ</span>
-        <span>สถานะ</span>
-        <span>จัดการ</span>
+        <span><Icon icon="lucide:list-ordered" />ลำดับ</span>
+        <span><Icon icon="lucide:user-round" />คิว / สถานะ</span>
+        <span><Icon icon="lucide:scissors" />บริการ / หมายเหตุ</span>
+        <span><Icon icon="lucide:sliders-horizontal" />จัดการ</span>
       </div>
 
       <div className="bqa-owner-queue-list">

@@ -797,12 +797,21 @@
 }
 
 .bqa-owner-queue-time {
+  display: inline-flex;
   grid-column: 1;
+  align-items: center;
+  gap: 6px;
   color: color-mix(in srgb, var(--ink) 72%, var(--muted));
   font-size: clamp(16px, 3.2vw, 19px);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   line-height: 1.15;
+}
+
+.bqa-owner-queue-time svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
 }
 
 .bqa-owner-queue-row--active .bqa-owner-queue-time {
@@ -824,6 +833,7 @@
 
 .bqa-owner-queue-edit {
   display: inline-flex;
+  min-height: 44px;
   align-items: center;
   gap: 4px;
   margin-left: 6px;
@@ -843,7 +853,13 @@
   color: var(--ink);
 }
 
-.bqa-owner-queue-access {
+.bqa-owner-queue-edit svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+.bqa-owner-queue-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -851,10 +867,19 @@
   margin-top: 6px;
 }
 
+.bqa-owner-queue-access {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0;
+}
+
 .bqa-owner-queue-pin {
   display: inline-flex;
   min-height: 26px;
   align-items: center;
+  gap: 5px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface-warm);
@@ -866,12 +891,21 @@
   letter-spacing: 0.04em;
 }
 
+.bqa-owner-queue-pin svg {
+  width: 12px;
+  height: 12px;
+}
+
 .bqa-owner-queue-share.ui-button {
   min-height: 26px;
   border-radius: 8px;
   padding: 0 8px;
   color: var(--muted);
   font-size: 11px;
+}
+
+.bqa-owner-queue-share-label {
+  display: inline;
 }
 
 .bqa-owner-queue-mobile-note,
@@ -915,8 +949,7 @@
 }
 
 .bqa-owner-queue-status {
-  grid-column: 2;
-  padding-top: 4px;
+  padding-top: 0;
 }
 
 .bqa-owner-queue-status .ui-badge {
@@ -951,10 +984,6 @@
   gap: 6px;
 }
 
-.bqa-owner-reorder-actions--desktop {
-  display: none;
-}
-
 .bqa-owner-reorder-disclosure {
   min-width: 0;
 }
@@ -964,14 +993,27 @@
   min-height: 36px;
   align-items: center;
   justify-content: center;
+  gap: 7px;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
   background: color-mix(in srgb, var(--surface) 90%, var(--paper));
   color: var(--muted);
   cursor: pointer;
+  padding: 0 10px;
   font-size: 13px;
   font-weight: 500;
   list-style: none;
+}
+
+.bqa-owner-reorder-disclosure summary svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+}
+
+.bqa-owner-reorder-chevron {
+  margin-left: auto;
+  transition: transform 150ms ease;
 }
 
 .bqa-owner-reorder-disclosure summary::-webkit-details-marker {
@@ -982,6 +1024,10 @@
   border-color: color-mix(in srgb, var(--primary) 62%, var(--line-strong));
   background: color-mix(in srgb, var(--primary-soft) 30%, var(--surface));
   color: var(--ink);
+}
+
+.bqa-owner-reorder-disclosure[open] .bqa-owner-reorder-chevron {
+  transform: rotate(180deg);
 }
 
 .bqa-owner-reorder-disclosure[open] .bqa-owner-reorder-actions {
@@ -1094,10 +1140,10 @@
   display: inline-flex;
   width: 100%;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 6px;
-  border: 1px solid var(--line-strong);
-  background: color-mix(in srgb, var(--surface) 88%, var(--paper));
+  border: 0;
+  background: transparent;
   color: var(--muted);
   cursor: default;
   font-weight: 500;
@@ -1403,7 +1449,8 @@
   }
 
   .bqa-owner-passive-action {
-    display: none;
+    display: inline-flex;
+    min-height: 28px;
   }
 
 }
@@ -1431,7 +1478,7 @@
 
   .bqa-owner-queue-head {
     display: grid;
-    grid-template-columns: 78px minmax(160px, 0.82fr) minmax(180px, 1fr) 104px minmax(204px, 0.76fr);
+    grid-template-columns: 72px minmax(220px, 1.1fr) minmax(180px, 1fr) minmax(204px, 0.78fr);
     gap: 12px;
     align-items: center;
     border-top: 1px solid var(--line);
@@ -1449,7 +1496,7 @@
   }
 
   .bqa-owner-queue-row {
-    grid-template-columns: 78px minmax(160px, 0.82fr) minmax(180px, 1fr) 104px minmax(204px, 0.76fr);
+    grid-template-columns: 72px minmax(220px, 1.1fr) minmax(180px, 1fr) minmax(204px, 0.78fr);
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
@@ -1496,12 +1543,23 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .bqa-owner-reorder-disclosure {
-    display: none;
+  .bqa-owner-queue-edit,
+  .bqa-owner-queue-share.ui-button {
+    width: 32px;
+    min-height: 32px;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
   }
 
-  .bqa-owner-reorder-actions--desktop {
-    display: grid;
+  .bqa-owner-queue-edit span,
+  .bqa-owner-queue-share-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }
 

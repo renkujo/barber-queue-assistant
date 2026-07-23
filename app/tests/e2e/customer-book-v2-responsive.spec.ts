@@ -81,7 +81,9 @@ test.describe("customer booking V2 responsive ownership", () => {
       await expect(page.locator("main[data-owner-visual]")).toHaveCount(0);
       await expect(page.locator('input[name="lineUserId"]')).toHaveCount(0);
       await expect(page).not.toHaveURL(/lineUserId/);
-      await expect(page.getByRole("button", { name: "ยืนยันคิว" })).toHaveCSS("min-height", "52px");
+      const expectedControlHeight = viewport.width < 760 ? 44 : 40;
+      const expectedPrimaryHeight = viewport.width < 760 ? 48 : 44;
+      await expect(page.getByRole("button", { name: "ยืนยันคิว" })).toHaveCSS("min-height", `${expectedPrimaryHeight}px`);
 
       const guide = await page.locator(".bqa-book-guide").boundingBox();
       const form = await page.locator(".bqa-book-form").boundingBox();
@@ -94,7 +96,11 @@ test.describe("customer booking V2 responsive ownership", () => {
       const controlHeights = await page.locator(".bqa-book-section .ui-input, .bqa-book-section .ui-select-trigger").evaluateAll((controls) =>
         controls.map((control) => control.getBoundingClientRect().height),
       );
-      expect(Math.min(...controlHeights)).toBeGreaterThanOrEqual(48);
+      expect(Math.min(...controlHeights)).toBeGreaterThanOrEqual(expectedControlHeight);
+      if (viewport.width < 760) {
+        await expect(page.locator("#customerName")).toHaveCSS("font-size", "16px");
+        await expect(page.locator("#note")).toHaveCSS("font-size", "16px");
+      }
 
       const width = await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
       expect(width.scroll).toBe(width.client);

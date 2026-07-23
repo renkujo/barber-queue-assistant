@@ -24,7 +24,7 @@ test.describe("owner queue edit workbench", () => {
 
     const queueRow = page.locator(".bqa-owner-queue-row").filter({ hasText: customerName });
     await expect(queueRow).toBeVisible();
-    await queueRow.getByRole("link", { name: "แก้ไข" }).click();
+    await queueRow.getByRole("link", { name: /แก้ไขคิว/ }).click();
     await expect(page).toHaveURL(/\/owner\/queue\/.+\/edit$/);
 
     await page.setViewportSize({ width: 390, height: 844 });

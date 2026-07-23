@@ -135,7 +135,11 @@ export const promoteQueueRowToPrimary = async (page: Page, queueRow: ReturnType<
       return;
     }
 
-    const upButton = queueRow.locator(".bqa-owner-reorder-actions--desktop").getByRole("button", { name: "ขึ้น" });
+    const disclosure = queueRow.locator(".bqa-owner-reorder-disclosure");
+    if (!(await disclosure.evaluate((element) => element.hasAttribute("open")))) {
+      await disclosure.locator("summary").click();
+    }
+    const upButton = disclosure.getByRole("button", { name: /เลื่อน .* ขึ้น/ });
 
     if ((await upButton.count()) === 0 || !(await upButton.isEnabled())) {
       break;

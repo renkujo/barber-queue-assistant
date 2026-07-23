@@ -23,12 +23,13 @@ test.describe("customer home V2 responsive ownership", () => {
       await expect(page.locator("main[data-customer-visual='v2'].bqa-customer-home-v2")).toBeVisible();
       await expect(page.locator("main[data-owner-visual]")).toHaveCount(0);
       await expect(page.locator(".bqa-status-image")).toBeVisible();
-      await expect(page.getByRole("button", { name: "เช็คสถานะคิว" })).toHaveCSS("min-height", "48px");
+      const expectedControlHeight = viewport.width < 760 ? 44 : 40;
+      await expect(page.getByRole("button", { name: "เช็คสถานะคิว" })).toHaveCSS("min-height", `${expectedControlHeight}px`);
 
       const actionHeights = await page.locator(".bqa-home-actions .bqa-action-card").evaluateAll((actions) =>
         actions.map((action) => action.getBoundingClientRect().height),
       );
-      expect(Math.min(...actionHeights)).toBeGreaterThanOrEqual(72);
+      expect(Math.min(...actionHeights)).toBeGreaterThanOrEqual(64);
 
       const primary = await page.locator(".bqa-home-primary").boundingBox();
       const secondary = await page.locator(".bqa-home-secondary").boundingBox();

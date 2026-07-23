@@ -32,6 +32,7 @@ type QueueTrackingPageProps = {
 
 const statusTone = (status: string) => {
   if (status === QueueItemStatus.ARRIVED || status === QueueItemStatus.DONE || status === QueueItemStatus.IN_PROGRESS) return "positive";
+  if (status === QueueItemStatus.WAITING) return "warm";
   if (status === QueueItemStatus.LATE) return "warning";
   if (status === QueueItemStatus.NO_SHOW || status === QueueItemStatus.CANCELLED) return "danger";
 

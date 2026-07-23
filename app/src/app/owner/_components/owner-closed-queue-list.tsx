@@ -19,7 +19,7 @@ import { RestoreQueueActionButton } from "./restore-queue-action-button";
 
 const closedTone = (status: string) => {
   if (status === QueueItemStatus.DONE) return "positive";
-  if (status === QueueItemStatus.NO_SHOW || status === QueueItemStatus.CANCELLED) return "warning";
+  if (status === QueueItemStatus.NO_SHOW || status === QueueItemStatus.CANCELLED) return "danger";
 
   return "neutral";
 };

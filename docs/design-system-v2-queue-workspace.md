@@ -219,24 +219,26 @@ Do not use synthesized weights such as `500`, `600`, `620`, `650`, or `850` unle
 
 | Token | Mobile / Desktop | Weight | Line height | Use |
 | --- | --- | --- | --- | --- |
-| `type.screen-title` | `30px / 34px` | 800 | `1.12` | One page-level title |
-| `type.section-title` | `20px / 22px` | 700 | `1.25` | Main section heading |
-| `type.subsection-title` | `17px / 18px` | 700 | `1.3` | Card/workbench heading |
-| `type.body` | `16px` | 400 | `1.55` | Primary Thai reading text |
-| `type.body-strong` | `16px` | 700 | `1.5` | Emphasis and primary row labels |
-| `type.body-sm` | `14px` | 400 | `1.5` | Secondary copy and table cells |
-| `type.label` | `14px` | 700 | `1.4` | Form labels and controls |
-| `type.caption` | `13px` | 400 | `1.45` | Helper text and metadata |
+| `type.screen-title` | `24px / 30px` | 800 | `1.1` | One page-level title |
+| `type.section-title` | `17px / 18px` | 700 | `1.22` | Main section heading |
+| `type.subsection-title` | `15px` | 700 | `1.25` | Card/workbench heading |
+| `type.body` | `14px` | 400 | `1.45` | Primary Thai reading text |
+| `type.body-strong` | `14px` | 700 | `1.4` | Emphasis and primary row labels |
+| `type.body-sm` | `13px` | 400 | `1.4` | Secondary copy and table cells |
+| `type.label` | `13px` | 700 | `1.4` | Form labels |
+| `type.caption` | `12px` | 400 | `1.4` | Helper text and metadata |
 | `type.micro` | `12px` | 700 | `1.4` | Non-critical short tags only |
-| `type.button` | `14px` | 700 | `1.3` | Button labels |
-| `type.queue-code` | `32px / 36px` | 800 | `1.1` | Queue identity |
-| `type.stat` | `48px / 56px` | 800 | `1.05` | Position or wait-time callout |
+| `type.button` | `14px` | 700 | `1.3` | Button and select labels |
+| `type.queue-code` | `24px / 28px` | 800 | `1.05` | Queue identity outside the main ticket |
+| `type.stat` | `24–28px / 28–32px` | 800 | `1.05` | Route-relative position or wait-time callout |
 
 Typography rules:
 
 - Use tabular figures for queue counts, time, duration, and codes where alignment helps scanning.
 - Do not use negative tracking on Thai text.
 - Do not shrink critical Thai copy below 14px to fit a layout.
+- Keep focused mobile input and textarea text at `16px` to prevent iOS Safari zoom; compact their container height and spacing instead.
+- Validation errors remain at `14px`; the `12px` caption token is for non-critical helper text and metadata only.
 - Use `text-wrap: balance` for short headings and `text-wrap: pretty` for explanatory copy when supported.
 - Verify Thai diacritics, mixed Thai/English baselines, and long realistic labels at every promoted breakpoint.
 
@@ -259,8 +261,8 @@ Base unit: `4px`.
 
 Operational density rules:
 
-- Mobile prioritizes touch reach and reading; never tighten below 44px controls to mimic desktop density.
-- Desktop gains comparison breadth, not smaller Thai text.
+- Mobile prioritizes touch reach and reading; regular controls stay at `44px` and primary task actions may use `48px`.
+- Desktop regular controls use `40px`; primary task actions use `44px`.
 - Connected rows use dividers and shared outer boundaries instead of individual card margins.
 
 ## Shapes
@@ -303,7 +305,7 @@ Shape rules:
 
 | Variant | Target treatment | Product role |
 | --- | --- | --- |
-| `primary` | Dark rectangle, white text, 44–48px, `radius.md` | Expected next action |
+| `primary` | Dark rectangle, white text, 44px desktop / 48px mobile, `radius.md` | Expected next action |
 | `secondary` | White rectangle, strong hairline, ink text | Safe alternative |
 | `positive` | Restrained positive-soft rectangle, positive edge/text | Positive route-owned action |
 | `destructive` | Restrained danger-soft rectangle, danger edge/text | Cancel, no-show, delete |
@@ -315,7 +317,7 @@ Rules:
 
 - Preserve one dominant primary action per task area.
 - This document assigns visual priority only. The route/behavior contract owns which action exists and which action is expected next.
-- Mobile owner actions are at least 48px when they change queue state.
+- Mobile owner actions are at least 44px; primary queue-state actions remain 48px where the workflow needs extra touch confidence.
 - Destructive controls never share the primary visual category.
 - Keep visible focus, pressed, pending, disabled, and error feedback.
 - Icon-only actions require accessible names and must not carry critical meaning through icon shape alone.
@@ -332,8 +334,8 @@ Avoid nested border + background + radius at every level. A form section may own
 
 ### Inputs and forms
 
-- Inputs/selects: white, 44px minimum height, `radius.md`, strong hairline.
-- Mobile task inputs may use 48px height.
+- Inputs/selects: white, 40px desktop / 44px mobile, `radius.md`, strong hairline.
+- Textareas use an `84px` desktop / `88px` mobile minimum instead of the previous 112px default.
 - Focus: two-pixel brand-blue ring plus sufficient offset or equivalent high-contrast treatment.
 - Labels remain above controls.
 - Description and error text must be connected through `aria-describedby`; invalid controls expose `aria-invalid`.
@@ -343,14 +345,21 @@ Avoid nested border + background + radius at every level. A form section may own
 ### Badges and status
 
 - Badges use `radius.full`, short text, and 24–28px minimum height.
-- Use yellow for attention, teal/green for positive truth, and rose/red for risk.
+- Every status badge keeps a visible text label and a six-pixel semantic marker; color remains supplemental rather than the only status signal.
+- Use graphite for neutral/confirmed, brand blue for next/waiting, teal-green for arrived/current/done, amber for late or disabled attention, and red for cancelled/no-show risk.
+- Badge fills and borders are deliberately more saturated than surrounding panels so status remains scannable in dense owner and customer views.
 - Avoid badge walls. Current, next, warning, and exceptional state earn emphasis; normal rows stay quiet.
 
 ### Queue board and tables
 
 - The queue is one connected chronological board, not a grid of floating sticky notes.
-- Queue code/time is the strongest row anchor.
+- Fixed appointments use a clock/time anchor; flexible queues use an ordered-list icon plus `#position` instead of repeating the status word `รอ`.
+- Queue identity and status share one ownership group. Wide desktop uses four columns: time/position, queue/status/meta, service/note, and management.
 - One route-authorized contextual primary action is visible. Introducing a new disclosure mechanism or hiding an existing secondary/destructive action requires route-level approval and must preserve tap count expectations, keyboard access, discoverability, and confirmation behavior.
+- The primary candidate keeps `เริ่มตัด`, `สาย`, and `ยกเลิก` visible. Non-primary rows show `รอคิวก่อนหน้า` as passive text, never as a disabled-looking button.
+- Reorder commands live under one native `จัดลำดับ` disclosure at every viewport. The disclosure retains labelled up/down/move-to-end controls and their original server-action semantics.
+- Edit and queue-copy utilities are icon-led on desktop with accessible names and native title hints; their text labels remain visible below desktop width.
+- Operational icons support visible Thai labels for status-changing and reorder actions. Never replace a destructive or workflow-critical action with an unlabeled icon.
 - Desktop may expose comparison columns; mobile stacks the same data/action contract.
 - Dense tables use horizontal scrolling only when column comparison is essential. Queue actions must not require horizontal scrolling on mobile.
 

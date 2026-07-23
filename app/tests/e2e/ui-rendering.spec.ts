@@ -13,7 +13,7 @@ test.describe("responsive UI rendering", () => {
       /(?:%2F|\/)icons(?:%2F|\/)joined-tail-q-r1-ui-512\.png/,
     );
     await expect(page.locator(".bqa-home-actions svg")).toHaveCount(2);
-    await expect(page.getByRole("button", { name: "เช็คสถานะคิว" })).toHaveCSS("min-height", "48px");
+    await expect(page.getByRole("button", { name: "เช็คสถานะคิว" })).toHaveCSS("min-height", "44px");
 
     const viewport = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,

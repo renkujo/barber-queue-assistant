@@ -36,9 +36,11 @@ test.describe("owner walk-in V2 responsive workbench", () => {
       await expect(page.locator(".bqa-owner-mobile-bottom-nav")).toBeVisible({ visible: viewport.bottomNav });
       await expect(page.locator("[aria-current='page']:visible")).toContainText("เพิ่มคิว");
       await expect(page.getByRole("heading", { name: "เพิ่มคิว", level: 1 })).toBeVisible();
-      await expect(page.getByLabel("บริการ")).toHaveCSS("min-height", "48px");
-      await expect(page.getByLabel("ชื่อลูกค้า")).toHaveCSS("min-height", "48px");
-      await expect(page.getByRole("button", { name: "เพิ่มเข้าคิววันนี้" })).toHaveCSS("min-height", "52px");
+      const expectedControlHeight = viewport.width < 760 ? 44 : 40;
+      const expectedPrimaryHeight = viewport.width < 760 ? 48 : 44;
+      await expect(page.getByLabel("บริการ")).toHaveCSS("min-height", `${expectedControlHeight}px`);
+      await expect(page.getByLabel("ชื่อลูกค้า")).toHaveCSS("min-height", `${expectedControlHeight}px`);
+      await expect(page.getByRole("button", { name: "เพิ่มเข้าคิววันนี้" })).toHaveCSS("min-height", `${expectedPrimaryHeight}px`);
       await expectNoHorizontalOverflow(page);
 
       if (viewport.bottomNav) {

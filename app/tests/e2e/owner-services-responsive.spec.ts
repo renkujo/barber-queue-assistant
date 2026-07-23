@@ -31,7 +31,7 @@ test.describe("owner services responsive settings", () => {
     const addPanel = page.locator(".bqa-owner-services-create-mobile");
     const listPanel = page.locator(".bqa-owner-services-list-panel");
     await expect(addPanel.getByText("เพิ่มบริการ").first()).toBeVisible();
-    await expect(addPanel.locator("summary")).toHaveCSS("min-height", "56px");
+    await expect(addPanel.locator("summary")).toHaveCSS("min-height", "48px");
     await expect(addPanel).toBeVisible();
     await expect(listPanel).toBeVisible();
 
@@ -39,7 +39,7 @@ test.describe("owner services responsive settings", () => {
     const listBox = await listPanel.boundingBox();
     expect(addBox?.y ?? 0).toBeLessThan(listBox?.y ?? Number.POSITIVE_INFINITY);
     await addPanel.locator("summary").click();
-    await expect(addPanel.getByRole("button", { name: "เพิ่มบริการ" })).toHaveCSS("min-height", "48px");
+    await expect(addPanel.getByRole("button", { name: "เพิ่มบริการ" })).toHaveCSS("min-height", "44px");
 
     const disclosures = page.locator(".bqa-owner-service-disclosure");
     await expect(disclosures.first()).toHaveAttribute("open", "");

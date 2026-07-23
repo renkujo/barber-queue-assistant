@@ -60,6 +60,18 @@
   --qw-color-error: #8c2f3d;
   --qw-color-error-soft: #f7ecef;
 
+  --qw-badge-neutral-background: #e8ecf2;
+  --qw-badge-neutral-border: #6b7280;
+  --qw-badge-neutral-foreground: #374151;
+  --qw-badge-next-background: #dfe8ff;
+  --qw-badge-next-foreground: #203b91;
+  --qw-badge-positive-background: #d8eee8;
+  --qw-badge-positive-foreground: #1f5d55;
+  --qw-badge-warning-background: #ffedb3;
+  --qw-badge-warning-foreground: #6f3d00;
+  --qw-badge-danger-background: #f8d8d5;
+  --qw-badge-danger-foreground: #812821;
+
   --qw-space-1: 4px;
   --qw-space-2: 8px;
   --qw-space-3: 12px;
@@ -82,6 +94,19 @@
   --qw-elevation-1: 0 1px 2px rgba(23, 18, 15, 0.05);
   --qw-elevation-2: 0 6px 18px rgba(23, 18, 15, 0.08);
   --qw-elevation-3: 0 16px 44px rgba(23, 18, 15, 0.14);
+
+  --qw-type-screen-title: clamp(24px, 3vw, 30px);
+  --qw-type-section-title: 17px;
+  --qw-type-subsection-title: 15px;
+  --qw-type-body: 14px;
+  --qw-type-body-sm: 13px;
+  --qw-type-label: 13px;
+  --qw-type-caption: 12px;
+  --qw-type-control: 14px;
+
+  --qw-control-height: 44px;
+  --qw-control-height-primary: 48px;
+  --qw-textarea-height: 88px;
 
   --paper: #fff8ee;
   --surface: #fffdf8;

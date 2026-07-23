@@ -124,7 +124,8 @@ test.describe("customer walk-in V2 responsive ownership", () => {
         await page.goto("/walk-in");
         await expect(page.locator("main[data-customer-visual='v2'].bqa-customer-walkin-v2")).toBeVisible();
         await expect(page.locator("main[data-owner-visual]")).toHaveCount(0);
-        await expect(page.getByRole("button", { name: "รับบัตรคิวออนไลน์" })).toHaveCSS("min-height", "52px");
+        const expectedPrimaryHeight = viewport.width < 760 ? 48 : 44;
+        await expect(page.getByRole("button", { name: "รับบัตรคิวออนไลน์" })).toHaveCSS("min-height", `${expectedPrimaryHeight}px`);
 
         const guide = await page.locator(".bqa-walk-in-guide").boundingBox();
         const form = await page.locator(".bqa-book-form").boundingBox();

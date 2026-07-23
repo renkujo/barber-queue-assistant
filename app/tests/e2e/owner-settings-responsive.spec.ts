@@ -186,7 +186,8 @@ test.describe("owner settings responsive workbench", () => {
       await expect(page.locator(".bqa-owner-mobile-bottom-nav")).toBeVisible();
       await expect(page.locator(".bqa-owner-settings-hub")).toBeVisible();
       const saveButton = page.getByRole("button", { name: "บันทึกตั้งค่า" });
-      await expect(saveButton).toHaveCSS("min-height", "48px");
+      const expectedPrimaryHeight = viewport.width < 760 ? 48 : 44;
+      await expect(saveButton).toHaveCSS("min-height", `${expectedPrimaryHeight}px`);
       await expectNoHorizontalOverflow(page);
 
       await saveButton.scrollIntoViewIfNeeded();

@@ -32,8 +32,10 @@ test.describe("owner login V2 responsive ownership", () => {
 
       const input = page.getByLabel("รหัสเจ้าของร้าน");
       const submit = page.getByRole("button", { name: "เข้าสู่ระบบ" });
-      expect((await input.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(48);
-      expect((await submit.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(50);
+      const expectedControlHeight = viewport.width < 760 ? 44 : 40;
+      const expectedPrimaryHeight = viewport.width < 760 ? 48 : 44;
+      expect((await input.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(expectedControlHeight);
+      expect((await submit.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(expectedPrimaryHeight);
       const width = await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
       expect(width.scroll).toBe(width.client);
     }

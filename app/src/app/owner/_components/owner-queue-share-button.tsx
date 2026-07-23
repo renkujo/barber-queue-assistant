@@ -53,9 +53,9 @@ export const OwnerQueueShareButton = ({ accessPin, publicToken, queueCode }: Own
   if (shareState === "error") {
     return (
       <Button asChild variant="ghost" size="sm" className="bqa-owner-queue-share">
-        <a href={`/queue/${publicToken}`} target="_blank" rel="noreferrer">
+        <a href={`/queue/${publicToken}`} target="_blank" rel="noreferrer" aria-label={label} title={label}>
           <Icon icon="lucide:external-link" aria-hidden="true" />
-          {label}
+          <span className="bqa-owner-queue-share-label">{label}</span>
         </a>
       </Button>
     );
@@ -68,10 +68,12 @@ export const OwnerQueueShareButton = ({ accessPin, publicToken, queueCode }: Own
       size="sm"
       className="bqa-owner-queue-share"
       onClick={shareQueue}
+      aria-label={label}
       aria-live="polite"
+      title={label}
     >
       <Icon icon={shareState === "copied" || shareState === "shared" ? "lucide:check" : "lucide:copy"} aria-hidden="true" />
-      {label}
+      <span className="bqa-owner-queue-share-label">{label}</span>
     </Button>
   );
 };
